@@ -107,6 +107,8 @@ Visit our [docs](https://docs.scaffoldeth.io) to learn how to start building wit
 
 To know more about its features, check out our [website](https://scaffoldeth.io).
 
+For deployment steps in this repo, see [DEPLOYMENT.md](./DEPLOYMENT.md).
+
 ## Contributing to Scaffold-ETH 2
 
 We welcome contributions to Scaffold-ETH 2!
