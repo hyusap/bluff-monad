@@ -28,8 +28,14 @@ export function initGameState(tournamentId: number, agents: AgentData[]): GameSt
   };
 }
 
+// Players still in the tournament (have chips) — ignores hand-level folded state
 export function activePlayers(state: GameState): Player[] {
-  return state.players.filter(p => !p.folded && p.stack > 0);
+  return state.players.filter(p => p.stack > 0);
+}
+
+// Players still in the current hand (have chips AND haven't folded this hand)
+export function handActivePlayers(state: GameState): Player[] {
+  return state.players.filter(p => p.stack > 0 && !p.folded);
 }
 
 export function isTournamentOver(state: GameState): boolean {
@@ -38,7 +44,6 @@ export function isTournamentOver(state: GameState): boolean {
 
 export function startHand(state: GameState): GameState {
   const active = activePlayers(state);
-  // Advance dealer to next active player
   const dealerIdx = active.findIndex(p => p.seat === state.dealerSeat);
   const nextDealer = active[(dealerIdx + 1) % active.length];
 
@@ -53,7 +58,7 @@ export function startHand(state: GameState): GameState {
     players: state.players.map(p => ({
       ...p,
       cards: [],
-      folded: p.stack === 0, // eliminated players stay folded
+      folded: p.stack === 0, // only permanently fold busted players
       allIn: false,
       currentBet: 0,
     })),
@@ -94,7 +99,6 @@ export function getValidActions(player: Player, state: GameState): PlayerAction[
     actions.push("fold", "call");
   }
 
-  // Can raise if they have chips beyond what's needed to call
   if (player.stack > toCall) {
     actions.push("raise");
   }

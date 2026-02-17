@@ -12,19 +12,19 @@ import {
   advanceStreet,
   awardPot,
   activePlayers,
+  handActivePlayers,
   isTournamentOver,
 } from "./gameState";
 
 async function runBettingRound(state: GameState, startSeat: number): Promise<GameState> {
-  const active = activePlayers(state).filter(p => !p.allIn);
-  if (active.length <= 1) return state; // no action needed
+  // Only players still in this hand (chips + not folded)
+  const canAct = handActivePlayers(state).filter(p => !p.allIn);
+  if (canAct.length <= 1) return state;
 
-  // Build action queue starting from startSeat
-  const allActive = activePlayers(state).filter(p => !p.allIn);
-  const startIdx = allActive.findIndex(p => p.seat >= startSeat);
+  const startIdx = canAct.findIndex(p => p.seat >= startSeat);
   const ordered = startIdx >= 0
-    ? [...allActive.slice(startIdx), ...allActive.slice(0, startIdx)]
-    : allActive;
+    ? [...canAct.slice(startIdx), ...canAct.slice(0, startIdx)]
+    : canAct;
 
   let queue = [...ordered];
   let lastRaiserSeat: number | null = null;
@@ -36,9 +36,8 @@ async function runBettingRound(state: GameState, startSeat: number): Promise<Gam
 
     if (livePlayer.folded || livePlayer.allIn) continue;
 
-    // Check if only one non-folded player remains
-    const remaining = current.players.filter(p => !p.folded);
-    if (remaining.length === 1) break;
+    // Only one player left in the hand — stop
+    if (handActivePlayers(current).length === 1) break;
 
     const validActions = getValidActions(livePlayer, current);
     const { action, raiseAmount, reasoning } = await getAgentDecision(livePlayer, current, validActions);
@@ -49,19 +48,16 @@ async function runBettingRound(state: GameState, startSeat: number): Promise<Gam
       seat: livePlayer.seat,
       name: livePlayer.name,
       action,
-      amount: action === "raise" ? raiseAmount : action === "call" ? current.currentBet - livePlayer.currentBet : undefined,
+      amount: action === "raise" ? raiseAmount : action === "call" ? Math.min(state.currentBet - livePlayer.currentBet, livePlayer.stack) : undefined,
       pot: current.pot,
       reasoning,
     });
 
     if (action === "raise") {
       lastRaiserSeat = livePlayer.seat;
-      // Re-add everyone else who can still act
-      const others = activePlayers(current).filter(p => !p.allIn && p.seat !== livePlayer.seat);
-      queue = others;
+      queue = handActivePlayers(current).filter(p => !p.allIn && p.seat !== livePlayer.seat);
     }
 
-    // If we've gone around and returned to the last raiser, stop
     if (lastRaiserSeat !== null && queue.length === 0) break;
   }
 
@@ -72,7 +68,6 @@ async function runHand(state: GameState): Promise<GameState> {
   let current = startHand(state);
   const active = activePlayers(current);
 
-  // Shuffle and deal hole cards
   let deck = shuffle(createDeck());
   for (const player of active) {
     const { cards, remaining } = deal(deck, 2);
@@ -81,7 +76,6 @@ async function runHand(state: GameState): Promise<GameState> {
     logEvent(current.tournamentId, "deal", { seat: player.seat, name: player.name, cards });
   }
 
-  // Post blinds
   current = postBlinds(current);
 
   logEvent(current.tournamentId, "hand_start", {
@@ -91,22 +85,17 @@ async function runHand(state: GameState): Promise<GameState> {
     stacks: activePlayers(current).map(p => ({ seat: p.seat, name: p.name, stack: p.stack })),
   });
 
-  // Preflop — action starts left of big blind
+  // Preflop — action starts left of big blind (UTG)
   const activeSeats = activePlayers(current).map(p => p.seat);
   const dealerIdx = activeSeats.indexOf(current.dealerSeat);
-  const utg = activeSeats[(dealerIdx + 3) % activeSeats.length]; // UTG is left of BB
+  const utg = activeSeats[(dealerIdx + 3) % activeSeats.length];
   current = await runBettingRound(current, utg);
 
-  // Check if hand is over
-  const stillIn = current.players.filter(p => !p.folded);
-  if (stillIn.length === 1) {
-    current = awardPot(current, stillIn[0].seat);
-    logEvent(current.tournamentId, "hand_end", {
-      winner: stillIn[0].seat,
-      winnerName: stillIn[0].name,
-      pot: state.pot,
-      reason: "last_standing",
-    });
+  if (handActivePlayers(current).length === 1) {
+    const winner = handActivePlayers(current)[0];
+    const pot = current.pot;
+    current = awardPot(current, winner.seat);
+    logEvent(current.tournamentId, "hand_end", { winner: winner.seat, winnerName: winner.name, pot, reason: "last_standing" });
     return current;
   }
 
@@ -117,10 +106,11 @@ async function runHand(state: GameState): Promise<GameState> {
   logEvent(current.tournamentId, "community", { street: "flop", cards: flop, pot: current.pot });
   current = await runBettingRound(current, activeSeats[(dealerIdx + 1) % activeSeats.length]);
 
-  if (current.players.filter(p => !p.folded).length === 1) {
-    const winner = current.players.find(p => !p.folded)!;
+  if (handActivePlayers(current).length === 1) {
+    const winner = handActivePlayers(current)[0];
+    const pot = current.pot;
     current = awardPot(current, winner.seat);
-    logEvent(current.tournamentId, "hand_end", { winner: winner.seat, winnerName: winner.name, pot: state.pot, reason: "last_standing" });
+    logEvent(current.tournamentId, "hand_end", { winner: winner.seat, winnerName: winner.name, pot, reason: "last_standing" });
     return current;
   }
 
@@ -131,10 +121,11 @@ async function runHand(state: GameState): Promise<GameState> {
   logEvent(current.tournamentId, "community", { street: "turn", cards: [turnCard], pot: current.pot });
   current = await runBettingRound(current, activeSeats[(dealerIdx + 1) % activeSeats.length]);
 
-  if (current.players.filter(p => !p.folded).length === 1) {
-    const winner = current.players.find(p => !p.folded)!;
+  if (handActivePlayers(current).length === 1) {
+    const winner = handActivePlayers(current)[0];
+    const pot = current.pot;
     current = awardPot(current, winner.seat);
-    logEvent(current.tournamentId, "hand_end", { winner: winner.seat, winnerName: winner.name, pot: state.pot, reason: "last_standing" });
+    logEvent(current.tournamentId, "hand_end", { winner: winner.seat, winnerName: winner.name, pot, reason: "last_standing" });
     return current;
   }
 
@@ -145,13 +136,14 @@ async function runHand(state: GameState): Promise<GameState> {
   current = await runBettingRound(current, activeSeats[(dealerIdx + 1) % activeSeats.length]);
 
   // Showdown
-  const showdownPlayers = current.players.filter(p => !p.folded);
+  const showdownPlayers = handActivePlayers(current);
   const evaluated = showdownPlayers.map(p => ({
     ...p,
     result: bestHand(p.cards, current.communityCards),
   }));
   evaluated.sort((a, b) => b.result.rank - a.result.rank);
   const handWinner = evaluated[0];
+  const pot = current.pot;
 
   logEvent(current.tournamentId, "showdown", {
     players: evaluated.map(p => ({
@@ -166,7 +158,7 @@ async function runHand(state: GameState): Promise<GameState> {
   logEvent(current.tournamentId, "hand_end", {
     winner: handWinner.seat,
     winnerName: handWinner.name,
-    pot: state.pot,
+    pot,
     handRank: handWinner.result.name,
     reason: "showdown",
   });
@@ -188,20 +180,19 @@ export async function runPokerGame(
   });
 
   let handsPlayed = 0;
-  const MAX_HANDS = 200; // safety limit
+  const MAX_HANDS = 200;
 
   while (!isTournamentOver(state) && handsPlayed < MAX_HANDS) {
     state = await runHand(state);
     handsPlayed++;
 
-    // Log eliminations
-    state.players.forEach(p => {
+    // Detect and log eliminations (stack hit 0 this hand)
+    for (const p of state.players) {
       if (p.stack === 0 && !p.folded) {
-        // Mark as permanently folded
         state = { ...state, players: state.players.map(sp => sp.seat === p.seat ? { ...sp, folded: true } : sp) };
         logEvent(tournamentId, "eliminated", { seat: p.seat, name: p.name });
       }
-    });
+    }
   }
 
   const winner = activePlayers(state)[0];
