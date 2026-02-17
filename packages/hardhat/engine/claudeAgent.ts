@@ -3,28 +3,15 @@ import { generateObject } from "ai";
 import { z } from "zod";
 import { Player, GameState, PlayerAction } from "./types";
 
-// Proper discriminated union schema for poker decisions
+// Keep schema flat so providers that reject JSON Schema oneOf still work.
 const PokerDecisionSchema = z.object({
   thinking: z
     .string()
     .describe("Your thought process: analyze hand strength, pot odds, opponent patterns, and strategy"),
-  decision: z
-    .discriminatedUnion("action", [
-      z.object({
-        action: z.literal("fold"),
-      }),
-      z.object({
-        action: z.literal("check"),
-      }),
-      z.object({
-        action: z.literal("call"),
-      }),
-      z.object({
-        action: z.literal("raise"),
-        raiseAmount: z.number().describe("Amount to raise to (must be at least double the current bet)"),
-      }),
-    ])
-    .describe("Your chosen action"),
+  decision: z.object({
+    action: z.enum(["fold", "check", "call", "raise"]).describe("Your chosen action"),
+    raiseAmount: z.number().optional().describe("Amount to raise to when action is raise"),
+  }),
 });
 
 const POKER_RULES = `
@@ -110,7 +97,7 @@ export async function getAgentDecision(
 
     // Handle raise
     if (decision.action === "raise") {
-      const amount = decision.raiseAmount;
+      const amount = typeof decision.raiseAmount === "number" ? decision.raiseAmount : state.currentBet * 2;
       const finalAmount = Math.min(Math.max(amount, state.currentBet * 2), player.stack);
       return {
         action: "raise",

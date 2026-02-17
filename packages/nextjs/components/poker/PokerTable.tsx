@@ -1,5 +1,6 @@
 "use client";
 
+import type { CSSProperties } from "react";
 import { formatEther } from "viem";
 
 type PlayerPosition = {
@@ -20,37 +21,73 @@ type PokerTableProps = {
   maxPlayers: number;
 };
 
+function parseCard(card?: string) {
+  if (!card || card.length < 2) return null;
+  const rawRank = card.slice(0, -1).toUpperCase();
+  const rank = rawRank === "T" ? "10" : rawRank;
+  const suit = card.slice(-1).toLowerCase();
+  const suitSymbol = suit === "s" ? "\u2660" : suit === "h" ? "\u2665" : suit === "d" ? "\u2666" : "\u2663";
+  const isRed = suit === "h" || suit === "d";
+  return { rank, suitSymbol, isRed };
+}
+
 function Card({ card, faceDown, size = "md" }: { card?: string; faceDown?: boolean; size?: "sm" | "md" | "lg" }) {
   const sizes = {
-    sm: "w-8 h-11",
-    md: "w-11 h-[60px]",
-    lg: "w-12 h-[66px]",
+    sm: "w-10 h-14 rounded-lg",
+    md: "w-12 h-16 rounded-xl",
+    lg: "w-14 h-20 rounded-xl",
   };
 
-  const textSizes = {
-    sm: "text-xs",
-    md: "text-sm",
-    lg: "text-base",
+  const cornerSizes = {
+    sm: "text-[10px]",
+    md: "text-[11px]",
+    lg: "text-xs",
+  };
+
+  const centerSizes = {
+    sm: "text-base",
+    md: "text-lg",
+    lg: "text-xl",
   };
 
   if (faceDown) {
-    return <div className={`${sizes[size]} rounded-lg bg-white shadow-md`} />;
+    return (
+      <div
+        className={`${sizes[size]} relative bg-gradient-to-br from-[#203257] to-[#0D182E] border border-[#4D6299] shadow-[0_8px_24px_rgba(0,0,0,0.35)] overflow-hidden`}
+      >
+        <div className="absolute inset-1 rounded-[inherit] border border-[#8CA1D4]/40" />
+        <div className="absolute inset-3 rounded-[inherit] border border-[#B5C4EA]/30" />
+      </div>
+    );
   }
 
-  if (!card) return null;
+  const parsedCard = parseCard(card);
+  if (!parsedCard) return null;
 
-  const rank = card[0];
-  const suit = card[1];
-  const suitSymbol = suit === "s" ? "\u2660" : suit === "h" ? "\u2665" : suit === "d" ? "\u2666" : "\u2663";
-  const isRed = suit === "h" || suit === "d";
+  const textColor = parsedCard.isRed ? "text-[#B42336]" : "text-[#1D1D1D]";
 
   return (
-    <div className={`${sizes[size]} rounded-lg bg-white shadow-md flex flex-col items-center justify-center gap-0`}>
-      <div className={`${textSizes[size]} font-bold leading-none ${isRed ? "text-[#A0153E]" : "text-[#111111]"}`}>
-        {rank}
+    <div
+      className={`${sizes[size]} relative bg-[#FAFAFA] border border-[#DADADA] shadow-[0_8px_20px_rgba(0,0,0,0.25)] overflow-hidden`}
+    >
+      <div className={`absolute top-1 left-1 leading-none font-bold ${cornerSizes[size]} ${textColor}`}>
+        {parsedCard.rank}
       </div>
-      <div className={`${textSizes[size]} leading-none ${isRed ? "text-[#A0153E]" : "text-[#111111]"}`}>
-        {suitSymbol}
+      <div className={`absolute top-3 left-1 leading-none ${cornerSizes[size]} ${textColor}`}>
+        {parsedCard.suitSymbol}
+      </div>
+
+      <div
+        className={`absolute inset-0 flex items-center justify-center font-semibold ${centerSizes[size]} ${textColor}`}
+      >
+        {parsedCard.suitSymbol}
+      </div>
+
+      <div className={`absolute bottom-1 right-1 leading-none rotate-180 font-bold ${cornerSizes[size]} ${textColor}`}>
+        {parsedCard.rank}
+      </div>
+      <div className={`absolute bottom-3 right-1 leading-none rotate-180 ${cornerSizes[size]} ${textColor}`}>
+        {parsedCard.suitSymbol}
       </div>
     </div>
   );
@@ -58,9 +95,13 @@ function Card({ card, faceDown, size = "md" }: { card?: string; faceDown?: boole
 
 function FaceDownPair({ size = "md" }: { size?: "sm" | "md" }) {
   return (
-    <div className="relative flex items-center justify-center w-16 h-14">
-      <div className={`absolute ${size === "sm" ? "w-8 h-11" : "w-10 h-14"} rounded-lg bg-white shadow-md -rotate-6`} />
-      <div className={`absolute ${size === "sm" ? "w-8 h-11" : "w-10 h-14"} rounded-lg bg-white shadow-md rotate-6`} />
+    <div className={`relative flex items-center justify-center ${size === "sm" ? "w-14 h-11" : "w-20 h-14"}`}>
+      <div className="absolute -rotate-8">
+        <Card faceDown size={size} />
+      </div>
+      <div className="absolute rotate-8 translate-x-4">
+        <Card faceDown size={size} />
+      </div>
     </div>
   );
 }
@@ -72,28 +113,38 @@ function PlayerSpot({
   isCurrentPlayer,
 }: {
   player?: PlayerPosition;
-  namePosition: string;
-  cardsPosition: string;
+  namePosition: CSSProperties;
+  cardsPosition: CSSProperties;
   isCurrentPlayer: boolean;
 }) {
   if (!player) return null;
 
+  const hasVisibleCards = !!player.cards?.length;
+  const folded = player.isFolded;
+
   return (
     <>
-      {/* Name */}
-      <div className={`absolute ${namePosition} z-10`}>
+      <div className="absolute z-20 -translate-x-1/2 -translate-y-1/2 text-center" style={namePosition}>
         <div
           className={`text-sm font-semibold ${
-            player.isFolded ? "text-neutral-600" : isCurrentPlayer ? "text-white" : "text-neutral-300"
+            folded ? "text-neutral-600" : isCurrentPlayer ? "text-white" : "text-neutral-200"
           }`}
         >
           {player.name}
         </div>
       </div>
-      {/* Cards */}
-      {player.isActive && !player.isFolded && (
-        <div className={`absolute ${cardsPosition} z-10`}>
-          <FaceDownPair />
+
+      {player.isActive && (
+        <div className="absolute z-20 -translate-x-1/2 -translate-y-1/2" style={cardsPosition}>
+          {hasVisibleCards ? (
+            <div className={`flex items-center gap-1 ${folded ? "opacity-55" : ""}`}>
+              {player.cards?.slice(0, 2).map(card => <Card key={`${player.seat}-${card}`} card={card} size="sm" />)}
+            </div>
+          ) : (
+            <div className={folded ? "opacity-55" : ""}>
+              <FaceDownPair size="sm" />
+            </div>
+          )}
         </div>
       )}
     </>
@@ -102,68 +153,53 @@ function PlayerSpot({
 
 export function PokerTable({ players, communityCards, pot, currentPlayer, maxPlayers }: PokerTableProps) {
   const playersByPosition = Array.from({ length: maxPlayers }, (_, i) => players.find(p => p.seat === i));
-
-  // Positions: name placement and card placement for up to 6 seats
-  const layouts: { position: string; namePosition: string; cardsPosition: string }[] = [
-    // Seat 0: top-left
-    { position: "top-left", namePosition: "top-2 left-12", cardsPosition: "top-14 left-4" },
-    // Seat 1: top-right
-    { position: "top-right", namePosition: "top-2 right-12", cardsPosition: "top-14 right-4" },
-    // Seat 2: bottom-left
-    { position: "bottom-left", namePosition: "bottom-2 left-12", cardsPosition: "bottom-14 left-4" },
-    // Seat 3: bottom-right
-    { position: "bottom-right", namePosition: "bottom-2 right-12", cardsPosition: "bottom-14 right-4" },
-    // Seat 4: middle-left
-    {
-      position: "middle-left",
-      namePosition: "top-1/2 -translate-y-1/2 left-2",
-      cardsPosition: "top-1/2 translate-y-4 left-2",
-    },
-    // Seat 5: middle-right
-    {
-      position: "middle-right",
-      namePosition: "top-1/2 -translate-y-1/2 right-2",
-      cardsPosition: "top-1/2 translate-y-4 right-2",
-    },
-  ];
+  const totalSeats = Math.max(maxPlayers, 2);
 
   return (
-    <div className="relative w-full aspect-[16/10] max-w-4xl mx-auto">
-      {/* Table rim */}
-      <div className="absolute inset-0 rounded-[50%] bg-[#2A2A2A] shadow-2xl" />
+    <div className="relative w-full max-w-[760px] aspect-square mx-auto">
+      <div className="absolute inset-0 rounded-full bg-[#282A2E] shadow-[0_30px_70px_rgba(0,0,0,0.65)]" />
 
-      {/* Green felt */}
-      <div className="absolute inset-3 rounded-[50%] bg-gradient-to-b from-[#2D8C47] to-[#1E6B35] overflow-hidden">
-        {/* Community cards */}
+      <div className="absolute inset-4 rounded-full bg-gradient-to-b from-[#1CA24E] via-[#0F903E] to-[#0A7631] border border-[#2D7F43] overflow-hidden">
         <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 flex flex-col items-center gap-4">
-          <div className="flex gap-2">
-            {communityCards.length > 0
-              ? communityCards.map((card, i) => <Card key={i} card={card} size="lg" />)
-              : Array.from({ length: 5 }).map((_, i) => (
-                  <div key={i} className="w-12 h-[66px] rounded-lg bg-white/10" />
-                ))}
+          <div className="flex gap-2 md:gap-2.5">
+            {Array.from({ length: 5 }).map((_, i) =>
+              communityCards[i] ? (
+                <Card key={i} card={communityCards[i]} size="lg" />
+              ) : (
+                <div
+                  key={i}
+                  className="w-14 h-20 rounded-xl bg-white/12 border border-white/8 shadow-[inset_0_1px_4px_rgba(0,0,0,0.15)]"
+                />
+              ),
+            )}
           </div>
 
-          {/* Pot */}
-          <div className="flex items-center gap-2">
-            <div className="w-5 h-5 rounded-full bg-[#A0153E] flex items-center justify-center">
-              <div className="w-3 h-3 rounded-full border border-white/40" />
+          <div className="flex items-center gap-2.5">
+            <div className="w-6 h-6 rounded-full bg-[#A0153E] border border-[#C41E56] flex items-center justify-center">
+              <div className="w-3 h-3 rounded-full border border-white/60" />
             </div>
-            <span className="text-white font-semibold text-sm">{formatEther(pot)} MON</span>
+            <span className="text-white font-semibold text-base tracking-wide">{formatEther(pot)} MON</span>
           </div>
         </div>
       </div>
 
-      {/* Players */}
       {playersByPosition.map((player, i) => {
-        if (i >= layouts.length) return null;
-        const layout = layouts[i];
+        const angle = (i / totalSeats) * 2 * Math.PI - Math.PI / 2;
+        const namePosition = {
+          left: `${50 + Math.cos(angle) * 47}%`,
+          top: `${50 + Math.sin(angle) * 47}%`,
+        };
+        const cardsPosition = {
+          left: `${50 + Math.cos(angle) * 36}%`,
+          top: `${50 + Math.sin(angle) * 36}%`,
+        };
+
         return (
           <PlayerSpot
             key={i}
             player={player}
-            namePosition={layout.namePosition}
-            cardsPosition={layout.cardsPosition}
+            namePosition={namePosition}
+            cardsPosition={cardsPosition}
             isCurrentPlayer={currentPlayer === i}
           />
         );

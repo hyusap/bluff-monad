@@ -66,14 +66,43 @@ export default function TournamentDetail({ params }: { params: Promise<{ id: str
 
   const winnerEvent = events.findLast(e => e.type === "winner");
 
-  const latestCommunity = events.findLast(e => e.type === "community");
-  const communityCards = latestCommunity ? (JSON.parse(latestCommunity.data).cards as string[]) : [];
+  const lastHandStartIndex = (() => {
+    for (let i = events.length - 1; i >= 0; i--) {
+      if (events[i].type === "hand_start") return i;
+    }
+    return -1;
+  })();
+  const currentHandEvents = lastHandStartIndex >= 0 ? events.slice(lastHandStartIndex) : events;
+
+  const communityCards = currentHandEvents.flatMap(event => {
+    if (event.type !== "community") return [];
+    try {
+      const parsed = JSON.parse(event.data) as { cards?: string[] };
+      return Array.isArray(parsed.cards) ? parsed.cards : [];
+    } catch {
+      return [];
+    }
+  });
+
+  const dealtCardsBySeat = new Map<number, string[]>();
+  for (const event of currentHandEvents) {
+    if (event.type !== "deal") continue;
+    try {
+      const parsed = JSON.parse(event.data) as { seat?: number; cards?: string[] };
+      if (typeof parsed.seat === "number" && Array.isArray(parsed.cards)) {
+        dealtCardsBySeat.set(parsed.seat, parsed.cards);
+      }
+    } catch {
+      // Ignore malformed log payloads
+    }
+  }
 
   const playerPositions =
     agents?.map((agent, i) => ({
       name: agent.name,
       stack: BigInt(1000),
       seat: i,
+      cards: dealtCardsBySeat.get(i),
       isActive: !isFinished,
       isFolded: false,
     })) || [];

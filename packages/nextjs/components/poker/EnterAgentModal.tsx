@@ -1,7 +1,11 @@
 "use client";
 
-import { useState } from "react";
+import { useRef, useState } from "react";
 import { formatEther } from "viem";
+import { Button } from "~~/components/ui/button";
+import { Input } from "~~/components/ui/input";
+import { Label } from "~~/components/ui/label";
+import { Textarea } from "~~/components/ui/textarea";
 import { useDeployedContractInfo, useScaffoldWriteContract } from "~~/hooks/scaffold-eth";
 
 type Props = {
@@ -15,6 +19,8 @@ export function EnterAgentModal({ tournamentId, buyIn, onSuccess, onClose }: Pro
   const [name, setName] = useState("");
   const [systemPrompt, setSystemPrompt] = useState("");
   const [agentIdStr, setAgentIdStr] = useState("");
+  const [agentIdError, setAgentIdError] = useState("");
+  const formRef = useRef<HTMLFormElement>(null);
 
   const { data: deployedContract, isLoading: contractLoading } = useDeployedContractInfo({
     contractName: "PokerVault",
@@ -23,9 +29,24 @@ export function EnterAgentModal({ tournamentId, buyIn, onSuccess, onClose }: Pro
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
+    if (isMining || contractLoading || !deployedContract) return;
     if (!name.trim() || !systemPrompt.trim()) return;
 
-    const agentId = agentIdStr.trim() ? BigInt(agentIdStr.trim()) : 0n;
+    let agentId = 0n;
+    const trimmedAgentId = agentIdStr.trim();
+    if (trimmedAgentId) {
+      try {
+        agentId = BigInt(trimmedAgentId);
+      } catch {
+        setAgentIdError("Agent ID must be a positive integer.");
+        return;
+      }
+      if (agentId < 1n) {
+        setAgentIdError("Agent ID must be a positive integer.");
+        return;
+      }
+    }
+    setAgentIdError("");
 
     await writeContractAsync({
       functionName: "enterTournament",
@@ -35,6 +56,13 @@ export function EnterAgentModal({ tournamentId, buyIn, onSuccess, onClose }: Pro
 
     onSuccess?.();
     onClose();
+  }
+
+  function handleFormKeyDown(e: React.KeyboardEvent<HTMLFormElement>) {
+    if ((e.metaKey || e.ctrlKey) && e.key === "Enter") {
+      e.preventDefault();
+      formRef.current?.requestSubmit();
+    }
   }
 
   return (
@@ -49,12 +77,11 @@ export function EnterAgentModal({ tournamentId, buyIn, onSuccess, onClose }: Pro
           </div>
         )}
 
-        <form onSubmit={handleSubmit} className="flex flex-col gap-4">
+        <form ref={formRef} onSubmit={handleSubmit} onKeyDown={handleFormKeyDown} className="flex flex-col gap-4">
           <div>
-            <label className="block text-sm font-medium text-neutral-400 mb-1.5">Agent Name</label>
-            <input
+            <Label className="mb-1.5 block">Agent Name</Label>
+            <Input
               type="text"
-              className="w-full bg-[#0A0A0A] border border-[#2A2A2A] squircle-sm px-3 py-2 text-sm text-white placeholder-neutral-600 focus:outline-none focus:border-[#A0153E] transition-colors"
               placeholder="e.g. PokerBot 3000"
               value={name}
               onChange={e => setName(e.target.value)}
@@ -64,9 +91,9 @@ export function EnterAgentModal({ tournamentId, buyIn, onSuccess, onClose }: Pro
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-neutral-400 mb-1.5">System Prompt</label>
-            <textarea
-              className="w-full bg-[#0A0A0A] border border-[#2A2A2A] squircle-sm px-3 py-2 text-sm text-white placeholder-neutral-600 h-32 resize-none focus:outline-none focus:border-[#A0153E] transition-colors"
+            <Label className="mb-1.5 block">System Prompt</Label>
+            <Textarea
+              className="h-32 resize-none"
               placeholder="Describe your agent's poker strategy..."
               value={systemPrompt}
               onChange={e => setSystemPrompt(e.target.value)}
@@ -75,37 +102,39 @@ export function EnterAgentModal({ tournamentId, buyIn, onSuccess, onClose }: Pro
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-neutral-400 mb-1.5">
+            <Label className="mb-1.5 block">
               ERC-8004 Agent ID <span className="text-neutral-600 font-normal">(optional)</span>
-            </label>
-            <input
-              type="number"
-              min="1"
-              className="w-full bg-[#0A0A0A] border border-[#2A2A2A] squircle-sm px-3 py-2 text-sm text-white placeholder-neutral-600 focus:outline-none focus:border-[#A0153E] transition-colors"
+            </Label>
+            <Input
+              type="text"
+              inputMode="numeric"
+              pattern="[0-9]*"
               placeholder="Leave blank for ephemeral agent"
               value={agentIdStr}
-              onChange={e => setAgentIdStr(e.target.value)}
+              onChange={e => {
+                setAgentIdStr(e.target.value);
+                if (agentIdError) setAgentIdError("");
+              }}
             />
+            {agentIdError && <p className="mt-1.5 text-[11px] text-[#A0153E]">{agentIdError}</p>}
             <p className="text-[11px] text-neutral-600 mt-1.5">
               Win/loss results will be recorded to your agent&apos;s on-chain reputation.
+            </p>
+            <p className="text-[11px] text-neutral-600 mt-1">
+              Press Cmd+Enter (Mac) or Ctrl+Enter (Windows/Linux) to submit.
             </p>
           </div>
 
           <div className="flex justify-end gap-2 mt-2">
-            <button
-              type="button"
-              className="px-4 py-2 text-sm text-neutral-500 hover:text-neutral-300 transition-colors"
-              onClick={onClose}
-            >
+            <Button type="button" variant="ghost" onClick={onClose}>
               Cancel
-            </button>
-            <button
+            </Button>
+            <Button
               type="submit"
-              className="px-4 py-2 bg-[#A0153E] hover:bg-[#B91C4C] text-white text-sm font-semibold squircle-sm transition-colors disabled:opacity-40"
               disabled={isMining || contractLoading || !deployedContract || !name.trim() || !systemPrompt.trim()}
             >
               {isMining ? "Entering..." : contractLoading ? "Loading..." : "Enter Tournament"}
-            </button>
+            </Button>
           </div>
         </form>
       </div>
