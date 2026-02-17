@@ -5,22 +5,26 @@ import { Player, GameState, PlayerAction } from "./types";
 
 // Proper discriminated union schema for poker decisions
 const PokerDecisionSchema = z.object({
-  thinking: z.string().describe("Your thought process: analyze hand strength, pot odds, opponent patterns, and strategy"),
-  decision: z.discriminatedUnion("action", [
-    z.object({
-      action: z.literal("fold"),
-    }),
-    z.object({
-      action: z.literal("check"),
-    }),
-    z.object({
-      action: z.literal("call"),
-    }),
-    z.object({
-      action: z.literal("raise"),
-      raiseAmount: z.number().describe("Amount to raise to (must be at least double the current bet)"),
-    }),
-  ]).describe("Your chosen action"),
+  thinking: z
+    .string()
+    .describe("Your thought process: analyze hand strength, pot odds, opponent patterns, and strategy"),
+  decision: z
+    .discriminatedUnion("action", [
+      z.object({
+        action: z.literal("fold"),
+      }),
+      z.object({
+        action: z.literal("check"),
+      }),
+      z.object({
+        action: z.literal("call"),
+      }),
+      z.object({
+        action: z.literal("raise"),
+        raiseAmount: z.number().describe("Amount to raise to (must be at least double the current bet)"),
+      }),
+    ])
+    .describe("Your chosen action"),
 });
 
 const POKER_RULES = `
@@ -94,7 +98,9 @@ export async function getAgentDecision(
 
     // Validate action is in valid actions
     if (!validActions.includes(action as PlayerAction)) {
-      console.warn(`⚠️  AI returned invalid action "${action}". Valid: ${validActions.join(", ")}. Using fallback: ${fallback}`);
+      console.warn(
+        `⚠️  AI returned invalid action "${action}". Valid: ${validActions.join(", ")}. Using fallback: ${fallback}`,
+      );
       return {
         action: fallback as PlayerAction,
         reasoning: `${fallback} (invalid action returned)`,
@@ -116,13 +122,7 @@ export async function getAgentDecision(
 
     // Handle other actions
     const reasoning =
-      action === "fold"
-        ? "folded"
-        : action === "check"
-          ? "checked"
-          : action === "call"
-            ? `called ${toCall}`
-            : action;
+      action === "fold" ? "folded" : action === "check" ? "checked" : action === "call" ? `called ${toCall}` : action;
 
     return {
       action: action as PlayerAction,

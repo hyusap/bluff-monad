@@ -4,7 +4,7 @@ import { use, useEffect, useState } from "react";
 import Link from "next/link";
 import { formatEther } from "viem";
 import { useAccount } from "wagmi";
-import { ArrowLeftIcon, PlayIcon } from "@heroicons/react/24/outline";
+import { ArrowLeftIcon } from "@heroicons/react/24/outline";
 import { BettingPanel } from "~~/components/poker/BettingPanel";
 import { EnterAgentModal } from "~~/components/poker/EnterAgentModal";
 import { GameFeed } from "~~/components/poker/GameFeed";
@@ -50,7 +50,6 @@ export default function TournamentDetail({ params }: { params: Promise<{ id: str
   const hasEnoughPlayers = tournament ? tournament.agentCount >= 2 : false;
   const canStart = isOpen && hasEnoughPlayers;
 
-  // Auto-start when full capacity is reached (creator or operator)
   useEffect(() => {
     if (!canStartTournament || !isFull || !isOpen || autoStarting) return;
     setAutoStarting(true);
@@ -67,21 +66,18 @@ export default function TournamentDetail({ params }: { params: Promise<{ id: str
 
   const winnerEvent = events.findLast(e => e.type === "winner");
 
-  // Extract current game state from events
   const latestCommunity = events.findLast(e => e.type === "community");
   const communityCards = latestCommunity ? (JSON.parse(latestCommunity.data).cards as string[]) : [];
 
-  // Build player positions from agents
   const playerPositions =
     agents?.map((agent, i) => ({
       name: agent.name,
-      stack: BigInt(1000), // TODO: Get actual stack from events
+      stack: BigInt(1000),
       seat: i,
       isActive: !isFinished,
       isFolded: false,
     })) || [];
 
-  // Get current pot from latest event
   const latestPotEvent = [...events].reverse().find(e => {
     try {
       const parsed = JSON.parse(e.data);
@@ -94,46 +90,44 @@ export default function TournamentDetail({ params }: { params: Promise<{ id: str
 
   if (!tournament) {
     return (
-      <div className="flex items-center justify-center min-h-screen bg-gradient-to-br from-gray-950 via-black to-gray-900">
-        <span className="loading loading-spinner loading-lg text-amber-500" />
+      <div className="flex items-center justify-center min-h-screen bg-[#0A0A0A]">
+        <div className="text-neutral-600 text-sm">Loading...</div>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-950 via-black to-gray-900 text-white">
+    <div className="min-h-screen bg-[#0A0A0A] text-white">
       {/* Header */}
-      <div className="border-b border-gray-800 bg-black/40 backdrop-blur-md">
-        <div className="container mx-auto px-6 py-4">
+      <div className="border-b border-[#1A1A1A]">
+        <div className="max-w-6xl mx-auto px-6 py-4">
           <Link
             href="/tournaments"
-            className="inline-flex items-center gap-2 text-gray-400 hover:text-white transition-colors mb-3 text-sm"
+            className="inline-flex items-center gap-1.5 text-neutral-600 hover:text-neutral-400 transition-colors mb-3 text-sm"
           >
-            <ArrowLeftIcon className="h-4 w-4" />
-            All Tournaments
+            <ArrowLeftIcon className="h-3.5 w-3.5" />
+            Back
           </Link>
           <div className="flex items-center justify-between">
-            <div className="flex items-center gap-4">
-              <h1 className="text-3xl font-bold bg-gradient-to-r from-amber-300 via-amber-500 to-orange-500 bg-clip-text text-transparent">
-                Tournament #{id}
-              </h1>
+            <div className="flex items-center gap-3">
+              <h1 className="text-xl font-bold text-white">Tournament #{id}</h1>
               <TournamentStatusBadge status={tournament.status} />
             </div>
             <div className="flex gap-6 text-sm">
-              <div className="text-center">
-                <div className="text-gray-500 text-xs uppercase tracking-wider">Buy-in</div>
-                <div className="text-amber-400 font-bold text-lg">
+              <div>
+                <div className="text-neutral-600 text-[11px]">Buy-in</div>
+                <div className="text-neutral-300 font-medium">
                   {tournament.buyIn === 0n ? "Free" : `${formatEther(tournament.buyIn)} MON`}
                 </div>
               </div>
-              <div className="text-center">
-                <div className="text-gray-500 text-xs uppercase tracking-wider">Prize Pool</div>
-                <div className="text-green-400 font-bold text-lg">{formatEther(tournament.prizePool)} MON</div>
+              <div>
+                <div className="text-neutral-600 text-[11px]">Prize</div>
+                <div className="text-neutral-300 font-medium">{formatEther(tournament.prizePool)} MON</div>
               </div>
-              <div className="text-center">
-                <div className="text-gray-500 text-xs uppercase tracking-wider">Players</div>
-                <div className="text-blue-400 font-bold text-lg">
-                  {tournament.agentCount} / {tournament.maxPlayers}
+              <div>
+                <div className="text-neutral-600 text-[11px]">Players</div>
+                <div className="text-neutral-300 font-medium">
+                  {tournament.agentCount}/{tournament.maxPlayers}
                 </div>
               </div>
             </div>
@@ -143,45 +137,39 @@ export default function TournamentDetail({ params }: { params: Promise<{ id: str
 
       {/* Winner Banner */}
       {isFinished && winnerEvent && (
-        <div className="bg-gradient-to-r from-amber-600 via-yellow-500 to-amber-600 border-y-4 border-amber-300 py-4">
-          <div className="container mx-auto px-6">
-            <div className="text-center text-2xl font-bold text-black flex items-center justify-center gap-3">
-              <span className="text-4xl">🏆</span>
-              {(JSON.parse(winnerEvent.data) as { name: string }).name} WINS THE TOURNAMENT!
-              <span className="text-4xl">🏆</span>
-            </div>
+        <div className="border-b border-[#A0153E]/30 bg-[#A0153E]/10 py-3">
+          <div className="max-w-6xl mx-auto px-6 text-center">
+            <span className="text-[#A0153E] font-bold">
+              {(JSON.parse(winnerEvent.data) as { name: string }).name} wins the tournament
+            </span>
           </div>
         </div>
       )}
 
       {/* Main Content */}
-      <div className="container mx-auto px-6 py-8">
-        <div className="grid grid-cols-1 lg:grid-cols-[350px_1fr] gap-6">
-          {/* Left Sidebar - Game Feed */}
-          <div className="order-2 lg:order-1">
-            {(isRunning || isFinished || events.length > 0) && <GameFeed events={events} isLoading={feedLoading} />}
-
-            {/* Action buttons when no game running */}
-            {!isRunning && !isFinished && (
-              <div className="space-y-4">
+      <div className="flex-1 flex">
+        <div className="flex w-full max-w-[1400px] mx-auto">
+          {/* Left - Feed */}
+          <div className="w-[320px] shrink-0 border-r border-[#1A1A1A] flex flex-col">
+            {isRunning || isFinished || events.length > 0 ? (
+              <div className="flex-1 min-h-0">
+                <GameFeed events={events} isLoading={feedLoading} />
+              </div>
+            ) : (
+              <div className="p-4 space-y-3">
                 {canStartTournament && canStart && (
                   <button
-                    className="btn btn-success w-full gap-2 bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700 border-none text-white font-bold"
+                    className="w-full py-2.5 bg-[#A0153E] hover:bg-[#B91C4C] text-white text-sm font-semibold squircle-sm transition-colors disabled:opacity-40"
                     onClick={handleStart}
                     disabled={isMining || autoStarting}
                   >
-                    {isMining || autoStarting ? (
-                      <span className="loading loading-spinner loading-sm" />
-                    ) : (
-                      <PlayIcon className="h-5 w-5" />
-                    )}
-                    Start Tournament
+                    {isMining || autoStarting ? "Starting..." : "Start Tournament"}
                   </button>
                 )}
 
                 {isOpen && !isFull && connectedAddress && (
                   <button
-                    className="btn btn-primary w-full bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 border-none text-white font-bold"
+                    className="w-full py-2.5 bg-[#1A1A1A] hover:bg-[#222222] border border-[#2A2A2A] text-neutral-300 text-sm font-semibold squircle-sm transition-colors"
                     onClick={() => setShowEnterModal(true)}
                   >
                     Enter with your agent
@@ -189,43 +177,38 @@ export default function TournamentDetail({ params }: { params: Promise<{ id: str
                 )}
 
                 {isOpen && isFull && !canStartTournament && (
-                  <div className="alert alert-info bg-blue-900/30 border-blue-500/30 text-blue-300">
-                    Tournament full — waiting for creator to start
+                  <div className="bg-[#111111] border border-[#1A1A1A] squircle-sm px-3 py-2 text-neutral-500 text-sm">
+                    Tournament full -- waiting for creator to start
                   </div>
                 )}
 
                 {/* Agent List */}
-                <div className="bg-black/60 backdrop-blur-md rounded-xl border-2 border-gray-800 p-4">
-                  <h3 className="text-lg font-bold text-amber-400 mb-3">Agents</h3>
-                  <div className="space-y-2">
-                    {agents && agents.length > 0 ? (
-                      agents.map((agent, i) => (
-                        <div key={i} className="bg-gray-900/50 rounded-lg p-3 border border-gray-800">
-                          <div className="flex items-center gap-2 mb-1">
-                            <div className="w-8 h-8 rounded-full bg-gradient-to-br from-gray-600 to-gray-800 flex items-center justify-center text-xs font-bold">
-                              {agent.name.slice(0, 2).toUpperCase()}
-                            </div>
-                            <div>
-                              <div className="font-bold text-sm">{agent.name}</div>
-                              <div className="text-xs text-gray-500">Seat {i}</div>
-                            </div>
+                <div className="space-y-2 pt-2">
+                  <h3 className="text-xs font-semibold text-neutral-500 uppercase tracking-wider">Agents</h3>
+                  {agents && agents.length > 0 ? (
+                    agents.map((agent, i) => (
+                      <div key={i} className="bg-[#111111] squircle-sm p-3">
+                        <div className="flex items-center gap-2 mb-1">
+                          <div className="w-6 h-6 rounded-full bg-[#1A1A1A] border border-[#2A2A2A] flex items-center justify-center text-[9px] font-bold text-neutral-500">
+                            {agent.name.slice(0, 2).toUpperCase()}
                           </div>
-                          <div className="text-xs text-gray-400 mt-2 line-clamp-2" title={agent.systemPrompt}>
-                            {agent.systemPrompt}
-                          </div>
+                          <span className="font-medium text-xs text-neutral-300">{agent.name}</span>
                         </div>
-                      ))
-                    ) : (
-                      <div className="text-gray-500 text-sm text-center py-4">No agents yet</div>
-                    )}
-                  </div>
+                        <div className="text-[11px] text-neutral-600 line-clamp-2 pl-8" title={agent.systemPrompt}>
+                          {agent.systemPrompt}
+                        </div>
+                      </div>
+                    ))
+                  ) : (
+                    <div className="text-neutral-600 text-sm text-center py-4">No agents yet</div>
+                  )}
                 </div>
               </div>
             )}
           </div>
 
           {/* Right - Poker Table */}
-          <div className="order-1 lg:order-2 flex items-center justify-center">
+          <div className="flex-1 flex items-center justify-center p-8">
             <PokerTable
               players={playerPositions}
               communityCards={communityCards}
@@ -249,8 +232,6 @@ export default function TournamentDetail({ params }: { params: Promise<{ id: str
           />
         </div>
       </div>
-
-      {/* Enter Modal */}
       {showEnterModal && (
         <EnterAgentModal
           tournamentId={tournamentId}

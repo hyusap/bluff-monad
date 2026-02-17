@@ -20,152 +20,154 @@ type PokerTableProps = {
   maxPlayers: number;
 };
 
-function Card({ card, faceDown }: { card?: string; faceDown?: boolean }) {
+function Card({ card, faceDown, size = "md" }: { card?: string; faceDown?: boolean; size?: "sm" | "md" | "lg" }) {
+  const sizes = {
+    sm: "w-8 h-11",
+    md: "w-11 h-[60px]",
+    lg: "w-12 h-[66px]",
+  };
+
+  const textSizes = {
+    sm: "text-xs",
+    md: "text-sm",
+    lg: "text-base",
+  };
+
   if (faceDown) {
-    return (
-      <div className="relative w-12 h-16 rounded-lg bg-gradient-to-br from-red-700 via-red-800 to-red-950 border-2 border-red-900 shadow-lg">
-        <div className="absolute inset-0 flex items-center justify-center">
-          <div className="w-8 h-10 rounded border-2 border-red-600/30 backdrop-blur-sm" />
-        </div>
-      </div>
-    );
+    return <div className={`${sizes[size]} rounded-lg bg-white shadow-md`} />;
   }
 
   if (!card) return null;
 
   const rank = card[0];
   const suit = card[1];
-  const suitSymbol = suit === "s" ? "♠" : suit === "h" ? "♥" : suit === "d" ? "♦" : "♣";
+  const suitSymbol = suit === "s" ? "\u2660" : suit === "h" ? "\u2665" : suit === "d" ? "\u2666" : "\u2663";
   const isRed = suit === "h" || suit === "d";
 
   return (
-    <div
-      className={`relative w-12 h-16 rounded-lg bg-white border-2 ${isRed ? "border-red-200" : "border-gray-300"} shadow-lg flex flex-col items-center justify-center transition-transform hover:scale-105`}
-    >
-      <div className={`text-2xl font-bold ${isRed ? "text-red-600" : "text-gray-900"}`}>{rank}</div>
-      <div className={`text-xl ${isRed ? "text-red-600" : "text-gray-900"}`}>{suitSymbol}</div>
+    <div className={`${sizes[size]} rounded-lg bg-white shadow-md flex flex-col items-center justify-center gap-0`}>
+      <div className={`${textSizes[size]} font-bold leading-none ${isRed ? "text-[#A0153E]" : "text-[#111111]"}`}>
+        {rank}
+      </div>
+      <div className={`${textSizes[size]} leading-none ${isRed ? "text-[#A0153E]" : "text-[#111111]"}`}>
+        {suitSymbol}
+      </div>
+    </div>
+  );
+}
+
+function FaceDownPair({ size = "md" }: { size?: "sm" | "md" }) {
+  return (
+    <div className="relative flex items-center justify-center w-16 h-14">
+      <div className={`absolute ${size === "sm" ? "w-8 h-11" : "w-10 h-14"} rounded-lg bg-white shadow-md -rotate-6`} />
+      <div className={`absolute ${size === "sm" ? "w-8 h-11" : "w-10 h-14"} rounded-lg bg-white shadow-md rotate-6`} />
     </div>
   );
 }
 
 function PlayerSpot({
   player,
-  position,
+  namePosition,
+  cardsPosition,
   isCurrentPlayer,
 }: {
   player?: PlayerPosition;
-  position: string;
+  namePosition: string;
+  cardsPosition: string;
   isCurrentPlayer: boolean;
 }) {
-  if (!player) {
-    return (
-      <div className={`absolute ${position}`}>
-        <div className="flex flex-col items-center gap-2">
-          <div className="w-16 h-16 rounded-full border-2 border-dashed border-gray-700 bg-black/30 backdrop-blur-sm" />
-          <div className="text-gray-600 text-xs font-medium">Empty</div>
-        </div>
-      </div>
-    );
-  }
+  if (!player) return null;
 
   return (
-    <div className={`absolute ${position} transition-all duration-300 ${isCurrentPlayer ? "scale-110" : ""}`}>
-      <div className="flex flex-col items-center gap-2">
-        {/* Cards */}
-        <div className="flex gap-1 mb-1">
-          {player.isActive && !player.isFolded ? (
-            <>
-              <Card faceDown />
-              <Card faceDown />
-            </>
-          ) : player.isFolded ? (
-            <div className="text-gray-600 text-xs">FOLDED</div>
-          ) : null}
-        </div>
-
-        {/* Avatar */}
+    <>
+      {/* Name */}
+      <div className={`absolute ${namePosition} z-10`}>
         <div
-          className={`w-16 h-16 rounded-full flex items-center justify-center text-2xl font-bold transition-all ${
-            isCurrentPlayer
-              ? "bg-gradient-to-br from-amber-400 to-orange-500 ring-4 ring-amber-300/50 shadow-lg shadow-amber-500/50"
-              : player.isActive
-                ? "bg-gradient-to-br from-gray-700 to-gray-900 ring-2 ring-gray-600"
-                : "bg-gray-800/50 ring-2 ring-gray-700"
+          className={`text-sm font-semibold ${
+            player.isFolded ? "text-neutral-600" : isCurrentPlayer ? "text-white" : "text-neutral-300"
           }`}
         >
-          {player.name.slice(0, 2).toUpperCase()}
-        </div>
-
-        {/* Name & Stack */}
-        <div className="flex flex-col items-center">
-          <div
-            className={`font-bold text-sm ${isCurrentPlayer ? "text-amber-300" : player.isActive ? "text-white" : "text-gray-500"}`}
-          >
-            {player.name}
-          </div>
-          <div className="text-xs text-gray-400 font-mono">{formatEther(player.stack)} MON</div>
-          {player.currentBet && player.currentBet > 0 && (
-            <div className="mt-1 px-2 py-0.5 bg-amber-500/20 border border-amber-500/50 rounded-full text-xs text-amber-300 font-bold">
-              {player.currentBet}
-            </div>
-          )}
+          {player.name}
         </div>
       </div>
-    </div>
+      {/* Cards */}
+      {player.isActive && !player.isFolded && (
+        <div className={`absolute ${cardsPosition} z-10`}>
+          <FaceDownPair />
+        </div>
+      )}
+    </>
   );
 }
 
 export function PokerTable({ players, communityCards, pot, currentPlayer, maxPlayers }: PokerTableProps) {
-  // Position mapping for 2-6 players (adjust angles around table)
-  const positions = [
-    "bottom-4 left-1/2 -translate-x-1/2", // Seat 0: Bottom center
-    "top-4 right-8", // Seat 1: Top right
-    "top-4 left-8", // Seat 2: Top left
-    "bottom-4 left-8", // Seat 3: Bottom left
-    "bottom-4 right-8", // Seat 4: Bottom right
-    "top-1/2 right-4 -translate-y-1/2", // Seat 5: Middle right
-  ];
-
-  // Map players to positions
   const playersByPosition = Array.from({ length: maxPlayers }, (_, i) => players.find(p => p.seat === i));
 
+  // Positions: name placement and card placement for up to 6 seats
+  const layouts: { position: string; namePosition: string; cardsPosition: string }[] = [
+    // Seat 0: top-left
+    { position: "top-left", namePosition: "top-2 left-12", cardsPosition: "top-14 left-4" },
+    // Seat 1: top-right
+    { position: "top-right", namePosition: "top-2 right-12", cardsPosition: "top-14 right-4" },
+    // Seat 2: bottom-left
+    { position: "bottom-left", namePosition: "bottom-2 left-12", cardsPosition: "bottom-14 left-4" },
+    // Seat 3: bottom-right
+    { position: "bottom-right", namePosition: "bottom-2 right-12", cardsPosition: "bottom-14 right-4" },
+    // Seat 4: middle-left
+    {
+      position: "middle-left",
+      namePosition: "top-1/2 -translate-y-1/2 left-2",
+      cardsPosition: "top-1/2 translate-y-4 left-2",
+    },
+    // Seat 5: middle-right
+    {
+      position: "middle-right",
+      namePosition: "top-1/2 -translate-y-1/2 right-2",
+      cardsPosition: "top-1/2 translate-y-4 right-2",
+    },
+  ];
+
   return (
-    <div className="relative w-full aspect-[16/10] max-w-5xl mx-auto">
-      {/* Table felt */}
-      <div className="absolute inset-0 rounded-[50%] bg-gradient-to-br from-emerald-700 via-emerald-800 to-emerald-950 shadow-2xl border-8 border-gray-900 overflow-hidden">
-        {/* Felt texture overlay */}
-        <div className="absolute inset-0 opacity-30 bg-[radial-gradient(circle_at_50%_120%,rgba(0,0,0,0.4),transparent)]" />
+    <div className="relative w-full aspect-[16/10] max-w-4xl mx-auto">
+      {/* Table rim */}
+      <div className="absolute inset-0 rounded-[50%] bg-[#2A2A2A] shadow-2xl" />
 
-        {/* Inner table border */}
-        <div className="absolute inset-12 rounded-[50%] border-4 border-emerald-600/30" />
-
+      {/* Green felt */}
+      <div className="absolute inset-3 rounded-[50%] bg-gradient-to-b from-[#2D8C47] to-[#1E6B35] overflow-hidden">
         {/* Community cards */}
         <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 flex flex-col items-center gap-4">
           <div className="flex gap-2">
             {communityCards.length > 0
-              ? communityCards.map((card, i) => <Card key={i} card={card} />)
+              ? communityCards.map((card, i) => <Card key={i} card={card} size="lg" />)
               : Array.from({ length: 5 }).map((_, i) => (
-                  <div
-                    key={i}
-                    className="w-12 h-16 rounded-lg border-2 border-dashed border-emerald-600/30 bg-emerald-900/20"
-                  />
+                  <div key={i} className="w-12 h-[66px] rounded-lg bg-white/10" />
                 ))}
           </div>
 
           {/* Pot */}
-          <div className="flex items-center gap-2 px-4 py-2 bg-black/40 backdrop-blur-sm rounded-full border-2 border-amber-500/50">
-            <div className="w-8 h-8 rounded-full bg-gradient-to-br from-amber-400 to-amber-600 flex items-center justify-center text-xs font-bold shadow-lg">
-              🪙
+          <div className="flex items-center gap-2">
+            <div className="w-5 h-5 rounded-full bg-[#A0153E] flex items-center justify-center">
+              <div className="w-3 h-3 rounded-full border border-white/40" />
             </div>
-            <div className="text-amber-300 font-bold text-lg tracking-wider">{formatEther(pot)} MON</div>
+            <span className="text-white font-semibold text-sm">{formatEther(pot)} MON</span>
           </div>
         </div>
       </div>
 
       {/* Players */}
-      {playersByPosition.map((player, i) => (
-        <PlayerSpot key={i} player={player} position={positions[i]} isCurrentPlayer={currentPlayer === i} />
-      ))}
+      {playersByPosition.map((player, i) => {
+        if (i >= layouts.length) return null;
+        const layout = layouts[i];
+        return (
+          <PlayerSpot
+            key={i}
+            player={player}
+            namePosition={layout.namePosition}
+            cardsPosition={layout.cardsPosition}
+            isCurrentPlayer={currentPlayer === i}
+          />
+        );
+      })}
     </div>
   );
 }
