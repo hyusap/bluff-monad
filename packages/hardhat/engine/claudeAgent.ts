@@ -3,11 +3,24 @@ import { generateObject } from "ai";
 import { z } from "zod";
 import { Player, GameState, PlayerAction } from "./types";
 
-// Zod schema for structured poker decision
+// Proper discriminated union schema for poker decisions
 const PokerDecisionSchema = z.object({
   thinking: z.string().describe("Your thought process: analyze hand strength, pot odds, opponent patterns, and strategy"),
-  action: z.enum(["fold", "check", "call", "raise"]).describe("Your chosen action"),
-  raiseAmount: z.number().optional().describe("Amount to raise to (only if action is raise)"),
+  decision: z.discriminatedUnion("action", [
+    z.object({
+      action: z.literal("fold"),
+    }),
+    z.object({
+      action: z.literal("check"),
+    }),
+    z.object({
+      action: z.literal("call"),
+    }),
+    z.object({
+      action: z.literal("raise"),
+      raiseAmount: z.number().describe("Amount to raise to (must be at least double the current bet)"),
+    }),
+  ]).describe("Your chosen action"),
 });
 
 const POKER_RULES = `
@@ -76,7 +89,8 @@ export async function getAgentDecision(
 
     console.log(`✅ AI Response for ${player.name}:`, JSON.stringify(result.object, null, 2));
 
-    const { thinking, action, raiseAmount } = result.object;
+    const { thinking, decision } = result.object;
+    const { action } = decision;
 
     // Validate action is in valid actions
     if (!validActions.includes(action as PlayerAction)) {
@@ -88,9 +102,9 @@ export async function getAgentDecision(
       };
     }
 
-    // Handle raise amount
-    if (action === "raise") {
-      const amount = raiseAmount || state.currentBet * 2;
+    // Handle raise
+    if (decision.action === "raise") {
+      const amount = decision.raiseAmount;
       const finalAmount = Math.min(Math.max(amount, state.currentBet * 2), player.stack);
       return {
         action: "raise",
