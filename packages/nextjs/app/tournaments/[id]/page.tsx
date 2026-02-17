@@ -2,6 +2,7 @@
 
 import { use, useEffect, useRef, useState } from "react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 import { formatEther } from "viem";
 import { useAccount } from "wagmi";
@@ -31,6 +32,7 @@ function toChipNumber(value: unknown): number {
 
 export default function TournamentDetail({ params }: { params: Promise<{ id: string }> }) {
   const { id } = use(params);
+  const router = useRouter();
   const tournamentId = BigInt(id);
 
   const { tournament, agents, refetch } = useTournament(tournamentId);
@@ -39,6 +41,7 @@ export default function TournamentDetail({ params }: { params: Promise<{ id: str
   const [showEnterModal, setShowEnterModal] = useState(false);
   const [autoStarting, setAutoStarting] = useState(false);
   const notifiedEventCountRef = useRef<number | null>(null);
+  const autoFollowRef = useRef(false);
 
   const { data: operatorAddress } = useScaffoldReadContract({
     contractName: "PokerVault",
@@ -52,6 +55,10 @@ export default function TournamentDetail({ params }: { params: Promise<{ id: str
   });
 
   const { writeContractAsync, isMining } = useScaffoldWriteContract({ contractName: "PokerVault" });
+  const { data: nextTournamentId } = useScaffoldReadContract({
+    contractName: "PokerVault",
+    functionName: "nextTournamentId",
+  });
 
   const isOperator =
     connectedAddress && operatorAddress && connectedAddress.toLowerCase() === (operatorAddress as string).toLowerCase();
@@ -63,7 +70,7 @@ export default function TournamentDetail({ params }: { params: Promise<{ id: str
   const isRunning = tournament?.status === 1;
   const isFinished = tournament?.status === 2;
   const isFull = tournament ? tournament.agentCount >= tournament.maxPlayers : false;
-  const hasEnoughPlayers = tournament ? tournament.agentCount >= 2 : false;
+  const hasEnoughPlayers = tournament ? tournament.agentCount >= 4 : false;
   const canStart = isOpen && hasEnoughPlayers;
 
   // Watch for tournament settlement (agent prize payout)
@@ -107,6 +114,19 @@ export default function TournamentDetail({ params }: { params: Promise<{ id: str
       .catch(() => {})
       .finally(() => setAutoStarting(false));
   }, [isFull, isOpen, canStartTournament]); // eslint-disable-line react-hooks/exhaustive-deps
+
+  useEffect(() => {
+    if (!isFinished || !nextTournamentId || autoFollowRef.current) return;
+    const latestTournamentId = Number(nextTournamentId) - 1;
+    const currentId = Number(id);
+    if (latestTournamentId <= currentId) return;
+
+    autoFollowRef.current = true;
+    toast("Next tournament is live", {
+      description: `Moving to Tournament #${latestTournamentId}`,
+    });
+    router.push(`/tournaments/${latestTournamentId}`);
+  }, [id, isFinished, nextTournamentId, router]);
 
   useEffect(() => {
     if (events.length === 0) return;

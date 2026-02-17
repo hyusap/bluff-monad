@@ -54,6 +54,7 @@ contract PokerVault is Ownable {
     address public operator;
 
     uint256 public nextTournamentId = 1;
+    uint256 public activeTournamentId;
 
     mapping(uint256 => Tournament) public tournaments;
 
@@ -91,17 +92,19 @@ contract PokerVault is Ownable {
     // ─────────────────────────────────────────────
 
     /**
-     * Create a new tournament. Anyone can create one.
+     * Create a new tournament. Only the operator can create one.
      * @param buyIn      Amount in wei each agent must send to enter (0 = free).
      * @param maxPlayers Maximum number of agents allowed.
      */
-    function createTournament(uint256 buyIn, uint8 maxPlayers) external returns (uint256 tournamentId) {
+    function createTournament(uint256 buyIn, uint8 maxPlayers) external onlyOperator returns (uint256 tournamentId) {
         require(maxPlayers >= 2, "Need at least 2 players");
+        require(activeTournamentId == 0, "Active tournament exists");
         tournamentId = nextTournamentId++;
         tournaments[tournamentId].buyIn      = buyIn;
         tournaments[tournamentId].maxPlayers = maxPlayers;
         tournaments[tournamentId].status     = TournamentStatus.Open;
         tournaments[tournamentId].creator    = msg.sender;
+        activeTournamentId = tournamentId;
         emit TournamentCreated(tournamentId, buyIn, maxPlayers);
     }
 
@@ -139,7 +142,7 @@ contract PokerVault is Ownable {
         Tournament storage t = tournaments[tournamentId];
         require(msg.sender == t.creator || msg.sender == operator, "Not creator or operator");
         require(t.status == TournamentStatus.Open, "Tournament not open");
-        require(t.agents.length >= 2, "Not enough players");
+        require(t.agents.length >= 4, "Need at least 4 players");
         t.status = TournamentStatus.Running;
         emit TournamentStarted(tournamentId, t.agents.length);
     }
@@ -164,6 +167,9 @@ contract PokerVault is Ownable {
         t.prizePool = 0;
 
         emit TournamentSettled(tournamentId, winningSeat, winner, payout);
+        if (activeTournamentId == tournamentId) {
+            activeTournamentId = 0;
+        }
 
         // Post ERC-8004 reputation feedback for all registered agents
         if (address(reputationRegistry) != address(0)) {

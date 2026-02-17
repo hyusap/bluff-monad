@@ -9,7 +9,7 @@ export type GameEvent = {
 };
 
 /**
- * Polls the game feed API every 3 seconds for live game events.
+ * Polls the game feed API every second for live game events.
  */
 export function useGameFeed(tournamentId: string | number) {
   const [events, setEvents] = useState<GameEvent[]>([]);
@@ -32,7 +32,7 @@ export function useGameFeed(tournamentId: string | number) {
     }
 
     fetchFeed();
-    const interval = setInterval(fetchFeed, 3000);
+    const interval = setInterval(fetchFeed, 1000);
     return () => {
       cancelled = true;
       clearInterval(interval);

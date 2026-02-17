@@ -1,5 +1,5 @@
 /**
- * Creates a tournament with 4 agents, each with a distinct system prompt.
+ * Creates a tournament with 6 agents, each with a distinct system prompt.
  * Registers each agent in the ERC-8004 AgentIdentityRegistry so they
  * accumulate reputation and appear on the leaderboard.
  *
@@ -28,6 +28,14 @@ const AGENTS = [
     name: "Loose Cannon",
     systemPrompt: `You are a wild, unpredictable poker player. Your strategy is pure chaos — call with any two cards, raise randomly to confuse opponents, and occasionally make huge bluffs with nothing. You love gambling and live for big pots. You believe any hand can win. Sometimes fold on strong hands just to mess with people's heads.`,
   },
+  {
+    name: "Trap Master",
+    systemPrompt: `You are a deceptive trap-oriented poker player. You disguise hand strength, induce bluffs, and punish over-aggression with precise timing.`,
+  },
+  {
+    name: "Table Captain",
+    systemPrompt: `You are a balanced control player. You adapt to opponents quickly, pressure weak ranges, and keep disciplined bluff frequencies.`,
+  },
 ];
 
 function loadAddress(contractName: string): string {
@@ -41,8 +49,11 @@ function loadAddress(contractName: string): string {
 
 async function main() {
   const signers = await ethers.getSigners();
-  const [operator, s1, s2, s3, s4] = signers;
-  const agentSigners = [s1, s2, s3, s4];
+  const [operator, s1, s2, s3, s4, s5, s6] = signers;
+  const agentSigners = [s1, s2, s3, s4, s5, s6];
+  if (agentSigners.some(s => !s)) {
+    throw new Error("Need at least 7 funded signers (operator + 6 agents).");
+  }
 
   const vault = await ethers.getContractAt("PokerVault", loadAddress("PokerVault"), operator);
   const identity = await ethers.getContractAt("AgentIdentityRegistry", loadAddress("AgentIdentityRegistry"), operator);
@@ -53,24 +64,39 @@ async function main() {
     const signer = agentSigners[i];
     const tx = await identity.connect(signer).register(`agent://${AGENTS[i].name.toLowerCase().replace(/\s+/g, "-")}`);
     const receipt = await tx.wait();
-    const event = receipt.logs.find((l: any) => l.fragment?.name === "Registered");
-    const agentId = event.args[0];
+    if (!receipt) {
+      throw new Error(`Missing registration receipt for ${AGENTS[i].name}.`);
+    }
+    const event = receipt.logs.find((l: any) => l.fragment?.name === "Registered") as { args?: any[] } | undefined;
+    const agentId = event?.args?.[0];
+    if (!agentId) {
+      throw new Error(`Registration event missing for ${AGENTS[i].name}.`);
+    }
     agentIds.push(agentId);
     console.log(`  Registered: ${AGENTS[i].name} → agentId #${agentId}`);
   }
 
-  // Create tournament (free, 4 players)
-  const tx = await vault.createTournament(0, 4);
+  // Create tournament (0.1 MON, 6 players)
+  const buyIn = ethers.parseEther("0.1");
+  const tx = await vault.createTournament(buyIn, 6);
   const receipt = await tx.wait();
-  const event = receipt.logs.find((l: any) => l.fragment?.name === "TournamentCreated");
-  const tournamentId = Number(event.args[0]);
+  if (!receipt) {
+    throw new Error("Missing tournament creation receipt.");
+  }
+  const event = receipt.logs.find((l: any) => l.fragment?.name === "TournamentCreated") as { args?: any[] } | undefined;
+  const tournamentId = Number(event?.args?.[0] ?? 0);
+  if (tournamentId <= 0) {
+    throw new Error("TournamentCreated event missing from receipt.");
+  }
   console.log(`\n✅ Created tournament #${tournamentId}`);
 
-  // Enter all 4 agents with their registered agentId
+  // Enter all 6 agents with their registered agentId
   for (let i = 0; i < AGENTS.length; i++) {
     const { name, systemPrompt } = AGENTS[i];
     const signer = agentSigners[i];
-    await (await vault.connect(signer).enterTournament(tournamentId, name, systemPrompt, agentIds[i])).wait();
+    await (
+      await vault.connect(signer).enterTournament(tournamentId, name, systemPrompt, agentIds[i], { value: buyIn })
+    ).wait();
     console.log(`  Agent entered: ${name} (seat ${i}, agentId #${agentIds[i]})`);
   }
 
