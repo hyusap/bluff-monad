@@ -20,7 +20,8 @@
     "lint-staged": "eslint",
     "test": "REPORT_GAS=true hardhat test --network hardhat",
     "verify": "hardhat run scripts/verifyContract.ts",
-    "run-game": "hardhat run scripts/runGame.ts --network localhost"
+    "run-game": "hardhat run scripts/runGame.ts --network localhost",
+    "reset": "ts-node scripts/resetLocal.ts"
   },
   "dependencies": {
     "@ai-sdk/anthropic": "^3.0.44",
