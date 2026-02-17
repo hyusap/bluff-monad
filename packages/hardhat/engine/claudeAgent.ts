@@ -1,21 +1,19 @@
 import { anthropic } from "@ai-sdk/anthropic";
-import { generateText } from "ai";
+import { generateObject } from "ai";
+import { z } from "zod";
 import { Player, GameState, PlayerAction } from "./types";
+
+// Zod schema for structured poker decision
+const PokerDecisionSchema = z.object({
+  thinking: z.string().describe("Your thought process: analyze hand strength, pot odds, opponent patterns, and strategy"),
+  action: z.enum(["fold", "check", "call", "raise"]).describe("Your chosen action"),
+  raiseAmount: z.number().optional().describe("Amount to raise to (only if action is raise)"),
+});
 
 const POKER_RULES = `
 You are playing Texas Hold'em poker. Your goal is to win chips.
 
-First, think through your decision in a <thinking> section:
-- Analyze your hand strength
-- Consider the pot odds and betting patterns
-- Evaluate your opponents' likely hands
-- Decide on your strategy
-
-Then respond with your action in this exact format:
-  fold
-  check
-  call
-  raise <amount>
+Analyze the situation carefully and make the best decision.
 `.trim();
 
 function formatCards(cards: string[]): string {
@@ -49,40 +47,9 @@ Other players:
 ${others}
 
 Valid actions: ${validActions.join(", ")}
-Min raise: ${state.currentBet * 2 || 40}`;
-}
+Min raise: ${state.currentBet * 2 || 40}
 
-function parseResponse(
-  text: string,
-  thinking: string,
-  validActions: PlayerAction[],
-  player: Player,
-  state: GameState,
-): { action: PlayerAction; raiseAmount?: number; reasoning: string; thinking: string } {
-  const toCall = state.currentBet - player.currentBet;
-
-  // Get the action line from the response
-  const line = text.trim().toLowerCase().split("\n").find(l => l.trim()) || "";
-
-  if (validActions.includes("fold") && line.startsWith("fold")) {
-    return { action: "fold", reasoning: "folded", thinking };
-  }
-  if (validActions.includes("check") && line.startsWith("check")) {
-    return { action: "check", reasoning: "checked", thinking };
-  }
-  if (validActions.includes("call") && line.startsWith("call")) {
-    return { action: "call", reasoning: `called ${toCall}`, thinking };
-  }
-  if (validActions.includes("raise") && line.startsWith("raise")) {
-    const parts = line.split(/\s+/);
-    const amount = parseInt(parts[1], 10);
-    const raiseAmount = isNaN(amount) ? state.currentBet * 2 : Math.min(amount, player.stack);
-    return { action: "raise", raiseAmount, reasoning: `raised to ${raiseAmount}`, thinking };
-  }
-
-  // Fallback
-  const fallback = toCall === 0 ? "check" : validActions.includes("call") ? "call" : "fold";
-  return { action: fallback as PlayerAction, reasoning: `${fallback} (default)`, thinking };
+Make your decision now.`;
 }
 
 export async function getAgentDecision(
@@ -94,28 +61,71 @@ export async function getAgentDecision(
   const fallback = toCall === 0 ? "check" : "call";
 
   try {
+    console.log(`\n🤖 Calling AI for ${player.name}...`);
+    console.log(`📋 Valid actions: ${validActions.join(", ")}`);
+
     const result = await Promise.race([
-      generateText({
-        model: anthropic("claude-haiku-4-5-20251001", {
-          thinkingConfig: {
-            type: "enabled",
-            budgetTokens: 1024,
-          },
-        }),
+      generateObject({
+        model: anthropic("claude-haiku-4-5-20251001"),
+        schema: PokerDecisionSchema,
         system: player.systemPrompt + "\n\n" + POKER_RULES,
         prompt: buildPrompt(player, state, validActions),
-        maxTokens: 1500,
       }),
-      new Promise<never>((_, reject) => setTimeout(() => reject(new Error("timeout")), 15000)),
+      new Promise<never>((_, reject) => setTimeout(() => reject(new Error("AI request timeout after 15s")), 15000)),
     ]);
 
-    // Extract thinking from experimental_thinking if available
-    const thinking = result.experimental_thinking || "";
-    const text = result.text || fallback;
+    console.log(`✅ AI Response for ${player.name}:`, JSON.stringify(result.object, null, 2));
 
-    return parseResponse(text, thinking, validActions, player, state);
+    const { thinking, action, raiseAmount } = result.object;
+
+    // Validate action is in valid actions
+    if (!validActions.includes(action as PlayerAction)) {
+      console.warn(`⚠️  AI returned invalid action "${action}". Valid: ${validActions.join(", ")}. Using fallback: ${fallback}`);
+      return {
+        action: fallback as PlayerAction,
+        reasoning: `${fallback} (invalid action returned)`,
+        thinking: thinking || "",
+      };
+    }
+
+    // Handle raise amount
+    if (action === "raise") {
+      const amount = raiseAmount || state.currentBet * 2;
+      const finalAmount = Math.min(Math.max(amount, state.currentBet * 2), player.stack);
+      return {
+        action: "raise",
+        raiseAmount: finalAmount,
+        reasoning: `raised to ${finalAmount}`,
+        thinking: thinking || "",
+      };
+    }
+
+    // Handle other actions
+    const reasoning =
+      action === "fold"
+        ? "folded"
+        : action === "check"
+          ? "checked"
+          : action === "call"
+            ? `called ${toCall}`
+            : action;
+
+    return {
+      action: action as PlayerAction,
+      reasoning,
+      thinking: thinking || "",
+    };
   } catch (err) {
-    console.warn(`Agent ${player.name} decision failed: ${err}. Defaulting to ${fallback}.`);
-    return { action: fallback as PlayerAction, reasoning: `${fallback} (timeout/error)`, thinking: "" };
+    console.error(`❌ AGENT DECISION ERROR for ${player.name}:`);
+    console.error(`   Error type: ${err instanceof Error ? err.constructor.name : typeof err}`);
+    console.error(`   Error message: ${err instanceof Error ? err.message : String(err)}`);
+    console.error(`   Stack trace:`, err instanceof Error ? err.stack : "No stack trace");
+    console.error(`   Falling back to: ${fallback}`);
+
+    return {
+      action: fallback as PlayerAction,
+      reasoning: `${fallback} (AI error: ${err instanceof Error ? err.message : "unknown"})`,
+      thinking: "",
+    };
   }
 }
