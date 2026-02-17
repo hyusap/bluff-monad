@@ -23,9 +23,7 @@ async function runBettingRound(state: GameState, startSeat: number): Promise<Gam
   if (canAct.length <= 1) return state;
 
   const startIdx = canAct.findIndex(p => p.seat >= startSeat);
-  const ordered = startIdx >= 0
-    ? [...canAct.slice(startIdx), ...canAct.slice(0, startIdx)]
-    : canAct;
+  const ordered = startIdx >= 0 ? [...canAct.slice(startIdx), ...canAct.slice(0, startIdx)] : canAct;
 
   let queue = [...ordered];
   let lastRaiserSeat: number | null = null;
@@ -49,7 +47,12 @@ async function runBettingRound(state: GameState, startSeat: number): Promise<Gam
       seat: livePlayer.seat,
       name: livePlayer.name,
       action,
-      amount: action === "raise" ? raiseAmount : action === "call" ? Math.min(state.currentBet - livePlayer.currentBet, livePlayer.stack) : undefined,
+      amount:
+        action === "raise"
+          ? raiseAmount
+          : action === "call"
+            ? Math.min(state.currentBet - livePlayer.currentBet, livePlayer.stack)
+            : undefined,
       pot: current.pot,
       reasoning,
       thinking,
@@ -74,7 +77,7 @@ async function runHand(state: GameState): Promise<GameState> {
   for (const player of active) {
     const { cards, remaining } = deal(deck, 2);
     deck = remaining;
-    current = { ...current, players: current.players.map(p => p.seat === player.seat ? { ...p, cards } : p) };
+    current = { ...current, players: current.players.map(p => (p.seat === player.seat ? { ...p, cards } : p)) };
     logEvent(current.tournamentId, "deal", { seat: player.seat, name: player.name, cards });
   }
 
@@ -99,7 +102,12 @@ async function runHand(state: GameState): Promise<GameState> {
     const winner = handActivePlayers(current)[0];
     const pot = current.pot;
     current = awardPot(current, winner.seat);
-    logEvent(current.tournamentId, "hand_end", { winner: winner.seat, winnerName: winner.name, pot, reason: "last_standing" });
+    logEvent(current.tournamentId, "hand_end", {
+      winner: winner.seat,
+      winnerName: winner.name,
+      pot,
+      reason: "last_standing",
+    });
     return current;
   }
 
@@ -114,12 +122,20 @@ async function runHand(state: GameState): Promise<GameState> {
     const winner = handActivePlayers(current)[0];
     const pot = current.pot;
     current = awardPot(current, winner.seat);
-    logEvent(current.tournamentId, "hand_end", { winner: winner.seat, winnerName: winner.name, pot, reason: "last_standing" });
+    logEvent(current.tournamentId, "hand_end", {
+      winner: winner.seat,
+      winnerName: winner.name,
+      pot,
+      reason: "last_standing",
+    });
     return current;
   }
 
   // Turn
-  const { cards: [turnCard], remaining: deckAfterTurn } = deal(deck, 1);
+  const {
+    cards: [turnCard],
+    remaining: deckAfterTurn,
+  } = deal(deck, 1);
   deck = deckAfterTurn;
   current = advanceStreet(current, [turnCard]);
   logEvent(current.tournamentId, "community", { street: "turn", cards: [turnCard], pot: current.pot });
@@ -129,12 +145,19 @@ async function runHand(state: GameState): Promise<GameState> {
     const winner = handActivePlayers(current)[0];
     const pot = current.pot;
     current = awardPot(current, winner.seat);
-    logEvent(current.tournamentId, "hand_end", { winner: winner.seat, winnerName: winner.name, pot, reason: "last_standing" });
+    logEvent(current.tournamentId, "hand_end", {
+      winner: winner.seat,
+      winnerName: winner.name,
+      pot,
+      reason: "last_standing",
+    });
     return current;
   }
 
   // River
-  const { cards: [riverCard] } = deal(deck, 1);
+  const {
+    cards: [riverCard],
+  } = deal(deck, 1);
   current = advanceStreet(current, [riverCard]);
   logEvent(current.tournamentId, "community", { street: "river", cards: [riverCard], pot: current.pot });
   current = await runBettingRound(current, activeSeats[(dealerIdx + 1) % activeSeats.length]);
@@ -201,7 +224,7 @@ export async function runPokerGame(
     // Detect and log eliminations (stack hit 0 this hand)
     for (const p of state.players) {
       if (p.stack === 0 && !p.folded) {
-        state = { ...state, players: state.players.map(sp => sp.seat === p.seat ? { ...sp, folded: true } : sp) };
+        state = { ...state, players: state.players.map(sp => (sp.seat === p.seat ? { ...sp, folded: true } : sp)) };
         logEvent(tournamentId, "eliminated", { seat: p.seat, name: p.name });
       }
     }

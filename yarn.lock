@@ -19,6 +19,53 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@ai-sdk/anthropic@npm:^3.0.44":
+  version: 3.0.44
+  resolution: "@ai-sdk/anthropic@npm:3.0.44"
+  dependencies:
+    "@ai-sdk/provider": 3.0.8
+    "@ai-sdk/provider-utils": 4.0.15
+  peerDependencies:
+    zod: ^3.25.76 || ^4.1.8
+  checksum: d68a83811606324709f566fa4f7dfd7336536c5b2a80942f5b9ed3ea3aa12bfc28ac55efee353f76618e3e6b1c0c97443ec1c70ed15b8a74009458ba256bb8f8
+  languageName: node
+  linkType: hard
+
+"@ai-sdk/gateway@npm:3.0.47":
+  version: 3.0.47
+  resolution: "@ai-sdk/gateway@npm:3.0.47"
+  dependencies:
+    "@ai-sdk/provider": 3.0.8
+    "@ai-sdk/provider-utils": 4.0.15
+    "@vercel/oidc": 3.1.0
+  peerDependencies:
+    zod: ^3.25.76 || ^4.1.8
+  checksum: b8d80e8ae3d821fe0c54e53070420ec083590a7fea11f759be56c43bafd6426df6ead44253a194a6d8f9d4bfbb10af56ced0d10b69ef3d1c0908cbb0816d8225
+  languageName: node
+  linkType: hard
+
+"@ai-sdk/provider-utils@npm:4.0.15":
+  version: 4.0.15
+  resolution: "@ai-sdk/provider-utils@npm:4.0.15"
+  dependencies:
+    "@ai-sdk/provider": 3.0.8
+    "@standard-schema/spec": ^1.1.0
+    eventsource-parser: ^3.0.6
+  peerDependencies:
+    zod: ^3.25.76 || ^4.1.8
+  checksum: dcafd291134748b01f52b79e60b3d62fd057fc3dba5bdb5971e4109d27bb6de13ec0b5c796934a924d6236c3f2da06533934d5225a501ac777de6d7e5710f09f
+  languageName: node
+  linkType: hard
+
+"@ai-sdk/provider@npm:3.0.8":
+  version: 3.0.8
+  resolution: "@ai-sdk/provider@npm:3.0.8"
+  dependencies:
+    json-schema: ^0.4.0
+  checksum: cdc55caa9ab7836f03c8100ffe359ca57c6e22263238ac89181eaa6dfe6e1011f0c40652eed7ba597f127e1c09b0ab12a4bf6b19343621e5e74ed097c3c7125c
+  languageName: node
+  linkType: hard
+
 "@alloc/quick-lru@npm:^5.2.0":
   version: 5.2.0
   resolution: "@alloc/quick-lru@npm:5.2.0"
@@ -3007,6 +3054,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@opentelemetry/api@npm:1.9.0":
+  version: 1.9.0
+  resolution: "@opentelemetry/api@npm:1.9.0"
+  checksum: 9e88e59d53ced668f3daaecfd721071c5b85a67dd386f1c6f051d1be54375d850016c881f656ffbe9a03bedae85f7e89c2f2b635313f9c9b195ad033cdc31020
+  languageName: node
+  linkType: hard
+
 "@openzeppelin/contracts@npm:~5.0.2":
   version: 5.0.2
   resolution: "@openzeppelin/contracts@npm:5.0.2"
@@ -3417,6 +3471,7 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "@se-2/hardhat@workspace:packages/hardhat"
   dependencies:
+    "@ai-sdk/anthropic": ^3.0.44
     "@anthropic-ai/sdk": ^0.74.0
     "@ethersproject/abi": ~5.7.0
     "@ethersproject/providers": ~5.7.2
@@ -3435,6 +3490,7 @@ __metadata:
     "@types/qrcode": ~1.5.5
     "@typescript-eslint/eslint-plugin": ~8.27.0
     "@typescript-eslint/parser": ~8.27.0
+    ai: ^6.0.87
     chai: ~4.5.0
     dotenv: ~16.4.5
     envfile: ~7.1.0
@@ -3453,6 +3509,7 @@ __metadata:
     ts-node: ~10.9.1
     typechain: ~8.3.2
     typescript: ^5.8.2
+    zod: ^4.3.6
   languageName: unknown
   linkType: soft
 
@@ -3688,6 +3745,13 @@ __metadata:
   version: 0.20.1
   resolution: "@solidity-parser/parser@npm:0.20.1"
   checksum: a05152e54be574b3b75cc6ad059bec01e4ff26c6bc68a0fa4fb9aca3542058c6c657a65d9f3cfb553b986e4143724a8ce98500b3b5453d2f7b2f4397cc32cf63
+  languageName: node
+  linkType: hard
+
+"@standard-schema/spec@npm:^1.1.0":
+  version: 1.1.0
+  resolution: "@standard-schema/spec@npm:1.1.0"
+  checksum: 6245ebef5e698bb04752a22e996a7cc40406a404d9f68a9d4e1a7a10f2422da287247508e7b495a2f32bb38f3d57b4daf2c9ab4bf22d9bca13e20a3dc5ec575e
   languageName: node
   linkType: hard
 
@@ -4903,6 +4967,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@vercel/oidc@npm:3.1.0":
+  version: 3.1.0
+  resolution: "@vercel/oidc@npm:3.1.0"
+  checksum: 28de72808d86ba5bd6e4d9d1264a365de8a6f494afae451141fb75328c4aee660b2b545fd374f28c35997469eceed96640ca736c4a1e783f385bac84d423a0a4
+  languageName: node
+  linkType: hard
+
 "@vercel/python@npm:4.5.1":
   version: 4.5.1
   resolution: "@vercel/python@npm:4.5.1"
@@ -5578,6 +5649,20 @@ __metadata:
     clean-stack: ^2.0.0
     indent-string: ^4.0.0
   checksum: 1101a33f21baa27a2fa8e04b698271e64616b886795fd43c31068c07533c7b3facfcaf4e9e0cab3624bd88f729a592f1c901a1a229c9e490eafce411a8644b79
+  languageName: node
+  linkType: hard
+
+"ai@npm:^6.0.87":
+  version: 6.0.87
+  resolution: "ai@npm:6.0.87"
+  dependencies:
+    "@ai-sdk/gateway": 3.0.47
+    "@ai-sdk/provider": 3.0.8
+    "@ai-sdk/provider-utils": 4.0.15
+    "@opentelemetry/api": 1.9.0
+  peerDependencies:
+    zod: ^3.25.76 || ^4.1.8
+  checksum: fbc09886cfb66ea596ed0764866536e40c1db71a335a4641c163afb4168390f42445cbbac89d6bcad42c61fde81e8469e84e2a3686f1ab1686220e75a2c458c3
   languageName: node
   linkType: hard
 
@@ -8865,6 +8950,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"eventsource-parser@npm:^3.0.6":
+  version: 3.0.6
+  resolution: "eventsource-parser@npm:3.0.6"
+  checksum: b90ec27f8d992afa7df171db202faaedb1782214f64e50690cbf78bc2629f7751575aa27a72d8ae447e5a7094938406b1a3ea1d89e5f0f2d6916cc8a694b6587
+  languageName: node
+  linkType: hard
+
 "evp_bytestokey@npm:^1.0.3":
   version: 1.0.3
   resolution: "evp_bytestokey@npm:1.0.3"
@@ -11226,6 +11318,13 @@ __metadata:
   version: 1.0.0
   resolution: "json-schema-traverse@npm:1.0.0"
   checksum: 02f2f466cdb0362558b2f1fd5e15cce82ef55d60cd7f8fa828cf35ba74330f8d767fcae5c5c2adb7851fa811766c694b9405810879bc4e1ddd78a7c0e03658ad
+  languageName: node
+  linkType: hard
+
+"json-schema@npm:^0.4.0":
+  version: 0.4.0
+  resolution: "json-schema@npm:0.4.0"
+  checksum: 66389434c3469e698da0df2e7ac5a3281bcff75e797a5c127db7c5b56270e01ae13d9afa3c03344f76e32e81678337a8c912bdbb75101c62e487dc3778461d72
   languageName: node
   linkType: hard
 
@@ -17602,6 +17701,13 @@ __metadata:
   version: 3.25.67
   resolution: "zod@npm:3.25.67"
   checksum: 56ab904d33b1cd00041ce64ae05b0628fcbfeb7e707fa31cd498a97b540135e4dfe685200c9c62aea307695ee132870b4bc34f035228ea728aa75cc96a4954cb
+  languageName: node
+  linkType: hard
+
+"zod@npm:^4.3.6":
+  version: 4.3.6
+  resolution: "zod@npm:4.3.6"
+  checksum: 19cec761b46bae4b6e7e861ea740f3f248e50a6671825afc8a5758e27b35d6f20ccde9942422fd5cf6f8b697f18bd05ef8bb33f5f2db112ab25cc628de2fae47
   languageName: node
   linkType: hard
 

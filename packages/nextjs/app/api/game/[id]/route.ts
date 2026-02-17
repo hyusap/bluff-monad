@@ -1,6 +1,4 @@
 import { NextRequest, NextResponse } from "next/server";
-import { readFileSync } from "fs";
-import { join } from "path";
 
 export type GameEvent = {
   timestamp: number;
@@ -8,26 +6,31 @@ export type GameEvent = {
   data: string;
 };
 
+const GAME_ENGINE_URL = process.env.GAME_ENGINE_URL || "http://localhost:3001";
+
 /**
  * GET /api/game/[id]
  *
- * Returns game events for a tournament. The off-chain AI runner writes events
- * to .context/game-logs/<id>.json. Falls back to an empty array if not found.
- *
- * Event shape: { timestamp: number (ms), type: string, data: string }
+ * Proxies to the game engine's HTTP API to fetch events from in-memory storage.
+ * Falls back to an empty array if the game engine is not running.
  */
 export async function GET(_req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
 
-  let events: GameEvent[] = [];
-
   try {
-    const filePath = join(process.cwd(), "..", "..", ".context", "game-logs", `${id}.json`);
-    const raw = readFileSync(filePath, "utf-8");
-    events = JSON.parse(raw);
-  } catch {
-    // File not found or invalid JSON — return empty events
-  }
+    const response = await fetch(`${GAME_ENGINE_URL}/api/game/${id}`, {
+      next: { revalidate: 0 }, // Don't cache, always fetch fresh
+    });
 
-  return NextResponse.json({ events });
+    if (!response.ok) {
+      return NextResponse.json({ events: [] });
+    }
+
+    const data = await response.json();
+    return NextResponse.json(data);
+  } catch (error) {
+    // Game engine not running or unreachable
+    console.error(`Failed to fetch game events for tournament ${id}:`, error);
+    return NextResponse.json({ events: [] });
+  }
 }

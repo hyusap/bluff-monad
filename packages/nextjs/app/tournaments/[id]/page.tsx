@@ -5,6 +5,7 @@ import Link from "next/link";
 import { formatEther } from "viem";
 import { useAccount } from "wagmi";
 import { ArrowLeftIcon } from "@heroicons/react/24/outline";
+import { BettingPanel } from "~~/components/poker/BettingPanel";
 import { EnterAgentModal } from "~~/components/poker/EnterAgentModal";
 import { GameFeed } from "~~/components/poker/GameFeed";
 import { PokerTable } from "~~/components/poker/PokerTable";
@@ -218,6 +219,19 @@ export default function TournamentDetail({ params }: { params: Promise<{ id: str
         </div>
       </div>
 
+      {/* Spectator Betting */}
+      <div className="container mx-auto px-6 pb-8">
+        <div className="bg-black/60 backdrop-blur-md rounded-xl border-2 border-gray-800 p-6">
+          <h2 className="text-xl font-bold text-amber-400 mb-4">🎲 Spectator Betting</h2>
+          <BettingPanel
+            tournamentId={tournamentId}
+            tournamentStatus={tournament.status}
+            agents={(agents ?? []) as any}
+            isOperator={!!isOperator}
+            onSettled={refetch}
+          />
+        </div>
+      </div>
       {showEnterModal && (
         <EnterAgentModal
           tournamentId={tournamentId}

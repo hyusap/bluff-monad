@@ -1,6 +1,9 @@
+"use client";
+
 import Link from "next/link";
 import { TournamentStatusBadge } from "./TournamentStatusBadge";
 import { formatEther } from "viem";
+import { useBettingPool } from "~~/hooks/useBetting";
 import { Tournament } from "~~/hooks/useTournaments";
 
 type Props = {
@@ -9,11 +12,21 @@ type Props = {
 };
 
 export function TournamentCard({ tournament, onEnter }: Props) {
+  const { data: poolData } = useBettingPool(tournament.id);
+  const bettingPool = poolData?.[0] ?? 0n;
+
   return (
     <div className="bg-[#111111] border border-[#1A1A1A] squircle p-4 hover:border-[#2A2A2A] transition-colors">
       <div className="flex items-center justify-between mb-3">
         <span className="font-semibold text-white">Tournament #{tournament.id.toString()}</span>
-        <TournamentStatusBadge status={tournament.status} />
+        <div className="flex items-center gap-2">
+          {bettingPool > 0n && (
+            <span className="inline-flex items-center px-2 py-0.5 rounded text-[10px] font-semibold bg-[#A0153E]/20 text-[#A0153E]">
+              🎲 {formatEther(bettingPool)} MON bet
+            </span>
+          )}
+          <TournamentStatusBadge status={tournament.status} />
+        </div>
       </div>
 
       <div className="grid grid-cols-3 gap-2 text-sm mb-3">

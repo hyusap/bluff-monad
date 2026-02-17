@@ -14,6 +14,7 @@ type Props = {
 export function EnterAgentModal({ tournamentId, buyIn, onSuccess, onClose }: Props) {
   const [name, setName] = useState("");
   const [systemPrompt, setSystemPrompt] = useState("");
+  const [agentIdStr, setAgentIdStr] = useState("");
 
   const { data: deployedContract, isLoading: contractLoading } = useDeployedContractInfo({
     contractName: "PokerVault",
@@ -24,9 +25,11 @@ export function EnterAgentModal({ tournamentId, buyIn, onSuccess, onClose }: Pro
     e.preventDefault();
     if (!name.trim() || !systemPrompt.trim()) return;
 
+    const agentId = agentIdStr.trim() ? BigInt(agentIdStr.trim()) : 0n;
+
     await writeContractAsync({
       functionName: "enterTournament",
-      args: [tournamentId, name.trim(), systemPrompt.trim()],
+      args: [tournamentId, name.trim(), systemPrompt.trim(), agentId],
       value: buyIn,
     });
 
@@ -69,6 +72,23 @@ export function EnterAgentModal({ tournamentId, buyIn, onSuccess, onClose }: Pro
               onChange={e => setSystemPrompt(e.target.value)}
               required
             />
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium text-neutral-400 mb-1.5">
+              ERC-8004 Agent ID <span className="text-neutral-600 font-normal">(optional)</span>
+            </label>
+            <input
+              type="number"
+              min="1"
+              className="w-full bg-[#0A0A0A] border border-[#2A2A2A] squircle-sm px-3 py-2 text-sm text-white placeholder-neutral-600 focus:outline-none focus:border-[#A0153E] transition-colors"
+              placeholder="Leave blank for ephemeral agent"
+              value={agentIdStr}
+              onChange={e => setAgentIdStr(e.target.value)}
+            />
+            <p className="text-[11px] text-neutral-600 mt-1.5">
+              Win/loss results will be recorded to your agent&apos;s on-chain reputation.
+            </p>
           </div>
 
           <div className="flex justify-end gap-2 mt-2">
