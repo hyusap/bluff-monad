@@ -51,7 +51,7 @@ function parseStartingStack(): number | undefined {
 
 function parseAgentCount(): number {
   const raw = process.env.POKER_DEFAULT_AGENT_COUNT;
-  if (!raw) return 6;
+  if (!raw) return 4;
   const parsed = Number(raw);
   if (!Number.isFinite(parsed) || parsed < 2 || parsed > 10) {
     throw new Error("POKER_DEFAULT_AGENT_COUNT must be a number between 2 and 10.");
@@ -166,6 +166,8 @@ async function main() {
     return tournamentId;
   }
 
+  const BETTING_COUNTDOWN_SECONDS = 12;
+
   async function tryStartTournament(tournamentId: number): Promise<void> {
     if (startInFlight) return;
     const tuple = (await vault.tournaments(tournamentId)) as [bigint, bigint, bigint, bigint, string];
@@ -177,6 +179,8 @@ async function main() {
 
     startInFlight = true;
     try {
+      console.log(`⏳ Betting window: ${BETTING_COUNTDOWN_SECONDS}s before start...`);
+      await new Promise(resolve => setTimeout(resolve, BETTING_COUNTDOWN_SECONDS * 1000));
       await (await vault.startTournament(tournamentId)).wait();
       console.log(`🚀 Tournament ${tournamentId} started (${agents.length} players)`);
     } catch {

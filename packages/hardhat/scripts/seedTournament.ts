@@ -76,9 +76,9 @@ async function main() {
     console.log(`  Registered: ${AGENTS[i].name} → agentId #${agentId}`);
   }
 
-  // Create tournament (0.1 MON, 6 players)
+  // Create tournament (0.1 MON, 4 players)
   const buyIn = ethers.parseEther("0.1");
-  const tx = await vault.createTournament(buyIn, 6);
+  const tx = await vault.createTournament(buyIn, 4);
   const receipt = await tx.wait();
   if (!receipt) {
     throw new Error("Missing tournament creation receipt.");

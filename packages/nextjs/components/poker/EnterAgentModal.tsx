@@ -1,6 +1,7 @@
 "use client";
 
 import { useRef, useState } from "react";
+import { AgentPicker, AgentSelection } from "./AgentPicker";
 import { formatEther } from "viem";
 import { Button } from "~~/components/ui/button";
 import { Input } from "~~/components/ui/input";
@@ -18,9 +19,21 @@ type Props = {
 export function EnterAgentModal({ tournamentId, buyIn, onSuccess, onClose }: Props) {
   const [name, setName] = useState("");
   const [systemPrompt, setSystemPrompt] = useState("");
-  const [agentIdStr, setAgentIdStr] = useState("");
-  const [agentIdError, setAgentIdError] = useState("");
+  const [agentId, setAgentId] = useState(0n);
+  const isRegistered = agentId > 0n;
   const formRef = useRef<HTMLFormElement>(null);
+
+  function handleAgentSelect(selection: AgentSelection) {
+    if (selection) {
+      setAgentId(selection.agentId);
+      setName(selection.name);
+      setSystemPrompt(selection.systemPrompt);
+    } else {
+      setAgentId(0n);
+      setName("");
+      setSystemPrompt("");
+    }
+  }
 
   const { data: deployedContract, isLoading: contractLoading } = useDeployedContractInfo({
     contractName: "PokerVault",
@@ -31,22 +44,6 @@ export function EnterAgentModal({ tournamentId, buyIn, onSuccess, onClose }: Pro
     e.preventDefault();
     if (isMining || contractLoading || !deployedContract) return;
     if (!name.trim() || !systemPrompt.trim()) return;
-
-    let agentId = 0n;
-    const trimmedAgentId = agentIdStr.trim();
-    if (trimmedAgentId) {
-      try {
-        agentId = BigInt(trimmedAgentId);
-      } catch {
-        setAgentIdError("Agent ID must be a positive integer.");
-        return;
-      }
-      if (agentId < 1n) {
-        setAgentIdError("Agent ID must be a positive integer.");
-        return;
-      }
-    }
-    setAgentIdError("");
 
     await writeContractAsync({
       functionName: "enterTournament",
@@ -79,6 +76,12 @@ export function EnterAgentModal({ tournamentId, buyIn, onSuccess, onClose }: Pro
 
         <form ref={formRef} onSubmit={handleSubmit} onKeyDown={handleFormKeyDown} className="flex flex-col gap-4">
           <div>
+            <Label className="mb-1.5 block">Agent</Label>
+            <AgentPicker selectedAgentId={agentId > 0n ? agentId : null} onSelect={handleAgentSelect} />
+            <p className="text-[11px] text-neutral-600 mt-1.5">Select a registered agent or play as ephemeral.</p>
+          </div>
+
+          <div>
             <Label className="mb-1.5 block">Agent Name</Label>
             <Input
               type="text"
@@ -87,43 +90,29 @@ export function EnterAgentModal({ tournamentId, buyIn, onSuccess, onClose }: Pro
               onChange={e => setName(e.target.value)}
               maxLength={64}
               required
+              disabled={isRegistered}
+              className={isRegistered ? "opacity-60" : ""}
             />
           </div>
 
           <div>
             <Label className="mb-1.5 block">System Prompt</Label>
             <Textarea
-              className="h-32 resize-none"
+              className={`h-32 resize-none ${isRegistered ? "opacity-60" : ""}`}
               placeholder="Describe your agent's poker strategy..."
               value={systemPrompt}
               onChange={e => setSystemPrompt(e.target.value)}
               required
+              disabled={isRegistered}
             />
+            {isRegistered && (
+              <p className="text-[11px] text-neutral-600 mt-1">
+                Name and prompt are locked to this agent&apos;s registration.
+              </p>
+            )}
           </div>
 
-          <div>
-            <Label className="mb-1.5 block">
-              ERC-8004 Agent ID <span className="text-neutral-600 font-normal">(optional)</span>
-            </Label>
-            <Input
-              type="text"
-              inputMode="numeric"
-              pattern="[0-9]*"
-              placeholder="Leave blank for ephemeral agent"
-              value={agentIdStr}
-              onChange={e => {
-                setAgentIdStr(e.target.value);
-                if (agentIdError) setAgentIdError("");
-              }}
-            />
-            {agentIdError && <p className="mt-1.5 text-[11px] text-[#A0153E]">{agentIdError}</p>}
-            <p className="text-[11px] text-neutral-600 mt-1.5">
-              Win/loss results will be recorded to your agent&apos;s on-chain reputation.
-            </p>
-            <p className="text-[11px] text-neutral-600 mt-1">
-              Press Cmd+Enter (Mac) or Ctrl+Enter (Windows/Linux) to submit.
-            </p>
-          </div>
+          <p className="text-[11px] text-neutral-600">Press Cmd+Enter (Mac) or Ctrl+Enter (Windows/Linux) to submit.</p>
 
           <div className="flex justify-end gap-2 mt-2">
             <Button type="button" variant="ghost" onClick={onClose}>

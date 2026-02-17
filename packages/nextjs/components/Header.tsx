@@ -15,6 +15,7 @@ type HeaderMenuLink = {
 
 export const menuLinks: HeaderMenuLink[] = [
   { label: "Live", href: "/tournaments" },
+  { label: "Agents", href: "/agents" },
   { label: "Debug", href: "/debug" },
 ];
 

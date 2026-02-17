@@ -40,6 +40,7 @@ export default function TournamentDetail({ params }: { params: Promise<{ id: str
   const { address: connectedAddress } = useAccount();
   const [showEnterModal, setShowEnterModal] = useState(false);
   const [autoStarting, setAutoStarting] = useState(false);
+  const [countdown, setCountdown] = useState<number | null>(null);
   const notifiedEventCountRef = useRef<number | null>(null);
   const autoFollowRef = useRef(false);
 
@@ -106,14 +107,28 @@ export default function TournamentDetail({ params }: { params: Promise<{ id: str
     },
   });
 
+  // Start a 12-second countdown when the table is full so spectators can bet
   useEffect(() => {
-    if (!canStartTournament || !isFull || !isOpen || autoStarting) return;
-    setAutoStarting(true);
-    writeContractAsync({ functionName: "startTournament", args: [tournamentId] })
-      .then(() => refetch())
-      .catch(() => {})
-      .finally(() => setAutoStarting(false));
-  }, [isFull, isOpen, canStartTournament]); // eslint-disable-line react-hooks/exhaustive-deps
+    if (!isFull || !isOpen || countdown !== null) return;
+    setCountdown(12);
+  }, [isFull, isOpen]); // eslint-disable-line react-hooks/exhaustive-deps
+
+  useEffect(() => {
+    if (countdown === null || !isOpen) return;
+    if (countdown <= 0) {
+      // Countdown finished — auto-start if we have permission
+      if (canStartTournament && !autoStarting) {
+        setAutoStarting(true);
+        writeContractAsync({ functionName: "startTournament", args: [tournamentId] })
+          .then(() => refetch())
+          .catch(() => {})
+          .finally(() => setAutoStarting(false));
+      }
+      return;
+    }
+    const timer = setTimeout(() => setCountdown(prev => (prev !== null ? prev - 1 : null)), 1000);
+    return () => clearTimeout(timer);
+  }, [countdown, isOpen, canStartTournament]); // eslint-disable-line react-hooks/exhaustive-deps
 
   useEffect(() => {
     if (!isFinished || !nextTournamentId || autoFollowRef.current) return;
@@ -372,6 +387,16 @@ export default function TournamentDetail({ params }: { params: Promise<{ id: str
         </div>
       )}
 
+      {/* Countdown Banner */}
+      {isOpen && countdown !== null && countdown > 0 && (
+        <div className="border-b border-amber-500/30 bg-amber-500/10 py-3">
+          <div className="max-w-6xl mx-auto px-6 flex items-center justify-center gap-3">
+            <span className="text-amber-400 font-bold text-lg tabular-nums">{countdown}s</span>
+            <span className="text-amber-300 text-sm">Place your bets — game starting soon</span>
+          </div>
+        </div>
+      )}
+
       {/* Main Content */}
       <div className="flex-1 min-h-0">
         <div className="flex flex-col lg:flex-row h-full w-full max-w-[1400px] mx-auto">
@@ -400,9 +425,13 @@ export default function TournamentDetail({ params }: { params: Promise<{ id: str
                   </button>
                 )}
 
-                {isOpen && isFull && !canStartTournament && (
-                  <div className="bg-[#111111] border border-[#1A1A1A] squircle-sm px-3 py-2 text-neutral-500 text-sm">
-                    Tournament full -- waiting for creator to start
+                {isOpen && isFull && (
+                  <div className="bg-[#111111] border border-amber-500/20 squircle-sm px-3 py-2 text-amber-400 text-sm text-center">
+                    {countdown !== null && countdown > 0
+                      ? `Starting in ${countdown}s — place your bets!`
+                      : autoStarting
+                        ? "Starting..."
+                        : "Waiting to start..."}
                   </div>
                 )}
 
@@ -442,8 +471,7 @@ export default function TournamentDetail({ params }: { params: Promise<{ id: str
                 />
               </div>
 
-              <div className="bg-black/60 backdrop-blur-md rounded-xl border-2 border-gray-800 p-6">
-                <h2 className="text-xl font-bold text-amber-400 mb-4">🎲 Spectator Betting</h2>
+              <div className="bg-[#0D0D0D] rounded-xl border border-[#1A1A1A] p-5">
                 <BettingPanel
                   tournamentId={tournamentId}
                   tournamentStatus={tournament.status}
