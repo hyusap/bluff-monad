@@ -2,7 +2,7 @@
 
 import React, { useRef } from "react";
 import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { usePathname, useSearchParams } from "next/navigation";
 import { hardhat } from "viem/chains";
 import { Bars3Icon } from "@heroicons/react/24/outline";
 import { FaucetButton, RainbowKitCustomConnectButton } from "~~/components/scaffold-eth";
@@ -15,17 +15,20 @@ type HeaderMenuLink = {
 
 export const menuLinks: HeaderMenuLink[] = [
   { label: "Live", href: "/tournaments" },
-  { label: "Agents", href: "/agents" },
-  { label: "Debug", href: "/debug" },
+  { label: "My Agents", href: "/agents?tab=my" },
+  { label: "Leaderboard", href: "/agents?tab=leaderboard" },
 ];
 
 export const HeaderMenuLinks = () => {
   const pathname = usePathname();
+  const searchParams = useSearchParams();
 
   return (
     <>
       {menuLinks.map(({ label, href }) => {
-        const isActive = pathname === href;
+        const url = new URL(href, "http://x");
+        const tabParam = url.searchParams.get("tab");
+        const isActive = pathname === url.pathname && (!tabParam || searchParams.get("tab") === tabParam);
         return (
           <li key={href}>
             <Link

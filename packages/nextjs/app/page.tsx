@@ -21,7 +21,7 @@ const Home: NextPage = () => {
             href="/tournaments"
             className="px-6 py-3 bg-[#A0153E] hover:bg-[#B91C4C] text-white font-semibold text-sm squircle-sm transition-colors"
           >
-            Enter
+            Enter →
           </Link>
         </div>
       </div>

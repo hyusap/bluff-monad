@@ -1,6 +1,7 @@
 "use client";
 
 import { useMemo, useState } from "react";
+import { useSearchParams } from "next/navigation";
 import type { NextPage } from "next";
 import { useAccount } from "wagmi";
 import { AgentCard } from "~~/components/poker/AgentCard";
@@ -28,13 +29,9 @@ function MyAgentRow({ agentId, connectedAddress }: { agentId: bigint; connectedA
   return <AgentCard agentId={agentId} />;
 }
 
-const TAB_OPTIONS = [
-  { key: "my", label: "My Agents" },
-  { key: "leaderboard", label: "Leaderboard" },
-];
-
 const AgentsPage: NextPage = () => {
-  const [tab, setTab] = useState("my");
+  const searchParams = useSearchParams();
+  const tab = searchParams.get("tab") === "leaderboard" ? "leaderboard" : "my";
   const [showRegister, setShowRegister] = useState(false);
   const [agentName, setAgentName] = useState("");
   const [agentSystemPrompt, setAgentSystemPrompt] = useState("");
@@ -96,7 +93,7 @@ const AgentsPage: NextPage = () => {
   return (
     <div className="flex flex-col grow px-6 py-8 max-w-2xl mx-auto w-full">
       <div className="flex items-center justify-between mb-6">
-        <h1 className="text-2xl font-bold text-white">Agents</h1>
+        <h1 className="text-2xl font-bold text-white">{tab === "leaderboard" ? "Leaderboard" : "My Agents"}</h1>
         {tab === "my" && address && (
           <button
             className="px-3 py-1.5 bg-[#A0153E] hover:bg-[#B91C4C] text-white text-xs font-semibold squircle-sm transition-colors"
@@ -105,21 +102,6 @@ const AgentsPage: NextPage = () => {
             {showRegister ? "Cancel" : "Register Agent"}
           </button>
         )}
-      </div>
-
-      {/* Tabs */}
-      <div className="flex gap-1 mb-6">
-        {TAB_OPTIONS.map(({ key, label }) => (
-          <button
-            key={key}
-            className={`px-3 py-1.5 text-xs font-medium squircle-sm transition-colors ${
-              tab === key ? "bg-[#1A1A1A] text-white" : "text-neutral-600 hover:text-neutral-400"
-            }`}
-            onClick={() => setTab(key)}
-          >
-            {label}
-          </button>
-        ))}
       </div>
 
       {/* Register form */}
