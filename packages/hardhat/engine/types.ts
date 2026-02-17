@@ -27,6 +27,7 @@ export type GameState = {
   handNumber: number;
   dealerSeat: number;
   street: Street;
+  blindLevel: number; // doubles every 3 hands: level 0=10/20, 1=20/40, 2=40/80, etc.
 };
 
 export type AgentData = {

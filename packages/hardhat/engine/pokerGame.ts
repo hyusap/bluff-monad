@@ -14,6 +14,7 @@ import {
   activePlayers,
   handActivePlayers,
   isTournamentOver,
+  getBlinds,
 } from "./gameState";
 
 async function runBettingRound(state: GameState, startSeat: number): Promise<GameState> {
@@ -78,10 +79,12 @@ async function runHand(state: GameState): Promise<GameState> {
 
   current = postBlinds(current);
 
+  const { smallBlind, bigBlind } = getBlinds(current.blindLevel);
   logEvent(current.tournamentId, "hand_start", {
     hand: current.handNumber,
     dealer: current.dealerSeat,
     pot: current.pot,
+    blinds: { small: smallBlind, big: bigBlind },
     stacks: activePlayers(current).map(p => ({ seat: p.seat, name: p.name, stack: p.stack })),
   });
 
@@ -182,9 +185,17 @@ export async function runPokerGame(
   let handsPlayed = 0;
   const MAX_HANDS = 200;
 
+  let lastBlindLevel = -1;
+
   while (!isTournamentOver(state) && handsPlayed < MAX_HANDS) {
     state = await runHand(state);
     handsPlayed++;
+
+    if (state.blindLevel > lastBlindLevel) {
+      lastBlindLevel = state.blindLevel;
+      const { smallBlind, bigBlind } = getBlinds(state.blindLevel);
+      logEvent(tournamentId, "blinds_up", { level: state.blindLevel, small: smallBlind, big: bigBlind });
+    }
 
     // Detect and log eliminations (stack hit 0 this hand)
     for (const p of state.players) {

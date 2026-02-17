@@ -41,10 +41,12 @@ function EventRow({ event }: { event: GameEvent }): ReactNode {
     }
     case "hand_start": {
       const stacks = (parsed.stacks as { name: string; stack: number }[]) || [];
+      const blinds = parsed.blinds as { small: number; big: number } | undefined;
       return (
         <div className="mt-3">
-          <div className="border-t border-base-content/20 pt-2 text-secondary font-semibold text-xs">
-            ─── Hand #{parsed.hand as number} ───
+          <div className="border-t border-base-content/20 pt-2 text-secondary font-semibold text-xs flex gap-3">
+            <span>─── Hand #{parsed.hand as number} ───</span>
+            {blinds && <span className="text-base-content/40 font-normal">blinds {blinds.small}/{blinds.big}</span>}
           </div>
           <div className="text-xs text-base-content/50 flex gap-3 flex-wrap mt-1">
             {stacks.map(p => (
@@ -54,6 +56,12 @@ function EventRow({ event }: { event: GameEvent }): ReactNode {
         </div>
       );
     }
+    case "blinds_up":
+      return (
+        <div className="text-warning font-bold text-xs mt-2">
+          ⚡ Blinds up! {parsed.small as number}/{parsed.big as number}
+        </div>
+      );
     case "deal":
       return (
         <div className="text-base-content/40 text-xs">

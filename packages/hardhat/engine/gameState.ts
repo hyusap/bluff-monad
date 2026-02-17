@@ -1,8 +1,17 @@
 import { GameState, Player, PlayerAction, AgentData } from "./types";
 
 const STARTING_STACK = 1000;
-const SMALL_BLIND = 10;
-const BIG_BLIND = 20;
+const BASE_SMALL_BLIND = 10;
+const BASE_BIG_BLIND = 20;
+const HANDS_PER_LEVEL = 3; // double blinds every 3 hands
+
+export function getBlinds(blindLevel: number): { smallBlind: number; bigBlind: number } {
+  const multiplier = Math.pow(2, blindLevel);
+  return {
+    smallBlind: BASE_SMALL_BLIND * multiplier,
+    bigBlind: BASE_BIG_BLIND * multiplier,
+  };
+}
 
 export function initGameState(tournamentId: number, agents: AgentData[]): GameState {
   const players: Player[] = agents.map(a => ({
@@ -25,6 +34,7 @@ export function initGameState(tournamentId: number, agents: AgentData[]): GameSt
     handNumber: 0,
     dealerSeat: 0,
     street: "preflop",
+    blindLevel: 0,
   };
 }
 
@@ -46,10 +56,13 @@ export function startHand(state: GameState): GameState {
   const active = activePlayers(state);
   const dealerIdx = active.findIndex(p => p.seat === state.dealerSeat);
   const nextDealer = active[(dealerIdx + 1) % active.length];
+  const newHandNumber = state.handNumber + 1;
+  const newBlindLevel = Math.floor((newHandNumber - 1) / HANDS_PER_LEVEL);
 
   return {
     ...state,
-    handNumber: state.handNumber + 1,
+    handNumber: newHandNumber,
+    blindLevel: newBlindLevel,
     dealerSeat: nextDealer.seat,
     communityCards: [],
     pot: 0,
@@ -73,9 +86,10 @@ export function postBlinds(state: GameState): GameState {
 
   const sb = active[sbIdx];
   const bb = active[bbIdx];
+  const { smallBlind, bigBlind } = getBlinds(state.blindLevel);
 
-  const sbAmount = Math.min(SMALL_BLIND, sb.stack);
-  const bbAmount = Math.min(BIG_BLIND, bb.stack);
+  const sbAmount = Math.min(smallBlind, sb.stack);
+  const bbAmount = Math.min(bigBlind, bb.stack);
 
   return {
     ...state,
@@ -114,6 +128,7 @@ export function applyAction(
 ): GameState {
   const player = state.players.find(p => p.seat === seat)!;
   const toCall = state.currentBet - player.currentBet;
+  const { bigBlind } = getBlinds(state.blindLevel);
 
   let updatedPlayer = { ...player };
   let potDelta = 0;
@@ -129,7 +144,7 @@ export function applyAction(
     updatedPlayer.allIn = updatedPlayer.stack === 0;
     potDelta = callAmount;
   } else if (action === "raise") {
-    const minRaise = state.currentBet + BIG_BLIND;
+    const minRaise = state.currentBet + bigBlind;
     const target = Math.max(raiseAmount ?? minRaise, minRaise);
     const totalBet = Math.min(target, player.stack + player.currentBet);
     const chipsPut = totalBet - player.currentBet;
@@ -174,5 +189,3 @@ export function awardPot(state: GameState, winnerSeat: number): GameState {
     ),
   };
 }
-
-export { SMALL_BLIND, BIG_BLIND };
