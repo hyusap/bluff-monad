@@ -50,8 +50,11 @@ contract TournamentBetting is Ownable {
     // tournamentId => total amount in the betting pool
     mapping(uint256 => uint256) public totalPool;
 
-    // tournamentId => winning seat (-1 = not settled yet)
-    mapping(uint256 => int256) private _winningSeat;
+    // tournamentId => whether betting has been settled
+    mapping(uint256 => bool) private _settled;
+
+    // tournamentId => winning seat (only valid when _settled is true)
+    mapping(uint256 => uint256) private _winningSeat;
 
     // tournamentId => payout pool (totalPool minus platform fee, set on settlement)
     mapping(uint256 => uint256) private _payoutPool;
@@ -126,9 +129,10 @@ contract TournamentBetting is Ownable {
 
         (, , uint8 status, , ) = pokerVault.tournaments(tournamentId);
         require(status == 2, "Tournament not finished");
-        require(_winningSeat[tournamentId] == -1, "Already settled");
+        require(!_settled[tournamentId], "Already settled");
 
-        _winningSeat[tournamentId] = int256(winningSeat);
+        _settled[tournamentId] = true;
+        _winningSeat[tournamentId] = winningSeat;
 
         uint256 pool = totalPool[tournamentId];
 
@@ -161,9 +165,8 @@ contract TournamentBetting is Ownable {
      * Winners share the payout pool proportional to their stake on the winning seat.
      */
     function claimWinnings(uint256 tournamentId) external {
-        int256 ws = _winningSeat[tournamentId];
-        require(ws >= 0, "Betting not settled yet");
-        uint256 winningSeat = uint256(ws);
+        require(_settled[tournamentId], "Betting not settled yet");
+        uint256 winningSeat = _winningSeat[tournamentId];
 
         require(!claimed[tournamentId][msg.sender], "Already claimed");
 
@@ -206,7 +209,8 @@ contract TournamentBetting is Ownable {
      * Returns the winning seat for a settled tournament, or -1 if not yet settled.
      */
     function getWinningSeat(uint256 tournamentId) external view returns (int256) {
-        return _winningSeat[tournamentId];
+        if (!_settled[tournamentId]) return -1;
+        return int256(_winningSeat[tournamentId]);
     }
 
     /**
