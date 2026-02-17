@@ -4,7 +4,12 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { parseEther } from "viem";
 import { useAccount, useSwitchChain } from "wagmi";
-import { useScaffoldWriteContract, useScaffoldReadContract, useDeployedContractInfo, useTargetNetwork } from "~~/hooks/scaffold-eth";
+import {
+  useDeployedContractInfo,
+  useScaffoldReadContract,
+  useScaffoldWriteContract,
+  useTargetNetwork,
+} from "~~/hooks/scaffold-eth";
 
 export function CreateTournamentForm() {
   const router = useRouter();
@@ -15,7 +20,9 @@ export function CreateTournamentForm() {
   const { chain: accountChain, isConnected } = useAccount();
   const { switchChain } = useSwitchChain();
 
-  const { data: deployedContract, isLoading: contractLoading } = useDeployedContractInfo({ contractName: "PokerVault" });
+  const { data: deployedContract, isLoading: contractLoading } = useDeployedContractInfo({
+    contractName: "PokerVault",
+  });
   const { writeContractAsync, isMining } = useScaffoldWriteContract({ contractName: "PokerVault" });
 
   const { data: nextId } = useScaffoldReadContract({
@@ -48,14 +55,23 @@ export function CreateTournamentForm() {
   }
 
   if (!isConnected) {
-    return <div className="alert alert-warning text-sm">Connect your wallet to create a tournament.</div>;
+    return (
+      <div className="bg-[#A0153E]/10 border border-[#A0153E]/20 squircle-sm px-4 py-3 text-sm text-[#A0153E]">
+        Connect your wallet to create a tournament.
+      </div>
+    );
   }
 
   if (wrongNetwork) {
     return (
-      <div className="alert alert-warning text-sm flex-col items-start gap-2">
-        <p>You&apos;re connected to the wrong network. Switch to <strong>{targetNetwork.name}</strong>.</p>
-        <button className="btn btn-sm btn-warning" onClick={() => switchChain({ chainId: targetNetwork.id })}>
+      <div className="bg-yellow-500/10 border border-yellow-500/20 squircle-sm px-4 py-3 text-sm text-yellow-600">
+        <p className="mb-2">
+          Wrong network. Switch to <strong>{targetNetwork.name}</strong>.
+        </p>
+        <button
+          className="px-3 py-1.5 bg-yellow-600 hover:bg-yellow-700 text-white text-xs font-semibold squircle-sm transition-colors"
+          onClick={() => switchChain({ chainId: targetNetwork.id })}
+        >
           Switch Network
         </button>
       </div>
@@ -64,40 +80,41 @@ export function CreateTournamentForm() {
 
   return (
     <form onSubmit={handleSubmit} className="flex flex-col gap-5 max-w-md">
-      <div className="form-control">
-        <label className="label">
-          <span className="label-text font-semibold">Buy-in (MON)</span>
-          <span className="label-text-alt text-base-content/50">Set to 0 for a free tournament</span>
-        </label>
+      <div>
+        <div className="flex items-center justify-between mb-1.5">
+          <label className="text-sm font-medium text-neutral-400">Buy-in (MON)</label>
+          <span className="text-[11px] text-neutral-600">0 for free</span>
+        </div>
         <input
           type="number"
           min="0"
           step="any"
-          className="input input-bordered"
+          className="w-full bg-[#0A0A0A] border border-[#2A2A2A] squircle-sm px-3 py-2 text-sm text-white placeholder-neutral-600 focus:outline-none focus:border-[#A0153E] transition-colors"
           placeholder="0"
           value={buyInEth}
           onChange={e => setBuyInEth(e.target.value)}
         />
       </div>
 
-      <div className="form-control">
-        <label className="label">
-          <span className="label-text font-semibold">Max Players</span>
-        </label>
+      <div>
+        <label className="block text-sm font-medium text-neutral-400 mb-1.5">Max Players</label>
         <input
           type="number"
           min="2"
           max="10"
-          className="input input-bordered"
+          className="w-full bg-[#0A0A0A] border border-[#2A2A2A] squircle-sm px-3 py-2 text-sm text-white placeholder-neutral-600 focus:outline-none focus:border-[#A0153E] transition-colors"
           value={maxPlayers}
           onChange={e => setMaxPlayers(Number(e.target.value))}
           required
         />
       </div>
 
-      <button type="submit" className="btn btn-primary" disabled={isMining || contractLoading || !deployedContract}>
-        {isMining ? <span className="loading loading-spinner loading-sm" /> : null}
-        {contractLoading ? "Loading..." : "Create Tournament"}
+      <button
+        type="submit"
+        className="px-4 py-2.5 bg-[#A0153E] hover:bg-[#B91C4C] text-white text-sm font-semibold squircle-sm transition-colors disabled:opacity-40"
+        disabled={isMining || contractLoading || !deployedContract}
+      >
+        {isMining ? "Creating..." : contractLoading ? "Loading..." : "Create Tournament"}
       </button>
     </form>
   );
