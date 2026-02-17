@@ -1,17 +1,18 @@
 "use client";
 
-import { useState, use, useEffect } from "react";
+import { use, useEffect, useState } from "react";
 import Link from "next/link";
 import { formatEther } from "viem";
 import { useAccount } from "wagmi";
-import { ArrowLeftIcon, TrophyIcon, PlayIcon } from "@heroicons/react/24/outline";
-import { TournamentStatusBadge } from "~~/components/poker/TournamentStatusBadge";
+import { ArrowLeftIcon, PlayIcon, TrophyIcon } from "@heroicons/react/24/outline";
 import { AgentRoster } from "~~/components/poker/AgentRoster";
-import { GameFeed } from "~~/components/poker/GameFeed";
+import { BettingPanel } from "~~/components/poker/BettingPanel";
 import { EnterAgentModal } from "~~/components/poker/EnterAgentModal";
-import { useTournament } from "~~/hooks/useTournaments";
-import { useGameFeed } from "~~/hooks/useGameFeed";
+import { GameFeed } from "~~/components/poker/GameFeed";
+import { TournamentStatusBadge } from "~~/components/poker/TournamentStatusBadge";
 import { useScaffoldReadContract, useScaffoldWriteContract } from "~~/hooks/scaffold-eth";
+import { useGameFeed } from "~~/hooks/useGameFeed";
+import { useTournament } from "~~/hooks/useTournaments";
 
 export default function TournamentDetail({ params }: { params: Promise<{ id: string }> }) {
   const { id } = use(params);
@@ -36,10 +37,10 @@ export default function TournamentDetail({ params }: { params: Promise<{ id: str
 
   const { writeContractAsync, isMining } = useScaffoldWriteContract({ contractName: "PokerVault" });
 
-  const isOperator = connectedAddress && operatorAddress &&
-    connectedAddress.toLowerCase() === (operatorAddress as string).toLowerCase();
-  const isCreator = connectedAddress && creatorAddress &&
-    connectedAddress.toLowerCase() === (creatorAddress as string).toLowerCase();
+  const isOperator =
+    connectedAddress && operatorAddress && connectedAddress.toLowerCase() === (operatorAddress as string).toLowerCase();
+  const isCreator =
+    connectedAddress && creatorAddress && connectedAddress.toLowerCase() === (creatorAddress as string).toLowerCase();
   const canStartTournament = isOperator || isCreator;
 
   const isOpen = tournament?.status === 0;
@@ -122,14 +123,12 @@ export default function TournamentDetail({ params }: { params: Promise<{ id: str
       {/* Creator/operator start button */}
       {canStartTournament && canStart && (
         <div className="flex items-center gap-3">
-          <button
-            className="btn btn-success gap-2"
-            onClick={handleStart}
-            disabled={isMining || autoStarting}
-          >
-            {(isMining || autoStarting)
-              ? <span className="loading loading-spinner loading-sm" />
-              : <PlayIcon className="h-4 w-4" />}
+          <button className="btn btn-success gap-2" onClick={handleStart} disabled={isMining || autoStarting}>
+            {isMining || autoStarting ? (
+              <span className="loading loading-spinner loading-sm" />
+            ) : (
+              <PlayIcon className="h-4 w-4" />
+            )}
             Start Tournament
           </button>
           {isFull && <span className="text-sm text-success font-semibold">Full — starting automatically…</span>}
@@ -149,19 +148,25 @@ export default function TournamentDetail({ params }: { params: Promise<{ id: str
       {/* Agent Roster */}
       <div>
         <h2 className="text-xl font-bold mb-3">Agents</h2>
-        {agents ? (
-          <AgentRoster agents={agents as any} />
-        ) : (
-          <span className="loading loading-spinner loading-sm" />
-        )}
+        {agents ? <AgentRoster agents={agents as any} /> : <span className="loading loading-spinner loading-sm" />}
+      </div>
+
+      {/* Betting Panel — visible for all tournament states */}
+      <div>
+        <h2 className="text-xl font-bold mb-3">Spectator Betting</h2>
+        <BettingPanel
+          tournamentId={tournamentId}
+          tournamentStatus={tournament.status}
+          agents={(agents ?? []) as any}
+          isOperator={!!isOperator}
+          onSettled={refetch}
+        />
       </div>
 
       {/* Live Game Feed */}
       {(isRunning || isFinished || events.length > 0) && (
         <div>
-          <h2 className="text-xl font-bold mb-3">
-            {isRunning ? "Live Feed" : "Game Log"}
-          </h2>
+          <h2 className="text-xl font-bold mb-3">{isRunning ? "Live Feed" : "Game Log"}</h2>
           <GameFeed events={events} isLoading={feedLoading} />
         </div>
       )}

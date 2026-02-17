@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef, ReactNode } from "react";
+import { ReactNode, useEffect, useRef } from "react";
 import { GameEvent } from "~~/hooks/useGameFeed";
 
 function formatCard(c: string): ReactNode {
@@ -13,7 +13,8 @@ function formatCard(c: string): ReactNode {
       key={c}
       className={`inline-flex items-center px-1 py-0.5 rounded text-xs font-bold bg-white border border-base-300 ${isRed ? "text-red-500" : "text-gray-800"}`}
     >
-      {rank}{suitSymbol}
+      {rank}
+      {suitSymbol}
     </span>
   );
 }
@@ -28,7 +29,11 @@ function formatTime(ts: number) {
 
 function EventRow({ event }: { event: GameEvent }): ReactNode {
   let parsed: Record<string, unknown> = {};
-  try { parsed = JSON.parse(event.data); } catch { /* ignore */ }
+  try {
+    parsed = JSON.parse(event.data);
+  } catch {
+    /* ignore */
+  }
 
   switch (event.type) {
     case "game_start": {
@@ -46,11 +51,17 @@ function EventRow({ event }: { event: GameEvent }): ReactNode {
         <div className="mt-3">
           <div className="border-t border-base-content/20 pt-2 text-secondary font-semibold text-xs flex gap-3">
             <span>─── Hand #{parsed.hand as number} ───</span>
-            {blinds && <span className="text-base-content/40 font-normal">blinds {blinds.small}/{blinds.big}</span>}
+            {blinds && (
+              <span className="text-base-content/40 font-normal">
+                blinds {blinds.small}/{blinds.big}
+              </span>
+            )}
           </div>
           <div className="text-xs text-base-content/50 flex gap-3 flex-wrap mt-1">
             {stacks.map(p => (
-              <span key={p.name}>{p.name}: <span className="text-base-content font-mono">{p.stack}</span></span>
+              <span key={p.name}>
+                {p.name}: <span className="text-base-content font-mono">{p.stack}</span>
+              </span>
             ))}
           </div>
         </div>
@@ -80,15 +91,18 @@ function EventRow({ event }: { event: GameEvent }): ReactNode {
     case "action": {
       const action = parsed.action as string;
       const colorMap: Record<string, string> = {
-        fold: "text-error", check: "text-info", call: "text-info", raise: "text-warning",
+        fold: "text-error",
+        check: "text-info",
+        call: "text-info",
+        raise: "text-warning",
       };
       const emoji: Record<string, string> = { fold: "✗", check: "✓", call: "→", raise: "↑" };
       return (
         <div className={`${colorMap[action] || "text-base-content"}`}>
-          {emoji[action]} <span className="font-semibold">{parsed.name as string}</span>{" "}
-          {action}{parsed.amount ? ` ${parsed.amount}` : ""}
-          {parsed.reasoning && action !== "fold" && (
-            <span className="text-base-content/40 text-xs"> — &ldquo;{parsed.reasoning as string}&rdquo;</span>
+          {emoji[action]} <span className="font-semibold">{parsed.name as string}</span> {action}
+          {parsed.amount ? ` ${parsed.amount}` : ""}
+          {Boolean(parsed.reasoning) && action !== "fold" && (
+            <span className="text-base-content/40 text-xs"> — &ldquo;{String(parsed.reasoning)}&rdquo;</span>
           )}
         </div>
       );
@@ -100,8 +114,7 @@ function EventRow({ event }: { event: GameEvent }): ReactNode {
           🃏 Showdown:{" "}
           {players.map(p => (
             <span key={p.name} className="mr-3">
-              <span className="font-semibold">{p.name}</span>{" "}
-              <Cards cards={p.cards} />{" "}
+              <span className="font-semibold">{p.name}</span> <Cards cards={p.cards} />{" "}
               <span className="text-xs text-base-content/60">({p.handRank})</span>
             </span>
           ))}
@@ -128,7 +141,11 @@ function EventRow({ event }: { event: GameEvent }): ReactNode {
         </div>
       );
     default:
-      return <div className="text-base-content/40 text-xs">[{event.type}] {event.data}</div>;
+      return (
+        <div className="text-base-content/40 text-xs">
+          [{event.type}] {event.data}
+        </div>
+      );
   }
 }
 
