@@ -2,14 +2,26 @@ import * as dotenv from "dotenv";
 dotenv.config();
 import { ethers } from "hardhat";
 import { runPokerGame } from "../engine/pokerGame";
-
-const CONTRACT_ADDRESS = "0xCf7Ed3AccA5a467e9e704C703E8D87F634fB0Fc9";
+import * as fs from "fs";
+import * as path from "path";
 
 async function main() {
   const [operator] = await ethers.getSigners();
-  const vault = await ethers.getContractAt("PokerVault", CONTRACT_ADDRESS, operator);
 
-  console.log(`🎮 Game engine running. Operator: ${operator.address}`);
+  // Get the deployed contract address from deployment file
+  const deploymentPath = path.join(__dirname, "../deployments/localhost/PokerVault.json");
+  if (!fs.existsSync(deploymentPath)) {
+    console.error("❌ Contract not deployed! Run 'yarn deploy' first.");
+    process.exit(1);
+  }
+  const deployment = JSON.parse(fs.readFileSync(deploymentPath, "utf-8"));
+  const contractAddress = deployment.address;
+
+  const vault = await ethers.getContractAt("PokerVault", contractAddress, operator);
+
+  console.log(`🎮 Game engine running`);
+  console.log(`📍 Contract: ${contractAddress}`);
+  console.log(`👤 Operator: ${operator.address}`);
   console.log("👂 Listening for TournamentStarted events...\n");
 
   vault.on("TournamentStarted", async (tournamentId: bigint, playerCount: bigint) => {
