@@ -36,6 +36,7 @@ contract PokerVault is Ownable {
         uint256 prizePool;
         TournamentStatus status;
         uint8   maxPlayers;
+        address creator;
         Agent[] agents;
     }
 
@@ -90,6 +91,7 @@ contract PokerVault is Ownable {
         tournaments[tournamentId].buyIn      = buyIn;
         tournaments[tournamentId].maxPlayers = maxPlayers;
         tournaments[tournamentId].status     = TournamentStatus.Open;
+        tournaments[tournamentId].creator    = msg.sender;
         emit TournamentCreated(tournamentId, buyIn, maxPlayers);
     }
 
@@ -119,11 +121,12 @@ contract PokerVault is Ownable {
     }
 
     /**
-     * Start a tournament. Only the operator can call this.
+     * Start a tournament. The tournament creator OR the operator can call this.
      * Emits TournamentStarted so the agent-runner can read agent data and begin the game.
      */
-    function startTournament(uint256 tournamentId) external onlyOperator {
+    function startTournament(uint256 tournamentId) external {
         Tournament storage t = tournaments[tournamentId];
+        require(msg.sender == t.creator || msg.sender == operator, "Not creator or operator");
         require(t.status == TournamentStatus.Open, "Tournament not open");
         require(t.agents.length >= 2, "Not enough players");
         t.status = TournamentStatus.Running;
@@ -156,6 +159,10 @@ contract PokerVault is Ownable {
     // ─────────────────────────────────────────────
     // View helpers
     // ─────────────────────────────────────────────
+
+    function getTournamentCreator(uint256 tournamentId) external view returns (address) {
+        return tournaments[tournamentId].creator;
+    }
 
     function getTournamentAgents(uint256 tournamentId) external view returns (Agent[] memory) {
         return tournaments[tournamentId].agents;

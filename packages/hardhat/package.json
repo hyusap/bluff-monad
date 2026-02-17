@@ -19,9 +19,11 @@
     "lint": "eslint",
     "lint-staged": "eslint",
     "test": "REPORT_GAS=true hardhat test --network hardhat",
-    "verify": "hardhat run scripts/verifyContract.ts"
+    "verify": "hardhat run scripts/verifyContract.ts",
+    "run-game": "hardhat run scripts/runGame.ts --network localhost"
   },
   "dependencies": {
+    "@anthropic-ai/sdk": "^0.74.0",
     "@inquirer/password": "^4.0.2",
     "@openzeppelin/contracts": "~5.0.2",
     "@typechain/ethers-v6": "~0.5.1",
