@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef, ReactNode } from "react";
+import { ReactNode, useEffect, useRef } from "react";
 import { GameEvent } from "~~/hooks/useGameFeed";
 
 function formatCard(c: string): ReactNode {
@@ -58,9 +58,7 @@ function EventRow({ event }: { event: GameEvent }): ReactNode {
       return (
         <div className="border-t-2 border-gray-700 pt-3 mt-3">
           <div className="flex items-center justify-between mb-2">
-            <div className="text-amber-400 font-bold text-sm tracking-wider">
-              ♠ HAND #{parsed.hand as number} ♠
-            </div>
+            <div className="text-amber-400 font-bold text-sm tracking-wider">♠ HAND #{parsed.hand as number} ♠</div>
             {blinds && (
               <div className="text-gray-500 text-xs font-mono">
                 Blinds: {blinds.small}/{blinds.big}
@@ -88,11 +86,7 @@ function EventRow({ event }: { event: GameEvent }): ReactNode {
       );
 
     case "deal":
-      return (
-        <div className="text-gray-500 text-xs italic">
-          🃏 {parsed.name as string} dealt cards
-        </div>
-      );
+      return <div className="text-gray-500 text-xs italic">🃏 {parsed.name as string} dealt cards</div>;
 
     case "community": {
       const street = (parsed.street as string).toUpperCase();
@@ -152,7 +146,7 @@ function EventRow({ event }: { event: GameEvent }): ReactNode {
               {action}
               {parsed.amount ? ` ${String(parsed.amount)}` : ""}
             </button>
-            {parsed.reasoning && typeof parsed.reasoning === "string" && (
+            {Boolean(parsed.reasoning) && typeof parsed.reasoning === "string" && (
               <span className="text-gray-400 text-xs italic">&ldquo;{parsed.reasoning}&rdquo;</span>
             )}
           </div>
@@ -237,7 +231,9 @@ export function GameFeed({ events, isLoading }: { events: GameEvent[]; isLoading
   if (events.length === 0) {
     return (
       <div className="bg-gray-900/50 backdrop-blur-sm rounded-xl p-6 border border-gray-800">
-        <div className="text-gray-500 text-sm text-center">No game events yet. The feed will update live once the game starts.</div>
+        <div className="text-gray-500 text-sm text-center">
+          No game events yet. The feed will update live once the game starts.
+        </div>
       </div>
     );
   }

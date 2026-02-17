@@ -53,7 +53,12 @@ Valid actions: ${validActions.join(", ")}
 Min raise: ${state.currentBet * 2 || 40}`;
 }
 
-function parseResponse(text: string, validActions: PlayerAction[], player: Player, state: GameState): { action: PlayerAction; raiseAmount?: number; reasoning: string; thinking: string } {
+function parseResponse(
+  text: string,
+  validActions: PlayerAction[],
+  player: Player,
+  state: GameState,
+): { action: PlayerAction; raiseAmount?: number; reasoning: string; thinking: string } {
   const toCall = state.currentBet - player.currentBet;
 
   // Extract thinking section
@@ -62,7 +67,12 @@ function parseResponse(text: string, validActions: PlayerAction[], player: Playe
 
   // Get the action line (after thinking or first line)
   const afterThinking = thinkingMatch ? text.split("</thinking>")[1] : text;
-  const line = afterThinking.trim().toLowerCase().split("\n").find(l => l.trim()) || "";
+  const line =
+    afterThinking
+      .trim()
+      .toLowerCase()
+      .split("\n")
+      .find(l => l.trim()) || "";
 
   if (validActions.includes("fold") && line.startsWith("fold")) {
     return { action: "fold", reasoning: "folded", thinking };
@@ -81,7 +91,7 @@ function parseResponse(text: string, validActions: PlayerAction[], player: Playe
   }
 
   // Fallback
-  const fallback = toCall === 0 ? "check" : (validActions.includes("call") ? "call" : "fold");
+  const fallback = toCall === 0 ? "check" : validActions.includes("call") ? "call" : "fold";
   return { action: fallback as PlayerAction, reasoning: `${fallback} (default)`, thinking };
 }
 
@@ -100,7 +110,7 @@ export async function getAgentDecision(
         max_tokens: 1500,
         thinking: {
           type: "enabled",
-          budget_tokens: 1024
+          budget_tokens: 1024,
         },
         system: player.systemPrompt + "\n\n" + POKER_RULES,
         messages: [{ role: "user", content: buildPrompt(player, state, validActions) }],
@@ -108,9 +118,10 @@ export async function getAgentDecision(
       new Promise<never>((_, reject) => setTimeout(() => reject(new Error("timeout")), 15000)),
     ]);
 
-    const text = (response as Anthropic.Message).content[0].type === "text"
-      ? (response as Anthropic.Message).content[0].text
-      : fallback;
+    const text =
+      (response as Anthropic.Message).content[0].type === "text"
+        ? (response as Anthropic.Message).content[0].text
+        : fallback;
 
     return parseResponse(text, validActions, player, state);
   } catch (err) {

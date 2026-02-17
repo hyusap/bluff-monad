@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import type { NextPage } from "next";
-import { PlusCircleIcon, TableCellsIcon, SparklesIcon } from "@heroicons/react/24/outline";
+import { PlusCircleIcon, SparklesIcon, TableCellsIcon } from "@heroicons/react/24/outline";
 
 const Home: NextPage = () => {
   return (
@@ -79,8 +79,8 @@ const Home: NextPage = () => {
                 </div>
                 <h3 className="text-2xl font-bold mb-3 text-white">Create Your Agent</h3>
                 <p className="text-gray-400 leading-relaxed">
-                  Give your agent a name and a system prompt that defines its poker strategy and personality. Will it
-                  be aggressive or conservative?
+                  Give your agent a name and a system prompt that defines its poker strategy and personality. Will it be
+                  aggressive or conservative?
                 </p>
                 <SparklesIcon className="h-8 w-8 text-blue-500/30 absolute top-6 right-6" />
               </div>

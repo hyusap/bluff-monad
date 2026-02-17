@@ -3,16 +3,22 @@ pragma solidity >=0.8.0 <0.9.0;
 
 import "@openzeppelin/contracts/access/Ownable.sol";
 
+interface IAgentReputationRegistry {
+    function giveFeedback(uint256 agentId, int128 value, string calldata tag) external returns (uint64);
+}
+
 /**
  * PokerVault — escrow for agentic poker tournaments.
  *
- * Agents are ephemeral: they exist only within a tournament and are defined
- * by a name + system prompt submitted at entry time. No persistent registry.
+ * Agents are ephemeral by default: they exist only within a tournament and are defined
+ * by a name + system prompt submitted at entry time. Optionally, agents may link
+ * a persistent ERC-8004 identity (agentId > 0) to build on-chain reputation.
  *
  * Responsibilities:
  *   - Accept buy-ins in MON (native token) when agents enter tournaments
  *   - Hold prize pools while games run
  *   - Pay out the full prize pool to the winner's wallet
+ *   - Post win/loss feedback to the ERC-8004 Reputation Registry (if configured)
  *
  * Game logic (cards, betting, hand evaluation) is entirely off-chain.
  * The operator (agent-runner service) is trusted to report the winner.
@@ -27,6 +33,7 @@ contract PokerVault is Ownable {
         address wallet;       // wallet that entered; receives winnings if they win
         string  name;
         string  systemPrompt;
+        uint256 agentId;      // ERC-8004 identity token ID (0 = ephemeral, unregistered)
     }
 
     enum TournamentStatus { Open, Running, Finished }
@@ -50,12 +57,15 @@ contract PokerVault is Ownable {
 
     mapping(uint256 => Tournament) public tournaments;
 
+    // ERC-8004 Reputation Registry — optional, address(0) means disabled
+    IAgentReputationRegistry public reputationRegistry;
+
     // ─────────────────────────────────────────────
     // Events
     // ─────────────────────────────────────────────
 
     event TournamentCreated(uint256 indexed tournamentId, uint256 buyIn, uint8 maxPlayers);
-    event AgentEntered(uint256 indexed tournamentId, uint256 indexed seatIndex, address indexed wallet, string name);
+    event AgentEntered(uint256 indexed tournamentId, uint256 indexed seatIndex, address indexed wallet, string name, uint256 agentId);
     event TournamentStarted(uint256 indexed tournamentId, uint256 playerCount);
     event TournamentSettled(uint256 indexed tournamentId, uint256 indexed winningSeat, address indexed winner, uint256 payout);
 
@@ -97,15 +107,16 @@ contract PokerVault is Ownable {
 
     /**
      * Enter a tournament with a new agent. Must send exactly the buy-in in MON.
-     * The agent only exists for the duration of this tournament.
      * @param tournamentId Tournament to enter.
      * @param name         Display name for the agent.
      * @param systemPrompt The AI system prompt that drives this agent's decisions.
+     * @param agentId      ERC-8004 identity token ID to link (0 = ephemeral).
      */
     function enterTournament(
         uint256 tournamentId,
         string calldata name,
-        string calldata systemPrompt
+        string calldata systemPrompt,
+        uint256 agentId
     ) external payable returns (uint256 seatIndex) {
         Tournament storage t = tournaments[tournamentId];
         require(t.status == TournamentStatus.Open, "Tournament not open");
@@ -114,10 +125,10 @@ contract PokerVault is Ownable {
         require(msg.value == t.buyIn, "Wrong buy-in amount");
 
         seatIndex = t.agents.length;
-        t.agents.push(Agent({ wallet: msg.sender, name: name, systemPrompt: systemPrompt }));
+        t.agents.push(Agent({ wallet: msg.sender, name: name, systemPrompt: systemPrompt, agentId: agentId }));
         t.prizePool += msg.value;
 
-        emit AgentEntered(tournamentId, seatIndex, msg.sender, name);
+        emit AgentEntered(tournamentId, seatIndex, msg.sender, name, agentId);
     }
 
     /**
@@ -136,6 +147,8 @@ contract PokerVault is Ownable {
     /**
      * Settle a finished tournament. Only the operator can call this.
      * Transfers the full prize pool to the winning agent's wallet.
+     * If the ERC-8004 Reputation Registry is configured, posts win/loss feedback
+     * for all agents that have a registered identity (agentId > 0).
      * @param tournamentId Tournament being settled.
      * @param winningSeat  Seat index (0-based) of the winning agent.
      */
@@ -151,6 +164,18 @@ contract PokerVault is Ownable {
         t.prizePool = 0;
 
         emit TournamentSettled(tournamentId, winningSeat, winner, payout);
+
+        // Post ERC-8004 reputation feedback for all registered agents
+        if (address(reputationRegistry) != address(0)) {
+            for (uint256 i = 0; i < t.agents.length; i++) {
+                uint256 aid = t.agents[i].agentId;
+                if (aid > 0) {
+                    int128 score = (i == winningSeat) ? int128(1) : int128(-1);
+                    // Ignore failures so settlement never gets blocked
+                    try reputationRegistry.giveFeedback(aid, score, "poker-tournament") {} catch {}
+                }
+            }
+        }
 
         (bool success, ) = winner.call{ value: payout }("");
         require(success, "Payout failed");
@@ -172,12 +197,23 @@ contract PokerVault is Ownable {
         return tournaments[tournamentId].agents[seatIndex];
     }
 
+    function getAgentCount(uint256 tournamentId) external view returns (uint256) {
+        return tournaments[tournamentId].agents.length;
+    }
+
     // ─────────────────────────────────────────────
     // Admin
     // ─────────────────────────────────────────────
 
     function setOperator(address _operator) external onlyOwner {
         operator = _operator;
+    }
+
+    /**
+     * Wire in the ERC-8004 Reputation Registry. Pass address(0) to disable.
+     */
+    function setReputationRegistry(address _registry) external onlyOwner {
+        reputationRegistry = IAgentReputationRegistry(_registry);
     }
 
     receive() external payable {}

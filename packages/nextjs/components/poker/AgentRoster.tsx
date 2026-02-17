@@ -4,6 +4,7 @@ type Agent = {
   wallet: string;
   name: string;
   systemPrompt: string;
+  agentId?: bigint;
 };
 
 export function AgentRoster({ agents }: { agents: readonly Agent[] }) {
@@ -18,6 +19,7 @@ export function AgentRoster({ agents }: { agents: readonly Agent[] }) {
           <tr>
             <th>Seat</th>
             <th>Name</th>
+            <th>ERC-8004 ID</th>
             <th>Wallet</th>
             <th>System Prompt</th>
           </tr>
@@ -27,6 +29,13 @@ export function AgentRoster({ agents }: { agents: readonly Agent[] }) {
             <tr key={i}>
               <td className="font-mono text-xs">{i}</td>
               <td className="font-semibold">{agent.name}</td>
+              <td>
+                {agent.agentId && agent.agentId > 0n ? (
+                  <span className="badge badge-accent badge-sm font-mono">#{agent.agentId.toString()}</span>
+                ) : (
+                  <span className="text-base-content/30 text-xs">–</span>
+                )}
+              </td>
               <td>
                 <Address address={agent.wallet} size="xs" />
               </td>

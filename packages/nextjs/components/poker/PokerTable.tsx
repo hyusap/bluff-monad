@@ -48,7 +48,15 @@ function Card({ card, faceDown }: { card?: string; faceDown?: boolean }) {
   );
 }
 
-function PlayerSpot({ player, position, isCurrentPlayer }: { player?: PlayerPosition; position: string; isCurrentPlayer: boolean }) {
+function PlayerSpot({
+  player,
+  position,
+  isCurrentPlayer,
+}: {
+  player?: PlayerPosition;
+  position: string;
+  isCurrentPlayer: boolean;
+}) {
   if (!player) {
     return (
       <div className={`absolute ${position}`}>
@@ -134,16 +142,14 @@ export function PokerTable({ players, communityCards, pot, currentPlayer, maxPla
         {/* Community cards */}
         <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 flex flex-col items-center gap-4">
           <div className="flex gap-2">
-            {communityCards.length > 0 ? (
-              communityCards.map((card, i) => <Card key={i} card={card} />)
-            ) : (
-              Array.from({ length: 5 }).map((_, i) => (
-                <div
-                  key={i}
-                  className="w-12 h-16 rounded-lg border-2 border-dashed border-emerald-600/30 bg-emerald-900/20"
-                />
-              ))
-            )}
+            {communityCards.length > 0
+              ? communityCards.map((card, i) => <Card key={i} card={card} />)
+              : Array.from({ length: 5 }).map((_, i) => (
+                  <div
+                    key={i}
+                    className="w-12 h-16 rounded-lg border-2 border-dashed border-emerald-600/30 bg-emerald-900/20"
+                  />
+                ))}
           </div>
 
           {/* Pot */}
