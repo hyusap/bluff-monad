@@ -2,7 +2,7 @@
 
 import { use, useEffect, useRef, useState } from "react";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { toast } from "sonner";
 import { formatEther } from "viem";
 import { useAccount } from "wagmi";
@@ -10,6 +10,8 @@ import { ArrowLeftIcon } from "@heroicons/react/24/outline";
 import { BettingPanel } from "~~/components/poker/BettingPanel";
 import { EnterAgentModal } from "~~/components/poker/EnterAgentModal";
 import { GameFeed } from "~~/components/poker/GameFeed";
+import { LastTournamentResultsModal } from "~~/components/poker/LastTournamentResultsModal";
+import type { LastTournamentResult } from "~~/components/poker/LastTournamentResultsModal";
 import { PokerTable } from "~~/components/poker/PokerTable";
 import { TournamentStatusBadge } from "~~/components/poker/TournamentStatusBadge";
 import {
@@ -18,6 +20,7 @@ import {
   useScaffoldWriteContract,
 } from "~~/hooks/scaffold-eth";
 import { useGameFeed } from "~~/hooks/useGameFeed";
+import type { GameEvent } from "~~/hooks/useGameFeed";
 import { useTournament } from "~~/hooks/useTournaments";
 
 function toChipNumber(value: unknown): number {
@@ -30,19 +33,64 @@ function toChipNumber(value: unknown): number {
   return 0;
 }
 
+function toOptionalNumber(value: unknown): number | null {
+  if (typeof value === "number" && Number.isFinite(value)) return value;
+  if (typeof value === "bigint") return Number(value);
+  if (typeof value === "string") {
+    const parsed = Number(value);
+    return Number.isFinite(parsed) ? parsed : null;
+  }
+  return null;
+}
+
+function parseResultFromEvents(tournamentId: number, eventList: GameEvent[]): LastTournamentResult | null {
+  const winnerEvent = [...eventList].reverse().find(event => event.type === "winner");
+  if (!winnerEvent) return null;
+
+  let winnerName = "Unknown winner";
+  let winnerSeat: number | null = null;
+  let totalPot: number | null = null;
+
+  try {
+    const parsed = JSON.parse(winnerEvent.data) as Record<string, unknown>;
+    if (typeof parsed.name === "string" && parsed.name.trim()) winnerName = parsed.name.trim();
+    winnerSeat = toOptionalNumber(parsed.seat);
+    totalPot = toOptionalNumber(parsed.totalPot);
+  } catch {
+    // Ignore malformed winner payloads
+  }
+
+  const lastHandStartEvent = [...eventList].reverse().find(event => event.type === "hand_start");
+  let handsPlayed: number | null = null;
+  if (lastHandStartEvent) {
+    try {
+      const parsed = JSON.parse(lastHandStartEvent.data) as Record<string, unknown>;
+      handsPlayed = toOptionalNumber(parsed.hand);
+    } catch {
+      // Ignore malformed hand_start payloads
+    }
+  }
+
+  return { tournamentId, winnerName, winnerSeat, totalPot, handsPlayed };
+}
+
 export default function TournamentDetail({ params }: { params: Promise<{ id: string }> }) {
   const { id } = use(params);
   const router = useRouter();
+  const searchParams = useSearchParams();
   const tournamentId = BigInt(id);
 
   const { tournament, agents, refetch } = useTournament(tournamentId);
   const { events, isLoading: feedLoading } = useGameFeed(id);
   const { address: connectedAddress } = useAccount();
   const [showEnterModal, setShowEnterModal] = useState(false);
+  const [showLastTournamentResultModal, setShowLastTournamentResultModal] = useState(false);
+  const [lastTournamentResult, setLastTournamentResult] = useState<LastTournamentResult | null>(null);
   const [autoStarting, setAutoStarting] = useState(false);
   const [countdown, setCountdown] = useState<number | null>(null);
   const notifiedEventCountRef = useRef<number | null>(null);
   const autoFollowRef = useRef(false);
+  const handledRedirectRef = useRef<string | null>(null);
 
   const { data: operatorAddress } = useScaffoldReadContract({
     contractName: "PokerVault",
@@ -136,12 +184,85 @@ export default function TournamentDetail({ params }: { params: Promise<{ id: str
     const currentId = Number(id);
     if (latestTournamentId <= currentId) return;
 
+    const query = new URLSearchParams({ fromEndedTournament: String(currentId) });
+    const previousTournamentResult = parseResultFromEvents(currentId, events);
+    if (previousTournamentResult) {
+      query.set("winnerName", previousTournamentResult.winnerName);
+      if (previousTournamentResult.winnerSeat !== null) {
+        query.set("winnerSeat", String(previousTournamentResult.winnerSeat));
+      }
+      if (previousTournamentResult.totalPot !== null) {
+        query.set("winnerPot", String(previousTournamentResult.totalPot));
+      }
+      if (previousTournamentResult.handsPlayed !== null) {
+        query.set("handsPlayed", String(previousTournamentResult.handsPlayed));
+      }
+    }
+
     autoFollowRef.current = true;
     toast("Next tournament is live", {
       description: `Moving to Tournament #${latestTournamentId}`,
     });
-    router.push(`/tournaments/${latestTournamentId}`);
-  }, [id, isFinished, nextTournamentId, router]);
+    router.push(`/tournaments/${latestTournamentId}?${query.toString()}`);
+  }, [events, id, isFinished, nextTournamentId, router]);
+
+  useEffect(() => {
+    const redirectedFrom = searchParams.get("fromEndedTournament");
+    if (!redirectedFrom) return;
+
+    const key = `${id}:${redirectedFrom}`;
+    if (handledRedirectRef.current === key) return;
+    handledRedirectRef.current = key;
+
+    const redirectedFromId = Number(redirectedFrom);
+    const currentId = Number(id);
+    const clearRedirectQuery = () => router.replace(`/tournaments/${id}`);
+
+    if (!Number.isInteger(redirectedFromId) || redirectedFromId <= 0 || redirectedFromId >= currentId) {
+      clearRedirectQuery();
+      return;
+    }
+
+    const winnerName = searchParams.get("winnerName")?.trim() || "";
+    const winnerSeat = toOptionalNumber(searchParams.get("winnerSeat"));
+    const winnerPot = toOptionalNumber(searchParams.get("winnerPot"));
+    const handsPlayed = toOptionalNumber(searchParams.get("handsPlayed"));
+
+    const hasQueryResult = winnerName.length > 0 || winnerSeat !== null || winnerPot !== null || handsPlayed !== null;
+
+    if (hasQueryResult) {
+      setLastTournamentResult({
+        tournamentId: redirectedFromId,
+        winnerName: winnerName || (winnerSeat !== null ? `Seat ${winnerSeat}` : "Unknown winner"),
+        winnerSeat,
+        totalPot: winnerPot,
+        handsPlayed,
+      });
+      setShowLastTournamentResultModal(true);
+      clearRedirectQuery();
+      return;
+    }
+
+    let cancelled = false;
+    fetch(`/api/game/${redirectedFromId}`)
+      .then(response => (response.ok ? response.json() : { events: [] }))
+      .then(json => {
+        if (cancelled) return;
+        const parsedResult = parseResultFromEvents(redirectedFromId, (json?.events as GameEvent[] | undefined) ?? []);
+        if (parsedResult) {
+          setLastTournamentResult(parsedResult);
+          setShowLastTournamentResultModal(true);
+        }
+      })
+      .catch(() => {})
+      .finally(() => {
+        if (!cancelled) clearRedirectQuery();
+      });
+
+    return () => {
+      cancelled = true;
+    };
+  }, [id, router, searchParams]);
 
   useEffect(() => {
     if (events.length === 0) return;
@@ -488,6 +609,13 @@ export default function TournamentDetail({ params }: { params: Promise<{ id: str
           buyIn={tournament.buyIn}
           onSuccess={refetch}
           onClose={() => setShowEnterModal(false)}
+        />
+      )}
+      {lastTournamentResult && (
+        <LastTournamentResultsModal
+          open={showLastTournamentResultModal}
+          onOpenChange={setShowLastTournamentResultModal}
+          result={lastTournamentResult}
         />
       )}
     </div>
