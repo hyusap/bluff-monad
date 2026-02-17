@@ -113,14 +113,39 @@ Set these Vercel project env vars before production deploy:
 - `NEXT_PUBLIC_WALLET_CONNECT_PROJECT_ID`
 - `GAME_ENGINE_URL` (optional; only if you run an external game engine API)
 
-## 6. Post-Deploy Checklist
+## 6. Deploy Game Engine (Docker, Monad Testnet)
+
+Build:
+
+```bash
+docker build -t bluff-game-engine:testnet .
+```
+
+Run:
+
+```bash
+docker run --rm -p 3001:3001 \
+  -e DEPLOYER_PRIVATE_KEY=0x... \
+  -e GAME_ENGINE_DEPLOYMENT_NETWORK=monadTestnet \
+  bluff-game-engine:testnet
+```
+
+Or with Docker Compose:
+
+```bash
+export DEPLOYER_PRIVATE_KEY=0x...
+docker compose up -d --build
+```
+
+Notes:
+
+- The engine listens on port `3001`.
+- `DEPLOYER_PRIVATE_KEY` must be funded on Monad testnet and authorized as operator if required by your contracts.
+- The image runs `yarn run-game:testnet`, which uses `--network monadTestnet`.
+
+## 7. Post-Deploy Checklist
 
 1. Open deployed app URL and connect wallet.
 2. Switch to Monad testnet in wallet.
 3. Confirm contracts appear and reads succeed.
 4. If tournament feed is needed, ensure `GAME_ENGINE_URL` points to a reachable API.
-
-## 7. Important Caveat (Game Engine)
-
-`yarn run-game` currently runs on `localhost` and reads `packages/hardhat/deployments/localhost`.  
-For a production game-engine service, you will need to adapt `packages/hardhat/scripts/runGame.ts` and deployment wiring for non-local networks.

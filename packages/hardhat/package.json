@@ -21,7 +21,8 @@
     "test": "REPORT_GAS=true hardhat test --network hardhat",
     "verify": "hardhat run scripts/verifyContract.ts",
     "run-game": "hardhat run scripts/runGame.ts --network localhost",
-    "run-game:debug": "POKER_DEBUG_MODE=true hardhat run scripts/runGame.ts --network localhost"
+    "run-game:debug": "POKER_DEBUG_MODE=true hardhat run scripts/runGame.ts --network localhost",
+    "run-game:testnet": "GAME_ENGINE_DEPLOYMENT_NETWORK=monadTestnet hardhat run scripts/runGame.ts --network monadTestnet"
   },
   "dependencies": {
     "@ai-sdk/anthropic": "^3.0.44",

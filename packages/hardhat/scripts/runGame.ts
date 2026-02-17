@@ -1,6 +1,6 @@
 import * as dotenv from "dotenv";
 dotenv.config();
-import { ethers } from "hardhat";
+import { ethers, network } from "hardhat";
 import { runPokerGame } from "../engine/pokerGame";
 import { getEvents } from "../engine/eventLogger";
 import * as fs from "fs";
@@ -93,11 +93,15 @@ async function main() {
     throw new Error("POKER_MIN_PLAYERS_TO_START cannot exceed POKER_DEFAULT_AGENT_COUNT.");
   }
 
-  // Get the deployed contract addresses from deployment files
-  const vaultPath = path.join(__dirname, "../deployments/localhost/PokerVault.json");
-  const bettingPath = path.join(__dirname, "../deployments/localhost/TournamentBetting.json");
+  // Resolve deployment artifacts based on the target network.
+  const deploymentNetwork = process.env.GAME_ENGINE_DEPLOYMENT_NETWORK || network.name;
+  const deploymentsDir = path.join(__dirname, `../deployments/${deploymentNetwork}`);
+  const vaultPath = path.join(deploymentsDir, "PokerVault.json");
+  const bettingPath = path.join(deploymentsDir, "TournamentBetting.json");
   if (!fs.existsSync(vaultPath)) {
-    console.error("❌ Contract not deployed! Run 'yarn deploy' first.");
+    console.error(
+      `❌ Contract not deployed for '${deploymentNetwork}'. Run 'yarn deploy --network ${deploymentNetwork}' first.`,
+    );
     process.exit(1);
   }
   const vaultDeployment = JSON.parse(fs.readFileSync(vaultPath, "utf-8"));

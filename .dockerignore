@@ -1,0 +1,15 @@
+.git
+.gitignore
+.context
+.cursor
+.vscode
+.idea
+node_modules
+**/node_modules
+**/.next
+**/coverage
+**/artifacts-zk
+**/cache-zk
+*.log
+**/.env
+**/.env.*

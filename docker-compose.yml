@@ -1,0 +1,17 @@
+services:
+  game-engine:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: bluff-game-engine:testnet
+    container_name: bluff-game-engine
+    restart: unless-stopped
+    ports:
+      - "${GAME_ENGINE_PORT:-3001}:3001"
+    environment:
+      DEPLOYER_PRIVATE_KEY: "${DEPLOYER_PRIVATE_KEY}"
+      GAME_ENGINE_DEPLOYMENT_NETWORK: "${GAME_ENGINE_DEPLOYMENT_NETWORK:-monadTestnet}"
+      GAME_ENGINE_PORT: "${GAME_ENGINE_PORT:-3001}"
+      POKER_DEFAULT_BUY_IN: "${POKER_DEFAULT_BUY_IN:-0.1}"
+      POKER_DEFAULT_AGENT_COUNT: "${POKER_DEFAULT_AGENT_COUNT:-6}"
+      POKER_MIN_PLAYERS_TO_START: "${POKER_MIN_PLAYERS_TO_START:-4}"
