@@ -119,3 +119,112 @@
 .link:hover {
   opacity: 80%;
 }
+
+/* Custom animations */
+@keyframes slide-in-from-top {
+  from {
+    transform: translateY(-20px);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+@keyframes slide-in-from-bottom {
+  from {
+    transform: translateY(20px);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+@keyframes slide-in-from-left {
+  from {
+    transform: translateX(-20px);
+    opacity: 0;
+  }
+  to {
+    transform: translateX(0);
+    opacity: 1;
+  }
+}
+
+@keyframes fade-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+.animate-in {
+  animation-fill-mode: both;
+}
+
+.fade-in {
+  animation-name: fade-in;
+}
+
+.slide-in-from-top-10 {
+  animation-name: slide-in-from-top;
+}
+
+.slide-in-from-bottom-10 {
+  animation-name: slide-in-from-bottom;
+}
+
+.slide-in-from-left-5 {
+  animation-name: slide-in-from-left;
+}
+
+.duration-300 {
+  animation-duration: 300ms;
+}
+
+.duration-1000 {
+  animation-duration: 1000ms;
+}
+
+.delay-200 {
+  animation-delay: 200ms;
+}
+
+.delay-400 {
+  animation-delay: 400ms;
+}
+
+.delay-1000 {
+  animation-delay: 1000ms;
+}
+
+/* Custom scrollbar */
+.scrollbar-thin::-webkit-scrollbar {
+  width: 8px;
+}
+
+.scrollbar-thin::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.scrollbar-thin::-webkit-scrollbar-thumb {
+  background: rgb(55, 65, 81);
+  border-radius: 4px;
+}
+
+.scrollbar-thin::-webkit-scrollbar-thumb:hover {
+  background: rgb(75, 85, 99);
+}
+
+.scrollbar-thumb-gray-700::-webkit-scrollbar-thumb {
+  background: rgb(55, 65, 81);
+}
+
+.scrollbar-track-transparent::-webkit-scrollbar-track {
+  background: transparent;
+}

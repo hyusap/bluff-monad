@@ -5,13 +5,19 @@ const client = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY });
 
 const POKER_RULES = `
 You are playing Texas Hold'em poker. Your goal is to win chips.
-Respond with ONLY one line in this exact format:
+
+First, think through your decision in a <thinking> section:
+- Analyze your hand strength
+- Consider the pot odds and betting patterns
+- Evaluate your opponents' likely hands
+- Decide on your strategy
+
+Then respond with your action in this exact format:
   fold
   check
   call
   raise <amount>
-
-No explanation. Just the action.`.trim();
+`.trim();
 
 function formatCards(cards: string[]): string {
   return cards
@@ -47,36 +53,43 @@ Valid actions: ${validActions.join(", ")}
 Min raise: ${state.currentBet * 2 || 40}`;
 }
 
-function parseResponse(text: string, validActions: PlayerAction[], player: Player, state: GameState): { action: PlayerAction; raiseAmount?: number; reasoning: string } {
-  const line = text.trim().toLowerCase().split("\n")[0];
+function parseResponse(text: string, validActions: PlayerAction[], player: Player, state: GameState): { action: PlayerAction; raiseAmount?: number; reasoning: string; thinking: string } {
   const toCall = state.currentBet - player.currentBet;
 
+  // Extract thinking section
+  const thinkingMatch = text.match(/<thinking>([\s\S]*?)<\/thinking>/);
+  const thinking = thinkingMatch ? thinkingMatch[1].trim() : "";
+
+  // Get the action line (after thinking or first line)
+  const afterThinking = thinkingMatch ? text.split("</thinking>")[1] : text;
+  const line = afterThinking.trim().toLowerCase().split("\n").find(l => l.trim()) || "";
+
   if (validActions.includes("fold") && line.startsWith("fold")) {
-    return { action: "fold", reasoning: "folded" };
+    return { action: "fold", reasoning: "folded", thinking };
   }
   if (validActions.includes("check") && line.startsWith("check")) {
-    return { action: "check", reasoning: "checked" };
+    return { action: "check", reasoning: "checked", thinking };
   }
   if (validActions.includes("call") && line.startsWith("call")) {
-    return { action: "call", reasoning: `called ${toCall}` };
+    return { action: "call", reasoning: `called ${toCall}`, thinking };
   }
   if (validActions.includes("raise") && line.startsWith("raise")) {
     const parts = line.split(/\s+/);
     const amount = parseInt(parts[1], 10);
     const raiseAmount = isNaN(amount) ? state.currentBet * 2 : Math.min(amount, player.stack);
-    return { action: "raise", raiseAmount, reasoning: `raised to ${raiseAmount}` };
+    return { action: "raise", raiseAmount, reasoning: `raised to ${raiseAmount}`, thinking };
   }
 
   // Fallback
   const fallback = toCall === 0 ? "check" : (validActions.includes("call") ? "call" : "fold");
-  return { action: fallback as PlayerAction, reasoning: `${fallback} (default)` };
+  return { action: fallback as PlayerAction, reasoning: `${fallback} (default)`, thinking };
 }
 
 export async function getAgentDecision(
   player: Player,
   state: GameState,
   validActions: PlayerAction[],
-): Promise<{ action: PlayerAction; raiseAmount?: number; reasoning: string }> {
+): Promise<{ action: PlayerAction; raiseAmount?: number; reasoning: string; thinking: string }> {
   const toCall = state.currentBet - player.currentBet;
   const fallback = toCall === 0 ? "check" : "call";
 
@@ -84,7 +97,11 @@ export async function getAgentDecision(
     const response = await Promise.race([
       client.messages.create({
         model: "claude-haiku-4-5-20251001",
-        max_tokens: 50,
+        max_tokens: 300,
+        thinking: {
+          type: "enabled",
+          budget_tokens: 200
+        },
         system: player.systemPrompt + "\n\n" + POKER_RULES,
         messages: [{ role: "user", content: buildPrompt(player, state, validActions) }],
       }),
@@ -98,6 +115,6 @@ export async function getAgentDecision(
     return parseResponse(text, validActions, player, state);
   } catch (err) {
     console.warn(`Agent ${player.name} decision failed: ${err}. Defaulting to ${fallback}.`);
-    return { action: fallback as PlayerAction, reasoning: `${fallback} (timeout/error)` };
+    return { action: fallback as PlayerAction, reasoning: `${fallback} (timeout/error)`, thinking: "" };
   }
 }

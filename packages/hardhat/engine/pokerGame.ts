@@ -41,7 +41,7 @@ async function runBettingRound(state: GameState, startSeat: number): Promise<Gam
     if (handActivePlayers(current).length === 1) break;
 
     const validActions = getValidActions(livePlayer, current);
-    const { action, raiseAmount, reasoning } = await getAgentDecision(livePlayer, current, validActions);
+    const { action, raiseAmount, reasoning, thinking } = await getAgentDecision(livePlayer, current, validActions);
 
     current = applyAction(current, livePlayer.seat, action, raiseAmount);
 
@@ -52,6 +52,7 @@ async function runBettingRound(state: GameState, startSeat: number): Promise<Gam
       amount: action === "raise" ? raiseAmount : action === "call" ? Math.min(state.currentBet - livePlayer.currentBet, livePlayer.stack) : undefined,
       pot: current.pot,
       reasoning,
+      thinking,
     });
 
     if (action === "raise") {
