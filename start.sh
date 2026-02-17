@@ -26,11 +26,6 @@ until curl -s -X POST --data '{"jsonrpc":"2.0","method":"eth_blockNumber","param
 done
 echo "   ✅ Node ready"
 
-# Reset all account nonces on the fresh node so MetaMask stays in sync
-echo "   Resetting account nonces..."
-curl -s -X POST --data '{"jsonrpc":"2.0","method":"hardhat_reset","params":[],"id":1}' http://localhost:8545 > /dev/null 2>&1
-echo "   ✅ Nonces reset"
-
 echo ""
 echo "📦 Deploying contracts..."
 yarn deploy
