@@ -1,21 +1,18 @@
 import { anthropic } from "@ai-sdk/anthropic";
 import { generateObject } from "ai";
 import { z } from "zod";
-import { Player, GameState, PlayerAction } from "./types";
+import { GameState, Player, PlayerAction } from "./types";
 
 // Keep schema flat so providers that reject JSON Schema oneOf still work.
 const PokerDecisionSchema = z.object({
   thinking: z
     .string()
-    .max(280)
     .describe("One short paragraph only (max 4 sentences): briefly explain hand strength, pot odds, and strategy."),
   decision: z.object({
     action: z.enum(["fold", "check", "call", "raise"]).describe("Your chosen action"),
     raiseAmount: z.number().optional().describe("Amount to raise to when action is raise"),
   }),
 });
-
-const MAX_AGENT_TOKENS = 220;
 
 const POKER_RULES = `
 You are playing no-limit Texas Hold'em.
@@ -57,7 +54,7 @@ ${others}
 Valid actions: ${validActions.join(", ")}
 Min raise: ${state.currentBet * 2 || 40}
 
-Return "thinking" as exactly one short paragraph.
+Return "thinking" as exactly two sentences at most.
 Make your decision now.`;
 }
 
@@ -77,7 +74,6 @@ export async function getAgentDecision(
       generateObject({
         model: anthropic("claude-haiku-4-5-20251001"),
         schema: PokerDecisionSchema,
-        maxTokens: MAX_AGENT_TOKENS,
         system: POKER_RULES + "\n\nAgent strategy and objectives:\n" + player.systemPrompt,
         prompt: buildPrompt(player, state, validActions),
       }),

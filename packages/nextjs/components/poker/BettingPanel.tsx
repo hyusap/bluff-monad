@@ -1,6 +1,7 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
+import { toast } from "sonner";
 import { formatEther, parseEther } from "viem";
 import { useAccount } from "wagmi";
 import { useScaffoldWriteContract } from "~~/hooks/scaffold-eth";
@@ -70,19 +71,31 @@ export function BettingPanel({ tournamentId, tournamentStatus, agents }: Props) 
     refetchUserBets();
   }
 
-  async function handleClaimWinnings() {
-    await writeBetting({
-      functionName: "claimWinnings",
-      args: [tournamentId],
-    });
-    refetchClaimed();
-  }
-
   // Determine if connected user has a winning bet to claim
   const userHasWinningBet =
     isSettled && winSeat >= 0 && userBets && userBets[winSeat] !== undefined && userBets[winSeat] > 0n;
 
   const canClaim = userHasWinningBet && !hasClaimed;
+
+  // Auto-claim winnings when betting is settled and user has a winning bet
+  const autoClaimAttempted = useRef(false);
+  useEffect(() => {
+    if (!canClaim || autoClaimAttempted.current || isMining) return;
+    autoClaimAttempted.current = true;
+
+    writeBetting({ functionName: "claimWinnings", args: [tournamentId] })
+      .then(() => {
+        const winnings = formatEther(userBets![winSeat]);
+        toast.success("Winnings claimed!", {
+          description: `Your ${winnings} MON bet on seat ${winSeat} has been paid out.`,
+        });
+        refetchClaimed();
+      })
+      .catch(() => {
+        // Reset so user can try manually if auto-claim fails
+        autoClaimAttempted.current = false;
+      });
+  }, [canClaim]); // eslint-disable-line react-hooks/exhaustive-deps
 
   return (
     <div className="flex flex-col gap-4">
@@ -207,17 +220,11 @@ export function BettingPanel({ tournamentId, tournamentStatus, agents }: Props) 
         </div>
       )}
 
-      {/* Claim winnings — when settled and user has a winning bet */}
+      {/* Auto-claiming in progress */}
       {canClaim && (
-        <div className="alert alert-success shadow flex-col items-start gap-2">
-          <p className="font-bold">You picked the winner!</p>
-          <p className="text-sm">
-            Your bet on seat {winSeat}: {formatEther(userBets![winSeat])} MON
-          </p>
-          <button className="btn btn-success btn-sm" onClick={handleClaimWinnings} disabled={isMining}>
-            {isMining ? <span className="loading loading-spinner loading-xs" /> : null}
-            Claim Winnings
-          </button>
+        <div className="alert alert-success shadow flex-row items-center gap-2">
+          <span className="loading loading-spinner loading-xs" />
+          <p className="text-sm font-semibold">Claiming your winnings...</p>
         </div>
       )}
 

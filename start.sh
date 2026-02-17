@@ -37,7 +37,7 @@ yarn deploy
 
 echo ""
 echo "🎮 Starting game engine..."
-yarn run-game &
+yarn run-game:debug &
 GAME_PID=$!
 
 echo ""

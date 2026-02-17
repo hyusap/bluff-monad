@@ -181,10 +181,13 @@ function EventRow({ event }: { event: GameEvent }): ReactNode {
 }
 
 export function GameFeed({ events, isLoading }: { events: GameEvent[]; isLoading: boolean }) {
-  const bottomRef = useRef<HTMLDivElement>(null);
+  const containerRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    bottomRef.current?.scrollIntoView({ behavior: "smooth" });
+    const el = containerRef.current?.parentElement;
+    if (el) {
+      el.scrollTop = el.scrollHeight;
+    }
   }, [events]);
 
   if (isLoading) {
@@ -204,11 +207,10 @@ export function GameFeed({ events, isLoading }: { events: GameEvent[]; isLoading
   }
 
   return (
-    <div className="px-4 py-3 space-y-0">
+    <div ref={containerRef} className="px-4 py-3 space-y-0">
       {events.map((event, i) => (
         <EventRow key={i} event={event} />
       ))}
-      <div ref={bottomRef} />
     </div>
   );
 }

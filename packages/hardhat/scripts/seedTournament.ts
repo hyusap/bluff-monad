@@ -1,12 +1,15 @@
 /**
  * Creates a tournament with 4 agents, each with a distinct system prompt.
+ * Registers each agent in the ERC-8004 AgentIdentityRegistry so they
+ * accumulate reputation and appear on the leaderboard.
+ *
  * The game engine (runGame.ts) must already be running to pick up the TournamentStarted event.
  */
 import * as dotenv from "dotenv";
 dotenv.config();
 import { ethers } from "hardhat";
-
-const CONTRACT_ADDRESS = "0xCf7Ed3AccA5a467e9e704C703E8D87F634fB0Fc9";
+import * as fs from "fs";
+import * as path from "path";
 
 const AGENTS = [
   {
@@ -27,26 +30,48 @@ const AGENTS = [
   },
 ];
 
+function loadAddress(contractName: string): string {
+  const p = path.join(__dirname, `../deployments/localhost/${contractName}.json`);
+  if (!fs.existsSync(p)) {
+    console.error(`❌ ${contractName} not deployed! Run 'yarn deploy' first.`);
+    process.exit(1);
+  }
+  return JSON.parse(fs.readFileSync(p, "utf-8")).address;
+}
+
 async function main() {
   const signers = await ethers.getSigners();
   const [operator, s1, s2, s3, s4] = signers;
   const agentSigners = [s1, s2, s3, s4];
 
-  const vault = await ethers.getContractAt("PokerVault", CONTRACT_ADDRESS, operator);
+  const vault = await ethers.getContractAt("PokerVault", loadAddress("PokerVault"), operator);
+  const identity = await ethers.getContractAt("AgentIdentityRegistry", loadAddress("AgentIdentityRegistry"), operator);
+
+  // Register agents in the identity registry (so they appear on the leaderboard)
+  const agentIds: bigint[] = [];
+  for (let i = 0; i < AGENTS.length; i++) {
+    const signer = agentSigners[i];
+    const tx = await identity.connect(signer).register(`agent://${AGENTS[i].name.toLowerCase().replace(/\s+/g, "-")}`);
+    const receipt = await tx.wait();
+    const event = receipt.logs.find((l: any) => l.fragment?.name === "Registered");
+    const agentId = event.args[0];
+    agentIds.push(agentId);
+    console.log(`  Registered: ${AGENTS[i].name} → agentId #${agentId}`);
+  }
 
   // Create tournament (free, 4 players)
   const tx = await vault.createTournament(0, 4);
   const receipt = await tx.wait();
   const event = receipt.logs.find((l: any) => l.fragment?.name === "TournamentCreated");
   const tournamentId = Number(event.args[0]);
-  console.log(`✅ Created tournament #${tournamentId}`);
+  console.log(`\n✅ Created tournament #${tournamentId}`);
 
-  // Enter all 4 agents
+  // Enter all 4 agents with their registered agentId
   for (let i = 0; i < AGENTS.length; i++) {
     const { name, systemPrompt } = AGENTS[i];
     const signer = agentSigners[i];
-    await (await vault.connect(signer).enterTournament(tournamentId, name, systemPrompt)).wait();
-    console.log(`  Agent entered: ${name} (seat ${i})`);
+    await (await vault.connect(signer).enterTournament(tournamentId, name, systemPrompt, agentIds[i])).wait();
+    console.log(`  Agent entered: ${name} (seat ${i}, agentId #${agentIds[i]})`);
   }
 
   // Start the tournament — engine will pick up the TournamentStarted event
@@ -56,4 +81,7 @@ async function main() {
   console.log(`   (Game feed updates every 3 seconds)`);
 }
 
-main().catch(err => { console.error(err); process.exit(1); });
+main().catch(err => {
+  console.error(err);
+  process.exit(1);
+});

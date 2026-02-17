@@ -11,7 +11,6 @@ import { EnterAgentModal } from "~~/components/poker/EnterAgentModal";
 import { GameFeed } from "~~/components/poker/GameFeed";
 import { PokerTable } from "~~/components/poker/PokerTable";
 import { TournamentStatusBadge } from "~~/components/poker/TournamentStatusBadge";
-import { ScrollArea } from "~~/components/ui/scroll-area";
 import {
   useScaffoldReadContract,
   useScaffoldWatchContractEvent,
@@ -94,7 +93,7 @@ export default function TournamentDetail({ params }: { params: Promise<{ id: str
         if (args?.tournamentId?.toString() !== id) continue;
         const pool = args.totalPool ? formatEther(args.totalPool) : "0";
         toast.success("Spectator betting settled", {
-          description: `Betting pool: ${pool} MON. Winners can now claim!`,
+          description: `Betting pool: ${pool} MON. Winnings will be claimed automatically.`,
         });
       }
     },
@@ -357,60 +356,58 @@ export default function TournamentDetail({ params }: { params: Promise<{ id: str
       <div className="flex-1 min-h-0">
         <div className="flex flex-col lg:flex-row h-full w-full max-w-[1400px] mx-auto">
           {/* Left - Sidebar */}
-          <aside className="w-full lg:w-[320px] shrink-0 border-b lg:border-b-0 lg:border-r border-[#1A1A1A] min-h-0 h-[42vh] lg:h-full">
-            <ScrollArea className="h-full">
-              {isRunning || isFinished || events.length > 0 ? (
-                <GameFeed events={events} isLoading={feedLoading} />
-              ) : (
-                <div className="p-4 space-y-3">
-                  {canStartTournament && canStart && (
-                    <button
-                      className="w-full py-2.5 bg-[#A0153E] hover:bg-[#B91C4C] text-white text-sm font-semibold squircle-sm transition-colors disabled:opacity-40"
-                      onClick={handleStart}
-                      disabled={isMining || autoStarting}
-                    >
-                      {isMining || autoStarting ? "Starting..." : "Start Tournament"}
-                    </button>
-                  )}
+          <aside className="w-full lg:w-[320px] shrink-0 border-b lg:border-b-0 lg:border-r border-[#1A1A1A] min-h-0 h-[42vh] lg:h-full overflow-y-auto">
+            {isRunning || isFinished || events.length > 0 ? (
+              <GameFeed events={events} isLoading={feedLoading} />
+            ) : (
+              <div className="p-4 space-y-3">
+                {canStartTournament && canStart && (
+                  <button
+                    className="w-full py-2.5 bg-[#A0153E] hover:bg-[#B91C4C] text-white text-sm font-semibold squircle-sm transition-colors disabled:opacity-40"
+                    onClick={handleStart}
+                    disabled={isMining || autoStarting}
+                  >
+                    {isMining || autoStarting ? "Starting..." : "Start Tournament"}
+                  </button>
+                )}
 
-                  {isOpen && !isFull && connectedAddress && (
-                    <button
-                      className="w-full py-2.5 bg-[#1A1A1A] hover:bg-[#222222] border border-[#2A2A2A] text-neutral-300 text-sm font-semibold squircle-sm transition-colors"
-                      onClick={() => setShowEnterModal(true)}
-                    >
-                      Enter with your agent
-                    </button>
-                  )}
+                {isOpen && !isFull && connectedAddress && (
+                  <button
+                    className="w-full py-2.5 bg-[#1A1A1A] hover:bg-[#222222] border border-[#2A2A2A] text-neutral-300 text-sm font-semibold squircle-sm transition-colors"
+                    onClick={() => setShowEnterModal(true)}
+                  >
+                    Enter with your agent
+                  </button>
+                )}
 
-                  {isOpen && isFull && !canStartTournament && (
-                    <div className="bg-[#111111] border border-[#1A1A1A] squircle-sm px-3 py-2 text-neutral-500 text-sm">
-                      Tournament full -- waiting for creator to start
-                    </div>
-                  )}
-
-                  <div className="space-y-2 pt-2">
-                    <h3 className="text-xs font-semibold text-neutral-500 uppercase tracking-wider">Agents</h3>
-                    {agents && agents.length > 0 ? (
-                      agents.map((agent, i) => (
-                        <div key={i} className="bg-[#111111] squircle-sm p-3">
-                          <div className="flex items-center gap-2 mb-1">
-                            <div className="w-6 h-6 rounded-full bg-[#1A1A1A] border border-[#2A2A2A] flex items-center justify-center text-[9px] font-bold text-neutral-500">
-                              {agent.name.slice(0, 2).toUpperCase()}
-                            </div>
-                            <span className="font-medium text-xs text-neutral-300">{agent.name}</span>
-                          </div>
-                          <div className="text-[11px] text-neutral-600 line-clamp-2 pl-8" title={agent.systemPrompt}>
-                            {agent.systemPrompt}
-                          </div>
-                        </div>
-                      ))
-                    ) : (
-                      <div className="text-neutral-600 text-sm text-center py-4">No agents yet</div>
-                    )}
+                {isOpen && isFull && !canStartTournament && (
+                  <div className="bg-[#111111] border border-[#1A1A1A] squircle-sm px-3 py-2 text-neutral-500 text-sm">
+                    Tournament full -- waiting for creator to start
                   </div>
+                )}
+
+                <div className="space-y-2 pt-2">
+                  <h3 className="text-xs font-semibold text-neutral-500 uppercase tracking-wider">Agents</h3>
+                  {agents && agents.length > 0 ? (
+                    agents.map((agent, i) => (
+                      <div key={i} className="bg-[#111111] squircle-sm p-3">
+                        <div className="flex items-center gap-2 mb-1">
+                          <div className="w-6 h-6 rounded-full bg-[#1A1A1A] border border-[#2A2A2A] flex items-center justify-center text-[9px] font-bold text-neutral-500">
+                            {agent.name.slice(0, 2).toUpperCase()}
+                          </div>
+                          <span className="font-medium text-xs text-neutral-300">{agent.name}</span>
+                        </div>
+                        <div className="text-[11px] text-neutral-600 line-clamp-2 pl-8" title={agent.systemPrompt}>
+                          {agent.systemPrompt}
+                        </div>
+                      </div>
+                    ))
+                  ) : (
+                    <div className="text-neutral-600 text-sm text-center py-4">No agents yet</div>
+                  )}
                 </div>
-              )}
-            </ScrollArea>
+              </div>
+            )}
           </aside>
 
           {/* Right - Table + Betting */}
