@@ -1,0 +1,836 @@
+{
+  "address": "0xDd3e8b3682A221Dd84d3B0a9B74c5B58Cf7f3E14",
+  "abi": [
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "_operator",
+          "type": "address"
+        }
+      ],
+      "stateMutability": "nonpayable",
+      "type": "constructor"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "owner",
+          "type": "address"
+        }
+      ],
+      "name": "OwnableInvalidOwner",
+      "type": "error"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "account",
+          "type": "address"
+        }
+      ],
+      "name": "OwnableUnauthorizedAccount",
+      "type": "error"
+    },
+    {
+      "anonymous": false,
+      "inputs": [
+        {
+          "indexed": true,
+          "internalType": "uint256",
+          "name": "tournamentId",
+          "type": "uint256"
+        },
+        {
+          "indexed": true,
+          "internalType": "uint256",
+          "name": "seatIndex",
+          "type": "uint256"
+        },
+        {
+          "indexed": true,
+          "internalType": "address",
+          "name": "wallet",
+          "type": "address"
+        },
+        {
+          "indexed": false,
+          "internalType": "string",
+          "name": "name",
+          "type": "string"
+        },
+        {
+          "indexed": false,
+          "internalType": "uint256",
+          "name": "agentId",
+          "type": "uint256"
+        }
+      ],
+      "name": "AgentEntered",
+      "type": "event"
+    },
+    {
+      "anonymous": false,
+      "inputs": [
+        {
+          "indexed": true,
+          "internalType": "address",
+          "name": "previousOwner",
+          "type": "address"
+        },
+        {
+          "indexed": true,
+          "internalType": "address",
+          "name": "newOwner",
+          "type": "address"
+        }
+      ],
+      "name": "OwnershipTransferred",
+      "type": "event"
+    },
+    {
+      "anonymous": false,
+      "inputs": [
+        {
+          "indexed": true,
+          "internalType": "uint256",
+          "name": "tournamentId",
+          "type": "uint256"
+        },
+        {
+          "indexed": false,
+          "internalType": "uint256",
+          "name": "buyIn",
+          "type": "uint256"
+        },
+        {
+          "indexed": false,
+          "internalType": "uint8",
+          "name": "maxPlayers",
+          "type": "uint8"
+        }
+      ],
+      "name": "TournamentCreated",
+      "type": "event"
+    },
+    {
+      "anonymous": false,
+      "inputs": [
+        {
+          "indexed": true,
+          "internalType": "uint256",
+          "name": "tournamentId",
+          "type": "uint256"
+        },
+        {
+          "indexed": true,
+          "internalType": "uint256",
+          "name": "winningSeat",
+          "type": "uint256"
+        },
+        {
+          "indexed": true,
+          "internalType": "address",
+          "name": "winner",
+          "type": "address"
+        },
+        {
+          "indexed": false,
+          "internalType": "uint256",
+          "name": "payout",
+          "type": "uint256"
+        }
+      ],
+      "name": "TournamentSettled",
+      "type": "event"
+    },
+    {
+      "anonymous": false,
+      "inputs": [
+        {
+          "indexed": true,
+          "internalType": "uint256",
+          "name": "tournamentId",
+          "type": "uint256"
+        },
+        {
+          "indexed": false,
+          "internalType": "uint256",
+          "name": "playerCount",
+          "type": "uint256"
+        }
+      ],
+      "name": "TournamentStarted",
+      "type": "event"
+    },
+    {
+      "inputs": [],
+      "name": "activeTournamentId",
+      "outputs": [
+        {
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "uint256",
+          "name": "buyIn",
+          "type": "uint256"
+        },
+        {
+          "internalType": "uint8",
+          "name": "maxPlayers",
+          "type": "uint8"
+        }
+      ],
+      "name": "createTournament",
+      "outputs": [
+        {
+          "internalType": "uint256",
+          "name": "tournamentId",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "uint256",
+          "name": "tournamentId",
+          "type": "uint256"
+        },
+        {
+          "internalType": "string",
+          "name": "name",
+          "type": "string"
+        },
+        {
+          "internalType": "string",
+          "name": "systemPrompt",
+          "type": "string"
+        },
+        {
+          "internalType": "uint256",
+          "name": "agentId",
+          "type": "uint256"
+        }
+      ],
+      "name": "enterTournament",
+      "outputs": [
+        {
+          "internalType": "uint256",
+          "name": "seatIndex",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "payable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "uint256",
+          "name": "tournamentId",
+          "type": "uint256"
+        }
+      ],
+      "name": "getAgentCount",
+      "outputs": [
+        {
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "uint256",
+          "name": "tournamentId",
+          "type": "uint256"
+        },
+        {
+          "internalType": "uint256",
+          "name": "seatIndex",
+          "type": "uint256"
+        }
+      ],
+      "name": "getTournamentAgent",
+      "outputs": [
+        {
+          "components": [
+            {
+              "internalType": "address",
+              "name": "wallet",
+              "type": "address"
+            },
+            {
+              "internalType": "string",
+              "name": "name",
+              "type": "string"
+            },
+            {
+              "internalType": "string",
+              "name": "systemPrompt",
+              "type": "string"
+            },
+            {
+              "internalType": "uint256",
+              "name": "agentId",
+              "type": "uint256"
+            }
+          ],
+          "internalType": "struct PokerVault.Agent",
+          "name": "",
+          "type": "tuple"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "uint256",
+          "name": "tournamentId",
+          "type": "uint256"
+        }
+      ],
+      "name": "getTournamentAgents",
+      "outputs": [
+        {
+          "components": [
+            {
+              "internalType": "address",
+              "name": "wallet",
+              "type": "address"
+            },
+            {
+              "internalType": "string",
+              "name": "name",
+              "type": "string"
+            },
+            {
+              "internalType": "string",
+              "name": "systemPrompt",
+              "type": "string"
+            },
+            {
+              "internalType": "uint256",
+              "name": "agentId",
+              "type": "uint256"
+            }
+          ],
+          "internalType": "struct PokerVault.Agent[]",
+          "name": "",
+          "type": "tuple[]"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "uint256",
+          "name": "tournamentId",
+          "type": "uint256"
+        }
+      ],
+      "name": "getTournamentCreator",
+      "outputs": [
+        {
+          "internalType": "address",
+          "name": "",
+          "type": "address"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "nextTournamentId",
+      "outputs": [
+        {
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "operator",
+      "outputs": [
+        {
+          "internalType": "address",
+          "name": "",
+          "type": "address"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "owner",
+      "outputs": [
+        {
+          "internalType": "address",
+          "name": "",
+          "type": "address"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "renounceOwnership",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "reputationRegistry",
+      "outputs": [
+        {
+          "internalType": "contract IAgentReputationRegistry",
+          "name": "",
+          "type": "address"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "_operator",
+          "type": "address"
+        }
+      ],
+      "name": "setOperator",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "_registry",
+          "type": "address"
+        }
+      ],
+      "name": "setReputationRegistry",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "uint256",
+          "name": "tournamentId",
+          "type": "uint256"
+        },
+        {
+          "internalType": "uint256",
+          "name": "winningSeat",
+          "type": "uint256"
+        }
+      ],
+      "name": "settleTournament",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "uint256",
+          "name": "tournamentId",
+          "type": "uint256"
+        }
+      ],
+      "name": "startTournament",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "name": "tournaments",
+      "outputs": [
+        {
+          "internalType": "uint256",
+          "name": "buyIn",
+          "type": "uint256"
+        },
+        {
+          "internalType": "uint256",
+          "name": "prizePool",
+          "type": "uint256"
+        },
+        {
+          "internalType": "enum PokerVault.TournamentStatus",
+          "name": "status",
+          "type": "uint8"
+        },
+        {
+          "internalType": "uint8",
+          "name": "maxPlayers",
+          "type": "uint8"
+        },
+        {
+          "internalType": "address",
+          "name": "creator",
+          "type": "address"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "newOwner",
+          "type": "address"
+        }
+      ],
+      "name": "transferOwnership",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "stateMutability": "payable",
+      "type": "receive"
+    }
+  ],
+  "transactionHash": "0xc682f0f7d92981e87cac85935b63e285f5602239ff55946016f126ae5699a898",
+  "receipt": {
+    "to": null,
+    "from": "0xEdb246a99882178f2B79998a92b331e43001AF91",
+    "contractAddress": "0xDd3e8b3682A221Dd84d3B0a9B74c5B58Cf7f3E14",
+    "transactionIndex": 2,
+    "gasUsed": "1420118",
+    "logsBloom": "0x00020000000000000000000000000000000000000000000000800000000000000000000000000000800000000000000000000000000000000000000000000000000000000000000000000000000000000001000000000000000000000000000000000000020000000000000000000800000000000000000000000000000000400000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000400000000000000000000000000000000000000000000000000000000000000000000000000000000020000000000010010000000000000000000001000000000000000000000000000000",
+    "blockHash": "0xf1384b0bd3a8b14980c22d9cf601c1051073005db51b0579a6c9f48e597b2192",
+    "transactionHash": "0xc682f0f7d92981e87cac85935b63e285f5602239ff55946016f126ae5699a898",
+    "logs": [
+      {
+        "transactionIndex": 2,
+        "blockNumber": 13494827,
+        "transactionHash": "0xc682f0f7d92981e87cac85935b63e285f5602239ff55946016f126ae5699a898",
+        "address": "0xDd3e8b3682A221Dd84d3B0a9B74c5B58Cf7f3E14",
+        "topics": [
+          "0x8be0079c531659141344cd1fd0a4f28419497f9722a3daafe3b4186f6b6457e0",
+          "0x0000000000000000000000000000000000000000000000000000000000000000",
+          "0x000000000000000000000000edb246a99882178f2b79998a92b331e43001af91"
+        ],
+        "data": "0x",
+        "logIndex": 5,
+        "blockHash": "0xf1384b0bd3a8b14980c22d9cf601c1051073005db51b0579a6c9f48e597b2192"
+      }
+    ],
+    "blockNumber": 13494827,
+    "cumulativeGasUsed": "1645557",
+    "status": 1,
+    "byzantium": true
+  },
+  "args": [
+    "0xEdb246a99882178f2B79998a92b331e43001AF91"
+  ],
+  "numDeployments": 1,
+  "solcInputHash": "ad113bb8c1eeeae23d27d5e1f84f51c4",
+  "metadata": "{\"compiler\":{\"version\":\"0.8.20+commit.a1b79de6\"},\"language\":\"Solidity\",\"output\":{\"abi\":[{\"inputs\":[{\"internalType\":\"address\",\"name\":\"_operator\",\"type\":\"address\"}],\"stateMutability\":\"nonpayable\",\"type\":\"constructor\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"owner\",\"type\":\"address\"}],\"name\":\"OwnableInvalidOwner\",\"type\":\"error\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"account\",\"type\":\"address\"}],\"name\":\"OwnableUnauthorizedAccount\",\"type\":\"error\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":true,\"internalType\":\"uint256\",\"name\":\"tournamentId\",\"type\":\"uint256\"},{\"indexed\":true,\"internalType\":\"uint256\",\"name\":\"seatIndex\",\"type\":\"uint256\"},{\"indexed\":true,\"internalType\":\"address\",\"name\":\"wallet\",\"type\":\"address\"},{\"indexed\":false,\"internalType\":\"string\",\"name\":\"name\",\"type\":\"string\"},{\"indexed\":false,\"internalType\":\"uint256\",\"name\":\"agentId\",\"type\":\"uint256\"}],\"name\":\"AgentEntered\",\"type\":\"event\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":true,\"internalType\":\"address\",\"name\":\"previousOwner\",\"type\":\"address\"},{\"indexed\":true,\"internalType\":\"address\",\"name\":\"newOwner\",\"type\":\"address\"}],\"name\":\"OwnershipTransferred\",\"type\":\"event\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":true,\"internalType\":\"uint256\",\"name\":\"tournamentId\",\"type\":\"uint256\"},{\"indexed\":false,\"internalType\":\"uint256\",\"name\":\"buyIn\",\"type\":\"uint256\"},{\"indexed\":false,\"internalType\":\"uint8\",\"name\":\"maxPlayers\",\"type\":\"uint8\"}],\"name\":\"TournamentCreated\",\"type\":\"event\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":true,\"internalType\":\"uint256\",\"name\":\"tournamentId\",\"type\":\"uint256\"},{\"indexed\":true,\"internalType\":\"uint256\",\"name\":\"winningSeat\",\"type\":\"uint256\"},{\"indexed\":true,\"internalType\":\"address\",\"name\":\"winner\",\"type\":\"address\"},{\"indexed\":false,\"internalType\":\"uint256\",\"name\":\"payout\",\"type\":\"uint256\"}],\"name\":\"TournamentSettled\",\"type\":\"event\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":true,\"internalType\":\"uint256\",\"name\":\"tournamentId\",\"type\":\"uint256\"},{\"indexed\":false,\"internalType\":\"uint256\",\"name\":\"playerCount\",\"type\":\"uint256\"}],\"name\":\"TournamentStarted\",\"type\":\"event\"},{\"inputs\":[],\"name\":\"activeTournamentId\",\"outputs\":[{\"internalType\":\"uint256\",\"name\":\"\",\"type\":\"uint256\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"uint256\",\"name\":\"buyIn\",\"type\":\"uint256\"},{\"internalType\":\"uint8\",\"name\":\"maxPlayers\",\"type\":\"uint8\"}],\"name\":\"createTournament\",\"outputs\":[{\"internalType\":\"uint256\",\"name\":\"tournamentId\",\"type\":\"uint256\"}],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"uint256\",\"name\":\"tournamentId\",\"type\":\"uint256\"},{\"internalType\":\"string\",\"name\":\"name\",\"type\":\"string\"},{\"internalType\":\"string\",\"name\":\"systemPrompt\",\"type\":\"string\"},{\"internalType\":\"uint256\",\"name\":\"agentId\",\"type\":\"uint256\"}],\"name\":\"enterTournament\",\"outputs\":[{\"internalType\":\"uint256\",\"name\":\"seatIndex\",\"type\":\"uint256\"}],\"stateMutability\":\"payable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"uint256\",\"name\":\"tournamentId\",\"type\":\"uint256\"}],\"name\":\"getAgentCount\",\"outputs\":[{\"internalType\":\"uint256\",\"name\":\"\",\"type\":\"uint256\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"uint256\",\"name\":\"tournamentId\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"seatIndex\",\"type\":\"uint256\"}],\"name\":\"getTournamentAgent\",\"outputs\":[{\"components\":[{\"internalType\":\"address\",\"name\":\"wallet\",\"type\":\"address\"},{\"internalType\":\"string\",\"name\":\"name\",\"type\":\"string\"},{\"internalType\":\"string\",\"name\":\"systemPrompt\",\"type\":\"string\"},{\"internalType\":\"uint256\",\"name\":\"agentId\",\"type\":\"uint256\"}],\"internalType\":\"struct PokerVault.Agent\",\"name\":\"\",\"type\":\"tuple\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"uint256\",\"name\":\"tournamentId\",\"type\":\"uint256\"}],\"name\":\"getTournamentAgents\",\"outputs\":[{\"components\":[{\"internalType\":\"address\",\"name\":\"wallet\",\"type\":\"address\"},{\"internalType\":\"string\",\"name\":\"name\",\"type\":\"string\"},{\"internalType\":\"string\",\"name\":\"systemPrompt\",\"type\":\"string\"},{\"internalType\":\"uint256\",\"name\":\"agentId\",\"type\":\"uint256\"}],\"internalType\":\"struct PokerVault.Agent[]\",\"name\":\"\",\"type\":\"tuple[]\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"uint256\",\"name\":\"tournamentId\",\"type\":\"uint256\"}],\"name\":\"getTournamentCreator\",\"outputs\":[{\"internalType\":\"address\",\"name\":\"\",\"type\":\"address\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"nextTournamentId\",\"outputs\":[{\"internalType\":\"uint256\",\"name\":\"\",\"type\":\"uint256\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"operator\",\"outputs\":[{\"internalType\":\"address\",\"name\":\"\",\"type\":\"address\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"owner\",\"outputs\":[{\"internalType\":\"address\",\"name\":\"\",\"type\":\"address\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"renounceOwnership\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"reputationRegistry\",\"outputs\":[{\"internalType\":\"contract IAgentReputationRegistry\",\"name\":\"\",\"type\":\"address\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"_operator\",\"type\":\"address\"}],\"name\":\"setOperator\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"_registry\",\"type\":\"address\"}],\"name\":\"setReputationRegistry\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"uint256\",\"name\":\"tournamentId\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"winningSeat\",\"type\":\"uint256\"}],\"name\":\"settleTournament\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"uint256\",\"name\":\"tournamentId\",\"type\":\"uint256\"}],\"name\":\"startTournament\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"uint256\",\"name\":\"\",\"type\":\"uint256\"}],\"name\":\"tournaments\",\"outputs\":[{\"internalType\":\"uint256\",\"name\":\"buyIn\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"prizePool\",\"type\":\"uint256\"},{\"internalType\":\"enum PokerVault.TournamentStatus\",\"name\":\"status\",\"type\":\"uint8\"},{\"internalType\":\"uint8\",\"name\":\"maxPlayers\",\"type\":\"uint8\"},{\"internalType\":\"address\",\"name\":\"creator\",\"type\":\"address\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"newOwner\",\"type\":\"address\"}],\"name\":\"transferOwnership\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"stateMutability\":\"payable\",\"type\":\"receive\"}],\"devdoc\":{\"errors\":{\"OwnableInvalidOwner(address)\":[{\"details\":\"The owner is not a valid owner account. (eg. `address(0)`)\"}],\"OwnableUnauthorizedAccount(address)\":[{\"details\":\"The caller account is not authorized to perform an operation.\"}]},\"kind\":\"dev\",\"methods\":{\"createTournament(uint256,uint8)\":{\"params\":{\"buyIn\":\"Amount in wei each agent must send to enter (0 = free).\",\"maxPlayers\":\"Maximum number of agents allowed.\"}},\"enterTournament(uint256,string,string,uint256)\":{\"params\":{\"agentId\":\"ERC-8004 identity token ID to link (0 = ephemeral).\",\"name\":\"Display name for the agent.\",\"systemPrompt\":\"The AI system prompt that drives this agent's decisions.\",\"tournamentId\":\"Tournament to enter.\"}},\"owner()\":{\"details\":\"Returns the address of the current owner.\"},\"renounceOwnership()\":{\"details\":\"Leaves the contract without owner. It will not be possible to call `onlyOwner` functions. Can only be called by the current owner. NOTE: Renouncing ownership will leave the contract without an owner, thereby disabling any functionality that is only available to the owner.\"},\"settleTournament(uint256,uint256)\":{\"params\":{\"tournamentId\":\"Tournament being settled.\",\"winningSeat\":\"Seat index (0-based) of the winning agent.\"}},\"transferOwnership(address)\":{\"details\":\"Transfers ownership of the contract to a new account (`newOwner`). Can only be called by the current owner.\"}},\"version\":1},\"userdoc\":{\"kind\":\"user\",\"methods\":{\"createTournament(uint256,uint8)\":{\"notice\":\"Create a new tournament. Only the operator can create one.\"},\"enterTournament(uint256,string,string,uint256)\":{\"notice\":\"Enter a tournament with a new agent. Must send exactly the buy-in in MON.\"},\"setReputationRegistry(address)\":{\"notice\":\"Wire in the ERC-8004 Reputation Registry. Pass address(0) to disable.\"},\"settleTournament(uint256,uint256)\":{\"notice\":\"Settle a finished tournament. Only the operator can call this. Transfers the full prize pool to the winning agent's wallet. If the ERC-8004 Reputation Registry is configured, posts win/loss feedback for all agents that have a registered identity (agentId > 0).\"},\"startTournament(uint256)\":{\"notice\":\"Start a tournament. The tournament creator OR the operator can call this. Emits TournamentStarted so the agent-runner can read agent data and begin the game.\"}},\"notice\":\"PokerVault \\u2014 escrow for agentic poker tournaments. Agents are ephemeral by default: they exist only within a tournament and are defined by a name + system prompt submitted at entry time. Optionally, agents may link a persistent ERC-8004 identity (agentId > 0) to build on-chain reputation. Responsibilities:   - Accept buy-ins in MON (native token) when agents enter tournaments   - Hold prize pools while games run   - Pay out the full prize pool to the winner's wallet   - Post win/loss feedback to the ERC-8004 Reputation Registry (if configured) Game logic (cards, betting, hand evaluation) is entirely off-chain. The operator (agent-runner service) is trusted to report the winner.\",\"version\":1}},\"settings\":{\"compilationTarget\":{\"contracts/PokerVault.sol\":\"PokerVault\"},\"evmVersion\":\"paris\",\"libraries\":{},\"metadata\":{\"bytecodeHash\":\"ipfs\",\"useLiteralContent\":true},\"optimizer\":{\"enabled\":true,\"runs\":200},\"remappings\":[]},\"sources\":{\"@openzeppelin/contracts/access/Ownable.sol\":{\"content\":\"// SPDX-License-Identifier: MIT\\n// OpenZeppelin Contracts (last updated v5.0.0) (access/Ownable.sol)\\n\\npragma solidity ^0.8.20;\\n\\nimport {Context} from \\\"../utils/Context.sol\\\";\\n\\n/**\\n * @dev Contract module which provides a basic access control mechanism, where\\n * there is an account (an owner) that can be granted exclusive access to\\n * specific functions.\\n *\\n * The initial owner is set to the address provided by the deployer. This can\\n * later be changed with {transferOwnership}.\\n *\\n * This module is used through inheritance. It will make available the modifier\\n * `onlyOwner`, which can be applied to your functions to restrict their use to\\n * the owner.\\n */\\nabstract contract Ownable is Context {\\n    address private _owner;\\n\\n    /**\\n     * @dev The caller account is not authorized to perform an operation.\\n     */\\n    error OwnableUnauthorizedAccount(address account);\\n\\n    /**\\n     * @dev The owner is not a valid owner account. (eg. `address(0)`)\\n     */\\n    error OwnableInvalidOwner(address owner);\\n\\n    event OwnershipTransferred(address indexed previousOwner, address indexed newOwner);\\n\\n    /**\\n     * @dev Initializes the contract setting the address provided by the deployer as the initial owner.\\n     */\\n    constructor(address initialOwner) {\\n        if (initialOwner == address(0)) {\\n            revert OwnableInvalidOwner(address(0));\\n        }\\n        _transferOwnership(initialOwner);\\n    }\\n\\n    /**\\n     * @dev Throws if called by any account other than the owner.\\n     */\\n    modifier onlyOwner() {\\n        _checkOwner();\\n        _;\\n    }\\n\\n    /**\\n     * @dev Returns the address of the current owner.\\n     */\\n    function owner() public view virtual returns (address) {\\n        return _owner;\\n    }\\n\\n    /**\\n     * @dev Throws if the sender is not the owner.\\n     */\\n    function _checkOwner() internal view virtual {\\n        if (owner() != _msgSender()) {\\n            revert OwnableUnauthorizedAccount(_msgSender());\\n        }\\n    }\\n\\n    /**\\n     * @dev Leaves the contract without owner. It will not be possible to call\\n     * `onlyOwner` functions. Can only be called by the current owner.\\n     *\\n     * NOTE: Renouncing ownership will leave the contract without an owner,\\n     * thereby disabling any functionality that is only available to the owner.\\n     */\\n    function renounceOwnership() public virtual onlyOwner {\\n        _transferOwnership(address(0));\\n    }\\n\\n    /**\\n     * @dev Transfers ownership of the contract to a new account (`newOwner`).\\n     * Can only be called by the current owner.\\n     */\\n    function transferOwnership(address newOwner) public virtual onlyOwner {\\n        if (newOwner == address(0)) {\\n            revert OwnableInvalidOwner(address(0));\\n        }\\n        _transferOwnership(newOwner);\\n    }\\n\\n    /**\\n     * @dev Transfers ownership of the contract to a new account (`newOwner`).\\n     * Internal function without access restriction.\\n     */\\n    function _transferOwnership(address newOwner) internal virtual {\\n        address oldOwner = _owner;\\n        _owner = newOwner;\\n        emit OwnershipTransferred(oldOwner, newOwner);\\n    }\\n}\\n\",\"keccak256\":\"0xff6d0bb2e285473e5311d9d3caacb525ae3538a80758c10649a4d61029b017bb\",\"license\":\"MIT\"},\"@openzeppelin/contracts/utils/Context.sol\":{\"content\":\"// SPDX-License-Identifier: MIT\\n// OpenZeppelin Contracts (last updated v5.0.1) (utils/Context.sol)\\n\\npragma solidity ^0.8.20;\\n\\n/**\\n * @dev Provides information about the current execution context, including the\\n * sender of the transaction and its data. While these are generally available\\n * via msg.sender and msg.data, they should not be accessed in such a direct\\n * manner, since when dealing with meta-transactions the account sending and\\n * paying for execution may not be the actual sender (as far as an application\\n * is concerned).\\n *\\n * This contract is only required for intermediate, library-like contracts.\\n */\\nabstract contract Context {\\n    function _msgSender() internal view virtual returns (address) {\\n        return msg.sender;\\n    }\\n\\n    function _msgData() internal view virtual returns (bytes calldata) {\\n        return msg.data;\\n    }\\n\\n    function _contextSuffixLength() internal view virtual returns (uint256) {\\n        return 0;\\n    }\\n}\\n\",\"keccak256\":\"0x493033a8d1b176a037b2cc6a04dad01a5c157722049bbecf632ca876224dd4b2\",\"license\":\"MIT\"},\"contracts/PokerVault.sol\":{\"content\":\"// SPDX-License-Identifier: MIT\\npragma solidity >=0.8.0 <0.9.0;\\n\\nimport \\\"@openzeppelin/contracts/access/Ownable.sol\\\";\\n\\ninterface IAgentReputationRegistry {\\n    function giveFeedback(uint256 agentId, int128 value, string calldata tag) external returns (uint64);\\n}\\n\\n/**\\n * PokerVault \\u2014 escrow for agentic poker tournaments.\\n *\\n * Agents are ephemeral by default: they exist only within a tournament and are defined\\n * by a name + system prompt submitted at entry time. Optionally, agents may link\\n * a persistent ERC-8004 identity (agentId > 0) to build on-chain reputation.\\n *\\n * Responsibilities:\\n *   - Accept buy-ins in MON (native token) when agents enter tournaments\\n *   - Hold prize pools while games run\\n *   - Pay out the full prize pool to the winner's wallet\\n *   - Post win/loss feedback to the ERC-8004 Reputation Registry (if configured)\\n *\\n * Game logic (cards, betting, hand evaluation) is entirely off-chain.\\n * The operator (agent-runner service) is trusted to report the winner.\\n */\\ncontract PokerVault is Ownable {\\n\\n    // \\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\n    // Types\\n    // \\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\n\\n    struct Agent {\\n        address wallet;       // wallet that entered; receives winnings if they win\\n        string  name;\\n        string  systemPrompt;\\n        uint256 agentId;      // ERC-8004 identity token ID (0 = ephemeral, unregistered)\\n    }\\n\\n    enum TournamentStatus { Open, Running, Finished }\\n\\n    struct Tournament {\\n        uint256 buyIn;\\n        uint256 prizePool;\\n        TournamentStatus status;\\n        uint8   maxPlayers;\\n        address creator;\\n        Agent[] agents;\\n    }\\n\\n    // \\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\n    // State\\n    // \\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\n\\n    address public operator;\\n\\n    uint256 public nextTournamentId = 1;\\n    uint256 public activeTournamentId;\\n\\n    mapping(uint256 => Tournament) public tournaments;\\n\\n    // ERC-8004 Reputation Registry \\u2014 optional, address(0) means disabled\\n    IAgentReputationRegistry public reputationRegistry;\\n\\n    // \\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\n    // Events\\n    // \\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\n\\n    event TournamentCreated(uint256 indexed tournamentId, uint256 buyIn, uint8 maxPlayers);\\n    event AgentEntered(uint256 indexed tournamentId, uint256 indexed seatIndex, address indexed wallet, string name, uint256 agentId);\\n    event TournamentStarted(uint256 indexed tournamentId, uint256 playerCount);\\n    event TournamentSettled(uint256 indexed tournamentId, uint256 indexed winningSeat, address indexed winner, uint256 payout);\\n\\n    // \\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\n    // Modifiers\\n    // \\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\n\\n    modifier onlyOperator() {\\n        require(msg.sender == operator, \\\"Not the operator\\\");\\n        _;\\n    }\\n\\n    // \\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\n    // Constructor\\n    // \\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\n\\n    constructor(address _operator) Ownable(msg.sender) {\\n        operator = _operator;\\n    }\\n\\n    // \\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\n    // Tournament management\\n    // \\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\n\\n    /**\\n     * Create a new tournament. Only the operator can create one.\\n     * @param buyIn      Amount in wei each agent must send to enter (0 = free).\\n     * @param maxPlayers Maximum number of agents allowed.\\n     */\\n    function createTournament(uint256 buyIn, uint8 maxPlayers) external onlyOperator returns (uint256 tournamentId) {\\n        require(maxPlayers >= 2, \\\"Need at least 2 players\\\");\\n        require(activeTournamentId == 0, \\\"Active tournament exists\\\");\\n        tournamentId = nextTournamentId++;\\n        tournaments[tournamentId].buyIn      = buyIn;\\n        tournaments[tournamentId].maxPlayers = maxPlayers;\\n        tournaments[tournamentId].status     = TournamentStatus.Open;\\n        tournaments[tournamentId].creator    = msg.sender;\\n        activeTournamentId = tournamentId;\\n        emit TournamentCreated(tournamentId, buyIn, maxPlayers);\\n    }\\n\\n    /**\\n     * Enter a tournament with a new agent. Must send exactly the buy-in in MON.\\n     * @param tournamentId Tournament to enter.\\n     * @param name         Display name for the agent.\\n     * @param systemPrompt The AI system prompt that drives this agent's decisions.\\n     * @param agentId      ERC-8004 identity token ID to link (0 = ephemeral).\\n     */\\n    function enterTournament(\\n        uint256 tournamentId,\\n        string calldata name,\\n        string calldata systemPrompt,\\n        uint256 agentId\\n    ) external payable returns (uint256 seatIndex) {\\n        Tournament storage t = tournaments[tournamentId];\\n        require(t.status == TournamentStatus.Open, \\\"Tournament not open\\\");\\n        require(t.agents.length < t.maxPlayers, \\\"Tournament full\\\");\\n        require(bytes(name).length > 0, \\\"Name required\\\");\\n        require(msg.value == t.buyIn, \\\"Wrong buy-in amount\\\");\\n\\n        seatIndex = t.agents.length;\\n        t.agents.push(Agent({ wallet: msg.sender, name: name, systemPrompt: systemPrompt, agentId: agentId }));\\n        t.prizePool += msg.value;\\n\\n        emit AgentEntered(tournamentId, seatIndex, msg.sender, name, agentId);\\n    }\\n\\n    /**\\n     * Start a tournament. The tournament creator OR the operator can call this.\\n     * Emits TournamentStarted so the agent-runner can read agent data and begin the game.\\n     */\\n    function startTournament(uint256 tournamentId) external {\\n        Tournament storage t = tournaments[tournamentId];\\n        require(msg.sender == t.creator || msg.sender == operator, \\\"Not creator or operator\\\");\\n        require(t.status == TournamentStatus.Open, \\\"Tournament not open\\\");\\n        require(t.agents.length >= 4, \\\"Need at least 4 players\\\");\\n        t.status = TournamentStatus.Running;\\n        emit TournamentStarted(tournamentId, t.agents.length);\\n    }\\n\\n    /**\\n     * Settle a finished tournament. Only the operator can call this.\\n     * Transfers the full prize pool to the winning agent's wallet.\\n     * If the ERC-8004 Reputation Registry is configured, posts win/loss feedback\\n     * for all agents that have a registered identity (agentId > 0).\\n     * @param tournamentId Tournament being settled.\\n     * @param winningSeat  Seat index (0-based) of the winning agent.\\n     */\\n    function settleTournament(uint256 tournamentId, uint256 winningSeat) external onlyOperator {\\n        Tournament storage t = tournaments[tournamentId];\\n        require(t.status == TournamentStatus.Running, \\\"Tournament not running\\\");\\n        require(winningSeat < t.agents.length, \\\"Invalid seat\\\");\\n\\n        t.status = TournamentStatus.Finished;\\n\\n        address winner = t.agents[winningSeat].wallet;\\n        uint256 payout = t.prizePool;\\n        t.prizePool = 0;\\n\\n        emit TournamentSettled(tournamentId, winningSeat, winner, payout);\\n        if (activeTournamentId == tournamentId) {\\n            activeTournamentId = 0;\\n        }\\n\\n        // Post ERC-8004 reputation feedback for all registered agents\\n        if (address(reputationRegistry) != address(0)) {\\n            for (uint256 i = 0; i < t.agents.length; i++) {\\n                uint256 aid = t.agents[i].agentId;\\n                if (aid > 0) {\\n                    int128 score = (i == winningSeat) ? int128(1) : int128(-1);\\n                    // Ignore failures so settlement never gets blocked\\n                    try reputationRegistry.giveFeedback(aid, score, \\\"poker-tournament\\\") {} catch {}\\n                }\\n            }\\n        }\\n\\n        (bool success, ) = winner.call{ value: payout }(\\\"\\\");\\n        require(success, \\\"Payout failed\\\");\\n    }\\n\\n    // \\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\n    // View helpers\\n    // \\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\n\\n    function getTournamentCreator(uint256 tournamentId) external view returns (address) {\\n        return tournaments[tournamentId].creator;\\n    }\\n\\n    function getTournamentAgents(uint256 tournamentId) external view returns (Agent[] memory) {\\n        return tournaments[tournamentId].agents;\\n    }\\n\\n    function getTournamentAgent(uint256 tournamentId, uint256 seatIndex) external view returns (Agent memory) {\\n        return tournaments[tournamentId].agents[seatIndex];\\n    }\\n\\n    function getAgentCount(uint256 tournamentId) external view returns (uint256) {\\n        return tournaments[tournamentId].agents.length;\\n    }\\n\\n    // \\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\n    // Admin\\n    // \\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\n\\n    function setOperator(address _operator) external onlyOwner {\\n        operator = _operator;\\n    }\\n\\n    /**\\n     * Wire in the ERC-8004 Reputation Registry. Pass address(0) to disable.\\n     */\\n    function setReputationRegistry(address _registry) external onlyOwner {\\n        reputationRegistry = IAgentReputationRegistry(_registry);\\n    }\\n\\n    receive() external payable {}\\n}\\n\",\"keccak256\":\"0x747109e162e457598a1f64161e53c56d4a7ac5ea43572fbb5c6ead0f57bbfdc0\",\"license\":\"MIT\"}},\"version\":1}",
+  "bytecode": "0x6080604052600160025534801561001557600080fd5b506040516117f63803806117f6833981016040819052610034916100d9565b338061005a57604051631e4fbdf760e01b81526000600482015260240160405180910390fd5b61006381610089565b50600180546001600160a01b0319166001600160a01b0392909216919091179055610109565b600080546001600160a01b038381166001600160a01b0319831681178455604051919092169283917f8be0079c531659141344cd1fd0a4f28419497f9722a3daafe3b4186f6b6457e09190a35050565b6000602082840312156100eb57600080fd5b81516001600160a01b038116811461010257600080fd5b9392505050565b6116de806101186000396000f3fe60806040526004361061010d5760003560e01c806377dede1811610095578063b5976a1711610064578063b5976a171461032a578063c1eaccab14610369578063c8db44e314610399578063f140262d146103b9578063f2fde38b146103cc57600080fd5b806377dede18146102b6578063852efc3d146102d65780638da5cb5b146102ec578063b3ab15fb1461030a57600080fd5b80634d1154bf116100dc5780634d1154bf146101b1578063570ca735146101de578063651ea94314610216578063715018a6146102365780637503e1b71461024b57600080fd5b80630d29d77a146101195780633f0ce714146101425780633fb512c614610164578063432d2bb61461019157600080fd5b3661011457005b600080fd5b34801561012557600080fd5b5061012f60035481565b6040519081526020015b60405180910390f35b34801561014e57600080fd5b5061016261015d3660046111aa565b6103ec565b005b34801561017057600080fd5b5061018461017f3660046111da565b610416565b6040516101399190611299565b34801561019d57600080fd5b5061012f6101ac3660046112ac565b6105d4565b3480156101bd57600080fd5b506101d16101cc3660046112e2565b61076e565b60405161013991906112fb565b3480156101ea57600080fd5b506001546101fe906001600160a01b031681565b6040516001600160a01b039091168152602001610139565b34801561022257600080fd5b506101626102313660046112e2565b610927565b34801561024257600080fd5b50610162610aac565b34801561025757600080fd5b506102a56102663660046112e2565b60046020526000908152604090208054600182015460029092015490919060ff808216916101008104909116906201000090046001600160a01b031685565b604051610139959493929190611373565b3480156102c257600080fd5b506101626102d13660046111da565b610ac0565b3480156102e257600080fd5b5061012f60025481565b3480156102f857600080fd5b506000546001600160a01b03166101fe565b34801561031657600080fd5b506101626103253660046111aa565b610e1a565b34801561033657600080fd5b506101fe6103453660046112e2565b6000908152600460205260409020600201546201000090046001600160a01b031690565b34801561037557600080fd5b5061012f6103843660046112e2565b60009081526004602052604090206003015490565b3480156103a557600080fd5b506005546101fe906001600160a01b031681565b61012f6103c7366004611410565b610e44565b3480156103d857600080fd5b506101626103e73660046111aa565b6110ef565b6103f461112d565b600580546001600160a01b0319166001600160a01b0392909216919091179055565b61044a604051806080016040528060006001600160a01b031681526020016060815260200160608152602001600081525090565b600083815260046020526040902060030180548390811061046d5761046d611492565b6000918252602091829020604080516080810190915260049092020180546001600160a01b0316825260018101805492939192918401916104ad906114a8565b80601f01602080910402602001604051908101604052809291908181526020018280546104d9906114a8565b80156105265780601f106104fb57610100808354040283529160200191610526565b820191906000526020600020905b81548152906001019060200180831161050957829003601f168201915b5050505050815260200160028201805461053f906114a8565b80601f016020809104026020016040519081016040528092919081815260200182805461056b906114a8565b80156105b85780601f1061058d576101008083540402835291602001916105b8565b820191906000526020600020905b81548152906001019060200180831161059b57829003601f168201915b5050505050815260200160038201548152505090505b92915050565b6001546000906001600160a01b031633146106295760405162461bcd60e51b815260206004820152601060248201526f2737ba103a34329037b832b930ba37b960811b60448201526064015b60405180910390fd5b60028260ff16101561067d5760405162461bcd60e51b815260206004820152601760248201527f4e656564206174206c65617374203220706c61796572730000000000000000006044820152606401610620565b600354156106cd5760405162461bcd60e51b815260206004820152601860248201527f41637469766520746f75726e616d656e742065786973747300000000000000006044820152606401610620565b600280549060006106dd836114f8565b9091555060008181526004602090815260409182902086815560020180546001600160b01b03191661010060ff881690810261ff01600160b01b03191691909117336201000002179091556003849055825187815291820152815192935083927f8193c9cd78446d3107bab90bb8600bd2c2f667c9254fd8a05203825f7b00dff2929181900390910190a292915050565b606060046000838152602001908152602001600020600301805480602002602001604051908101604052809291908181526020016000905b8282101561091c57600084815260209081902060408051608081019091526004850290910180546001600160a01b0316825260018101805492939192918401916107ef906114a8565b80601f016020809104026020016040519081016040528092919081815260200182805461081b906114a8565b80156108685780601f1061083d57610100808354040283529160200191610868565b820191906000526020600020905b81548152906001019060200180831161084b57829003601f168201915b50505050508152602001600282018054610881906114a8565b80601f01602080910402602001604051908101604052809291908181526020018280546108ad906114a8565b80156108fa5780601f106108cf576101008083540402835291602001916108fa565b820191906000526020600020905b8154815290600101906020018083116108dd57829003601f168201915b50505050508152602001600382015481525050815260200190600101906107a6565b505050509050919050565b600081815260046020526040902060028101546201000090046001600160a01b031633148061096057506001546001600160a01b031633145b6109ac5760405162461bcd60e51b815260206004820152601760248201527f4e6f742063726561746f72206f72206f70657261746f720000000000000000006044820152606401610620565b600060028083015460ff16908111156109c7576109c761135d565b14610a0a5760405162461bcd60e51b81526020600482015260136024820152722a37bab93730b6b2b73a103737ba1037b832b760691b6044820152606401610620565b600381015460041115610a5f5760405162461bcd60e51b815260206004820152601760248201527f4e656564206174206c65617374203420706c61796572730000000000000000006044820152606401610620565b60028101805460ff19166001179055600381015460405190815282907fbc7efbd054762c7024dd5838b4eef6be3c9982e8a7397e2b3949e1b52263a61c9060200160405180910390a25050565b610ab461112d565b610abe600061115a565b565b6001546001600160a01b03163314610b0d5760405162461bcd60e51b815260206004820152601060248201526f2737ba103a34329037b832b930ba37b960811b6044820152606401610620565b6000828152600460205260409020600160028083015460ff1690811115610b3657610b3661135d565b14610b7c5760405162461bcd60e51b8152602060048201526016602482015275546f75726e616d656e74206e6f742072756e6e696e6760501b6044820152606401610620565b60038101548210610bbe5760405162461bcd60e51b815260206004820152600c60248201526b125b9d985b1a59081cd9585d60a21b6044820152606401610620565b6002818101805460ff191660018302179055506000816003018381548110610be857610be8611492565b600091825260208220600490910201546001840180549290556040516001600160a01b0390911692508290859087907fa337cccc19be29e098aaaeed2b248daf92808c63c412cddd5f35bf3b49434d1f90610c469086815260200190565b60405180910390a48460035403610c5d5760006003555b6005546001600160a01b031615610d7f5760005b6003840154811015610d7d576000846003018281548110610c9457610c94611492565b90600052602060002090600402016003015490506000811115610d6a576000868314610cc257600019610cc5565b60015b6005546040516001623bd54760e21b0319815260048101859052600f83900b602482015260606044820152601060648201526f1c1bdad95c8b5d1bdd5c9b985b595b9d60821b60848201529192506001600160a01b03169063ff10aae49060a4016020604051808303816000875af1925050508015610d61575060408051601f3d908101601f19168201909252610d5e91810190611511565b60015b15610d6857505b505b5080610d75816114f8565b915050610c71565b505b6000826001600160a01b03168260405160006040518083038185875af1925050503d8060008114610dcc576040519150601f19603f3d011682016040523d82523d6000602084013e610dd1565b606091505b5050905080610e125760405162461bcd60e51b815260206004820152600d60248201526c14185e5bdd5d0819985a5b1959609a1b6044820152606401610620565b505050505050565b610e2261112d565b600180546001600160a01b0319166001600160a01b0392909216919091179055565b60008681526004602052604081208160028083015460ff1690811115610e6c57610e6c61135d565b14610eaf5760405162461bcd60e51b81526020600482015260136024820152722a37bab93730b6b2b73a103737ba1037b832b760691b6044820152606401610620565b6002810154600382015461010090910460ff1611610f015760405162461bcd60e51b815260206004820152600f60248201526e151bdd5c9b985b595b9d08199d5b1b608a1b6044820152606401610620565b85610f3e5760405162461bcd60e51b815260206004820152600d60248201526c13985b59481c995c5d5a5c9959609a1b6044820152606401610620565b80543414610f845760405162461bcd60e51b815260206004820152601360248201527215dc9bdb99c8189d5e4b5a5b88185b5bdd5b9d606a1b6044820152606401610620565b6003810180546040805160808101825233815281516020601f8c018190048102820181019093528a815292955091818301918b908b9081908401838280828437600092019190915250505090825250604080516020601f8a01819004810282018101909252888152918101919089908990819084018382808284376000920182905250938552505050602091820187905283546001808201865594825290829020835160049092020180546001600160a01b0319166001600160a01b03909216919091178155908201519192909190820190611060908261159c565b5060408201516002820190611075908261159c565b5060608201518160030155505034816001016000828254611096919061165c565b92505081905550336001600160a01b031682897f59648cc7ec872c205ec16525ba79ebc2c14ebc81a867770687804eea615a0f1a8a8a886040516110dc9392919061166f565b60405180910390a4509695505050505050565b6110f761112d565b6001600160a01b03811661112157604051631e4fbdf760e01b815260006004820152602401610620565b61112a8161115a565b50565b6000546001600160a01b03163314610abe5760405163118cdaa760e01b8152336004820152602401610620565b600080546001600160a01b038381166001600160a01b0319831681178455604051919092169283917f8be0079c531659141344cd1fd0a4f28419497f9722a3daafe3b4186f6b6457e09190a35050565b6000602082840312156111bc57600080fd5b81356001600160a01b03811681146111d357600080fd5b9392505050565b600080604083850312156111ed57600080fd5b50508035926020909101359150565b6000815180845260005b8181101561122257602081850181015186830182015201611206565b506000602082860101526020601f19601f83011685010191505092915050565b60018060a01b038151168252600060208201516080602085015261126960808501826111fc565b90506040830151848203604086015261128282826111fc565b915050606083015160608501528091505092915050565b6020815260006111d36020830184611242565b600080604083850312156112bf57600080fd5b82359150602083013560ff811681146112d757600080fd5b809150509250929050565b6000602082840312156112f457600080fd5b5035919050565b6000602080830181845280855180835260408601915060408160051b870101925083870160005b8281101561135057603f1988860301845261133e858351611242565b94509285019290850190600101611322565b5092979650505050505050565b634e487b7160e01b600052602160045260246000fd5b8581526020810185905260a081016003851061139f57634e487b7160e01b600052602160045260246000fd5b604082019490945260ff9290921660608301526001600160a01b031660809091015292915050565b60008083601f8401126113d957600080fd5b50813567ffffffffffffffff8111156113f157600080fd5b60208301915083602082850101111561140957600080fd5b9250929050565b6000806000806000806080878903121561142957600080fd5b86359550602087013567ffffffffffffffff8082111561144857600080fd5b6114548a838b016113c7565b9097509550604089013591508082111561146d57600080fd5b5061147a89828a016113c7565b979a9699509497949695606090950135949350505050565b634e487b7160e01b600052603260045260246000fd5b600181811c908216806114bc57607f821691505b6020821081036114dc57634e487b7160e01b600052602260045260246000fd5b50919050565b634e487b7160e01b600052601160045260246000fd5b60006001820161150a5761150a6114e2565b5060010190565b60006020828403121561152357600080fd5b815167ffffffffffffffff811681146111d357600080fd5b634e487b7160e01b600052604160045260246000fd5b601f82111561159757600081815260208120601f850160051c810160208610156115785750805b601f850160051c820191505b81811015610e1257828155600101611584565b505050565b815167ffffffffffffffff8111156115b6576115b661153b565b6115ca816115c484546114a8565b84611551565b602080601f8311600181146115ff57600084156115e75750858301515b600019600386901b1c1916600185901b178555610e12565b600085815260208120601f198616915b8281101561162e5788860151825594840194600190910190840161160f565b508582101561164c5787850151600019600388901b60f8161c191681555b5050505050600190811b01905550565b808201808211156105ce576105ce6114e2565b604081528260408201528284606083013760006060848301015260006060601f19601f860116830101905082602083015294935050505056fea26469706673582212207277600a5d8b0b257637b4edc5c5db5439d8605837cfed017f184be5b435df3a64736f6c63430008140033",
+  "deployedBytecode": "0x60806040526004361061010d5760003560e01c806377dede1811610095578063b5976a1711610064578063b5976a171461032a578063c1eaccab14610369578063c8db44e314610399578063f140262d146103b9578063f2fde38b146103cc57600080fd5b806377dede18146102b6578063852efc3d146102d65780638da5cb5b146102ec578063b3ab15fb1461030a57600080fd5b80634d1154bf116100dc5780634d1154bf146101b1578063570ca735146101de578063651ea94314610216578063715018a6146102365780637503e1b71461024b57600080fd5b80630d29d77a146101195780633f0ce714146101425780633fb512c614610164578063432d2bb61461019157600080fd5b3661011457005b600080fd5b34801561012557600080fd5b5061012f60035481565b6040519081526020015b60405180910390f35b34801561014e57600080fd5b5061016261015d3660046111aa565b6103ec565b005b34801561017057600080fd5b5061018461017f3660046111da565b610416565b6040516101399190611299565b34801561019d57600080fd5b5061012f6101ac3660046112ac565b6105d4565b3480156101bd57600080fd5b506101d16101cc3660046112e2565b61076e565b60405161013991906112fb565b3480156101ea57600080fd5b506001546101fe906001600160a01b031681565b6040516001600160a01b039091168152602001610139565b34801561022257600080fd5b506101626102313660046112e2565b610927565b34801561024257600080fd5b50610162610aac565b34801561025757600080fd5b506102a56102663660046112e2565b60046020526000908152604090208054600182015460029092015490919060ff808216916101008104909116906201000090046001600160a01b031685565b604051610139959493929190611373565b3480156102c257600080fd5b506101626102d13660046111da565b610ac0565b3480156102e257600080fd5b5061012f60025481565b3480156102f857600080fd5b506000546001600160a01b03166101fe565b34801561031657600080fd5b506101626103253660046111aa565b610e1a565b34801561033657600080fd5b506101fe6103453660046112e2565b6000908152600460205260409020600201546201000090046001600160a01b031690565b34801561037557600080fd5b5061012f6103843660046112e2565b60009081526004602052604090206003015490565b3480156103a557600080fd5b506005546101fe906001600160a01b031681565b61012f6103c7366004611410565b610e44565b3480156103d857600080fd5b506101626103e73660046111aa565b6110ef565b6103f461112d565b600580546001600160a01b0319166001600160a01b0392909216919091179055565b61044a604051806080016040528060006001600160a01b031681526020016060815260200160608152602001600081525090565b600083815260046020526040902060030180548390811061046d5761046d611492565b6000918252602091829020604080516080810190915260049092020180546001600160a01b0316825260018101805492939192918401916104ad906114a8565b80601f01602080910402602001604051908101604052809291908181526020018280546104d9906114a8565b80156105265780601f106104fb57610100808354040283529160200191610526565b820191906000526020600020905b81548152906001019060200180831161050957829003601f168201915b5050505050815260200160028201805461053f906114a8565b80601f016020809104026020016040519081016040528092919081815260200182805461056b906114a8565b80156105b85780601f1061058d576101008083540402835291602001916105b8565b820191906000526020600020905b81548152906001019060200180831161059b57829003601f168201915b5050505050815260200160038201548152505090505b92915050565b6001546000906001600160a01b031633146106295760405162461bcd60e51b815260206004820152601060248201526f2737ba103a34329037b832b930ba37b960811b60448201526064015b60405180910390fd5b60028260ff16101561067d5760405162461bcd60e51b815260206004820152601760248201527f4e656564206174206c65617374203220706c61796572730000000000000000006044820152606401610620565b600354156106cd5760405162461bcd60e51b815260206004820152601860248201527f41637469766520746f75726e616d656e742065786973747300000000000000006044820152606401610620565b600280549060006106dd836114f8565b9091555060008181526004602090815260409182902086815560020180546001600160b01b03191661010060ff881690810261ff01600160b01b03191691909117336201000002179091556003849055825187815291820152815192935083927f8193c9cd78446d3107bab90bb8600bd2c2f667c9254fd8a05203825f7b00dff2929181900390910190a292915050565b606060046000838152602001908152602001600020600301805480602002602001604051908101604052809291908181526020016000905b8282101561091c57600084815260209081902060408051608081019091526004850290910180546001600160a01b0316825260018101805492939192918401916107ef906114a8565b80601f016020809104026020016040519081016040528092919081815260200182805461081b906114a8565b80156108685780601f1061083d57610100808354040283529160200191610868565b820191906000526020600020905b81548152906001019060200180831161084b57829003601f168201915b50505050508152602001600282018054610881906114a8565b80601f01602080910402602001604051908101604052809291908181526020018280546108ad906114a8565b80156108fa5780601f106108cf576101008083540402835291602001916108fa565b820191906000526020600020905b8154815290600101906020018083116108dd57829003601f168201915b50505050508152602001600382015481525050815260200190600101906107a6565b505050509050919050565b600081815260046020526040902060028101546201000090046001600160a01b031633148061096057506001546001600160a01b031633145b6109ac5760405162461bcd60e51b815260206004820152601760248201527f4e6f742063726561746f72206f72206f70657261746f720000000000000000006044820152606401610620565b600060028083015460ff16908111156109c7576109c761135d565b14610a0a5760405162461bcd60e51b81526020600482015260136024820152722a37bab93730b6b2b73a103737ba1037b832b760691b6044820152606401610620565b600381015460041115610a5f5760405162461bcd60e51b815260206004820152601760248201527f4e656564206174206c65617374203420706c61796572730000000000000000006044820152606401610620565b60028101805460ff19166001179055600381015460405190815282907fbc7efbd054762c7024dd5838b4eef6be3c9982e8a7397e2b3949e1b52263a61c9060200160405180910390a25050565b610ab461112d565b610abe600061115a565b565b6001546001600160a01b03163314610b0d5760405162461bcd60e51b815260206004820152601060248201526f2737ba103a34329037b832b930ba37b960811b6044820152606401610620565b6000828152600460205260409020600160028083015460ff1690811115610b3657610b3661135d565b14610b7c5760405162461bcd60e51b8152602060048201526016602482015275546f75726e616d656e74206e6f742072756e6e696e6760501b6044820152606401610620565b60038101548210610bbe5760405162461bcd60e51b815260206004820152600c60248201526b125b9d985b1a59081cd9585d60a21b6044820152606401610620565b6002818101805460ff191660018302179055506000816003018381548110610be857610be8611492565b600091825260208220600490910201546001840180549290556040516001600160a01b0390911692508290859087907fa337cccc19be29e098aaaeed2b248daf92808c63c412cddd5f35bf3b49434d1f90610c469086815260200190565b60405180910390a48460035403610c5d5760006003555b6005546001600160a01b031615610d7f5760005b6003840154811015610d7d576000846003018281548110610c9457610c94611492565b90600052602060002090600402016003015490506000811115610d6a576000868314610cc257600019610cc5565b60015b6005546040516001623bd54760e21b0319815260048101859052600f83900b602482015260606044820152601060648201526f1c1bdad95c8b5d1bdd5c9b985b595b9d60821b60848201529192506001600160a01b03169063ff10aae49060a4016020604051808303816000875af1925050508015610d61575060408051601f3d908101601f19168201909252610d5e91810190611511565b60015b15610d6857505b505b5080610d75816114f8565b915050610c71565b505b6000826001600160a01b03168260405160006040518083038185875af1925050503d8060008114610dcc576040519150601f19603f3d011682016040523d82523d6000602084013e610dd1565b606091505b5050905080610e125760405162461bcd60e51b815260206004820152600d60248201526c14185e5bdd5d0819985a5b1959609a1b6044820152606401610620565b505050505050565b610e2261112d565b600180546001600160a01b0319166001600160a01b0392909216919091179055565b60008681526004602052604081208160028083015460ff1690811115610e6c57610e6c61135d565b14610eaf5760405162461bcd60e51b81526020600482015260136024820152722a37bab93730b6b2b73a103737ba1037b832b760691b6044820152606401610620565b6002810154600382015461010090910460ff1611610f015760405162461bcd60e51b815260206004820152600f60248201526e151bdd5c9b985b595b9d08199d5b1b608a1b6044820152606401610620565b85610f3e5760405162461bcd60e51b815260206004820152600d60248201526c13985b59481c995c5d5a5c9959609a1b6044820152606401610620565b80543414610f845760405162461bcd60e51b815260206004820152601360248201527215dc9bdb99c8189d5e4b5a5b88185b5bdd5b9d606a1b6044820152606401610620565b6003810180546040805160808101825233815281516020601f8c018190048102820181019093528a815292955091818301918b908b9081908401838280828437600092019190915250505090825250604080516020601f8a01819004810282018101909252888152918101919089908990819084018382808284376000920182905250938552505050602091820187905283546001808201865594825290829020835160049092020180546001600160a01b0319166001600160a01b03909216919091178155908201519192909190820190611060908261159c565b5060408201516002820190611075908261159c565b5060608201518160030155505034816001016000828254611096919061165c565b92505081905550336001600160a01b031682897f59648cc7ec872c205ec16525ba79ebc2c14ebc81a867770687804eea615a0f1a8a8a886040516110dc9392919061166f565b60405180910390a4509695505050505050565b6110f761112d565b6001600160a01b03811661112157604051631e4fbdf760e01b815260006004820152602401610620565b61112a8161115a565b50565b6000546001600160a01b03163314610abe5760405163118cdaa760e01b8152336004820152602401610620565b600080546001600160a01b038381166001600160a01b0319831681178455604051919092169283917f8be0079c531659141344cd1fd0a4f28419497f9722a3daafe3b4186f6b6457e09190a35050565b6000602082840312156111bc57600080fd5b81356001600160a01b03811681146111d357600080fd5b9392505050565b600080604083850312156111ed57600080fd5b50508035926020909101359150565b6000815180845260005b8181101561122257602081850181015186830182015201611206565b506000602082860101526020601f19601f83011685010191505092915050565b60018060a01b038151168252600060208201516080602085015261126960808501826111fc565b90506040830151848203604086015261128282826111fc565b915050606083015160608501528091505092915050565b6020815260006111d36020830184611242565b600080604083850312156112bf57600080fd5b82359150602083013560ff811681146112d757600080fd5b809150509250929050565b6000602082840312156112f457600080fd5b5035919050565b6000602080830181845280855180835260408601915060408160051b870101925083870160005b8281101561135057603f1988860301845261133e858351611242565b94509285019290850190600101611322565b5092979650505050505050565b634e487b7160e01b600052602160045260246000fd5b8581526020810185905260a081016003851061139f57634e487b7160e01b600052602160045260246000fd5b604082019490945260ff9290921660608301526001600160a01b031660809091015292915050565b60008083601f8401126113d957600080fd5b50813567ffffffffffffffff8111156113f157600080fd5b60208301915083602082850101111561140957600080fd5b9250929050565b6000806000806000806080878903121561142957600080fd5b86359550602087013567ffffffffffffffff8082111561144857600080fd5b6114548a838b016113c7565b9097509550604089013591508082111561146d57600080fd5b5061147a89828a016113c7565b979a9699509497949695606090950135949350505050565b634e487b7160e01b600052603260045260246000fd5b600181811c908216806114bc57607f821691505b6020821081036114dc57634e487b7160e01b600052602260045260246000fd5b50919050565b634e487b7160e01b600052601160045260246000fd5b60006001820161150a5761150a6114e2565b5060010190565b60006020828403121561152357600080fd5b815167ffffffffffffffff811681146111d357600080fd5b634e487b7160e01b600052604160045260246000fd5b601f82111561159757600081815260208120601f850160051c810160208610156115785750805b601f850160051c820191505b81811015610e1257828155600101611584565b505050565b815167ffffffffffffffff8111156115b6576115b661153b565b6115ca816115c484546114a8565b84611551565b602080601f8311600181146115ff57600084156115e75750858301515b600019600386901b1c1916600185901b178555610e12565b600085815260208120601f198616915b8281101561162e5788860151825594840194600190910190840161160f565b508582101561164c5787850151600019600388901b60f8161c191681555b5050505050600190811b01905550565b808201808211156105ce576105ce6114e2565b604081528260408201528284606083013760006060848301015260006060601f19601f860116830101905082602083015294935050505056fea26469706673582212207277600a5d8b0b257637b4edc5c5db5439d8605837cfed017f184be5b435df3a64736f6c63430008140033",
+  "devdoc": {
+    "errors": {
+      "OwnableInvalidOwner(address)": [
+        {
+          "details": "The owner is not a valid owner account. (eg. `address(0)`)"
+        }
+      ],
+      "OwnableUnauthorizedAccount(address)": [
+        {
+          "details": "The caller account is not authorized to perform an operation."
+        }
+      ]
+    },
+    "kind": "dev",
+    "methods": {
+      "createTournament(uint256,uint8)": {
+        "params": {
+          "buyIn": "Amount in wei each agent must send to enter (0 = free).",
+          "maxPlayers": "Maximum number of agents allowed."
+        }
+      },
+      "enterTournament(uint256,string,string,uint256)": {
+        "params": {
+          "agentId": "ERC-8004 identity token ID to link (0 = ephemeral).",
+          "name": "Display name for the agent.",
+          "systemPrompt": "The AI system prompt that drives this agent's decisions.",
+          "tournamentId": "Tournament to enter."
+        }
+      },
+      "owner()": {
+        "details": "Returns the address of the current owner."
+      },
+      "renounceOwnership()": {
+        "details": "Leaves the contract without owner. It will not be possible to call `onlyOwner` functions. Can only be called by the current owner. NOTE: Renouncing ownership will leave the contract without an owner, thereby disabling any functionality that is only available to the owner."
+      },
+      "settleTournament(uint256,uint256)": {
+        "params": {
+          "tournamentId": "Tournament being settled.",
+          "winningSeat": "Seat index (0-based) of the winning agent."
+        }
+      },
+      "transferOwnership(address)": {
+        "details": "Transfers ownership of the contract to a new account (`newOwner`). Can only be called by the current owner."
+      }
+    },
+    "version": 1
+  },
+  "userdoc": {
+    "kind": "user",
+    "methods": {
+      "createTournament(uint256,uint8)": {
+        "notice": "Create a new tournament. Only the operator can create one."
+      },
+      "enterTournament(uint256,string,string,uint256)": {
+        "notice": "Enter a tournament with a new agent. Must send exactly the buy-in in MON."
+      },
+      "setReputationRegistry(address)": {
+        "notice": "Wire in the ERC-8004 Reputation Registry. Pass address(0) to disable."
+      },
+      "settleTournament(uint256,uint256)": {
+        "notice": "Settle a finished tournament. Only the operator can call this. Transfers the full prize pool to the winning agent's wallet. If the ERC-8004 Reputation Registry is configured, posts win/loss feedback for all agents that have a registered identity (agentId > 0)."
+      },
+      "startTournament(uint256)": {
+        "notice": "Start a tournament. The tournament creator OR the operator can call this. Emits TournamentStarted so the agent-runner can read agent data and begin the game."
+      }
+    },
+    "notice": "PokerVault — escrow for agentic poker tournaments. Agents are ephemeral by default: they exist only within a tournament and are defined by a name + system prompt submitted at entry time. Optionally, agents may link a persistent ERC-8004 identity (agentId > 0) to build on-chain reputation. Responsibilities:   - Accept buy-ins in MON (native token) when agents enter tournaments   - Hold prize pools while games run   - Pay out the full prize pool to the winner's wallet   - Post win/loss feedback to the ERC-8004 Reputation Registry (if configured) Game logic (cards, betting, hand evaluation) is entirely off-chain. The operator (agent-runner service) is trusted to report the winner.",
+    "version": 1
+  },
+  "storageLayout": {
+    "storage": [
+      {
+        "astId": 8,
+        "contract": "contracts/PokerVault.sol:PokerVault",
+        "label": "_owner",
+        "offset": 0,
+        "slot": "0",
+        "type": "t_address"
+      },
+      {
+        "astId": 226,
+        "contract": "contracts/PokerVault.sol:PokerVault",
+        "label": "operator",
+        "offset": 0,
+        "slot": "1",
+        "type": "t_address"
+      },
+      {
+        "astId": 229,
+        "contract": "contracts/PokerVault.sol:PokerVault",
+        "label": "nextTournamentId",
+        "offset": 0,
+        "slot": "2",
+        "type": "t_uint256"
+      },
+      {
+        "astId": 231,
+        "contract": "contracts/PokerVault.sol:PokerVault",
+        "label": "activeTournamentId",
+        "offset": 0,
+        "slot": "3",
+        "type": "t_uint256"
+      },
+      {
+        "astId": 236,
+        "contract": "contracts/PokerVault.sol:PokerVault",
+        "label": "tournaments",
+        "offset": 0,
+        "slot": "4",
+        "type": "t_mapping(t_uint256,t_struct(Tournament)224_storage)"
+      },
+      {
+        "astId": 239,
+        "contract": "contracts/PokerVault.sol:PokerVault",
+        "label": "reputationRegistry",
+        "offset": 0,
+        "slot": "5",
+        "type": "t_contract(IAgentReputationRegistry)192"
+      }
+    ],
+    "types": {
+      "t_address": {
+        "encoding": "inplace",
+        "label": "address",
+        "numberOfBytes": "20"
+      },
+      "t_array(t_struct(Agent)204_storage)dyn_storage": {
+        "base": "t_struct(Agent)204_storage",
+        "encoding": "dynamic_array",
+        "label": "struct PokerVault.Agent[]",
+        "numberOfBytes": "32"
+      },
+      "t_contract(IAgentReputationRegistry)192": {
+        "encoding": "inplace",
+        "label": "contract IAgentReputationRegistry",
+        "numberOfBytes": "20"
+      },
+      "t_enum(TournamentStatus)208": {
+        "encoding": "inplace",
+        "label": "enum PokerVault.TournamentStatus",
+        "numberOfBytes": "1"
+      },
+      "t_mapping(t_uint256,t_struct(Tournament)224_storage)": {
+        "encoding": "mapping",
+        "key": "t_uint256",
+        "label": "mapping(uint256 => struct PokerVault.Tournament)",
+        "numberOfBytes": "32",
+        "value": "t_struct(Tournament)224_storage"
+      },
+      "t_string_storage": {
+        "encoding": "bytes",
+        "label": "string",
+        "numberOfBytes": "32"
+      },
+      "t_struct(Agent)204_storage": {
+        "encoding": "inplace",
+        "label": "struct PokerVault.Agent",
+        "members": [
+          {
+            "astId": 197,
+            "contract": "contracts/PokerVault.sol:PokerVault",
+            "label": "wallet",
+            "offset": 0,
+            "slot": "0",
+            "type": "t_address"
+          },
+          {
+            "astId": 199,
+            "contract": "contracts/PokerVault.sol:PokerVault",
+            "label": "name",
+            "offset": 0,
+            "slot": "1",
+            "type": "t_string_storage"
+          },
+          {
+            "astId": 201,
+            "contract": "contracts/PokerVault.sol:PokerVault",
+            "label": "systemPrompt",
+            "offset": 0,
+            "slot": "2",
+            "type": "t_string_storage"
+          },
+          {
+            "astId": 203,
+            "contract": "contracts/PokerVault.sol:PokerVault",
+            "label": "agentId",
+            "offset": 0,
+            "slot": "3",
+            "type": "t_uint256"
+          }
+        ],
+        "numberOfBytes": "128"
+      },
+      "t_struct(Tournament)224_storage": {
+        "encoding": "inplace",
+        "label": "struct PokerVault.Tournament",
+        "members": [
+          {
+            "astId": 210,
+            "contract": "contracts/PokerVault.sol:PokerVault",
+            "label": "buyIn",
+            "offset": 0,
+            "slot": "0",
+            "type": "t_uint256"
+          },
+          {
+            "astId": 212,
+            "contract": "contracts/PokerVault.sol:PokerVault",
+            "label": "prizePool",
+            "offset": 0,
+            "slot": "1",
+            "type": "t_uint256"
+          },
+          {
+            "astId": 215,
+            "contract": "contracts/PokerVault.sol:PokerVault",
+            "label": "status",
+            "offset": 0,
+            "slot": "2",
+            "type": "t_enum(TournamentStatus)208"
+          },
+          {
+            "astId": 217,
+            "contract": "contracts/PokerVault.sol:PokerVault",
+            "label": "maxPlayers",
+            "offset": 1,
+            "slot": "2",
+            "type": "t_uint8"
+          },
+          {
+            "astId": 219,
+            "contract": "contracts/PokerVault.sol:PokerVault",
+            "label": "creator",
+            "offset": 2,
+            "slot": "2",
+            "type": "t_address"
+          },
+          {
+            "astId": 223,
+            "contract": "contracts/PokerVault.sol:PokerVault",
+            "label": "agents",
+            "offset": 0,
+            "slot": "3",
+            "type": "t_array(t_struct(Agent)204_storage)dyn_storage"
+          }
+        ],
+        "numberOfBytes": "128"
+      },
+      "t_uint256": {
+        "encoding": "inplace",
+        "label": "uint256",
+        "numberOfBytes": "32"
+      },
+      "t_uint8": {
+        "encoding": "inplace",
+        "label": "uint8",
+        "numberOfBytes": "1"
+      }
+    }
+  }
+}

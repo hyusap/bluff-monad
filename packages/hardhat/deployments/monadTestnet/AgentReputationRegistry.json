@@ -1,0 +1,486 @@
+{
+  "address": "0xDae9f4b27ECce1e537a7223a064cDfAc90d96D5A",
+  "abi": [
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "_identityRegistry",
+          "type": "address"
+        }
+      ],
+      "stateMutability": "nonpayable",
+      "type": "constructor"
+    },
+    {
+      "anonymous": false,
+      "inputs": [
+        {
+          "indexed": true,
+          "internalType": "uint256",
+          "name": "agentId",
+          "type": "uint256"
+        },
+        {
+          "indexed": true,
+          "internalType": "address",
+          "name": "clientAddress",
+          "type": "address"
+        },
+        {
+          "indexed": true,
+          "internalType": "uint64",
+          "name": "feedbackIndex",
+          "type": "uint64"
+        }
+      ],
+      "name": "FeedbackRevoked",
+      "type": "event"
+    },
+    {
+      "anonymous": false,
+      "inputs": [
+        {
+          "indexed": true,
+          "internalType": "uint256",
+          "name": "agentId",
+          "type": "uint256"
+        },
+        {
+          "indexed": true,
+          "internalType": "address",
+          "name": "clientAddress",
+          "type": "address"
+        },
+        {
+          "indexed": false,
+          "internalType": "uint64",
+          "name": "feedbackIndex",
+          "type": "uint64"
+        },
+        {
+          "indexed": false,
+          "internalType": "int128",
+          "name": "value",
+          "type": "int128"
+        },
+        {
+          "indexed": false,
+          "internalType": "string",
+          "name": "tag",
+          "type": "string"
+        }
+      ],
+      "name": "NewFeedback",
+      "type": "event"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "uint256",
+          "name": "agentId",
+          "type": "uint256"
+        }
+      ],
+      "name": "getClients",
+      "outputs": [
+        {
+          "internalType": "address[]",
+          "name": "",
+          "type": "address[]"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "getIdentityRegistry",
+      "outputs": [
+        {
+          "internalType": "address",
+          "name": "",
+          "type": "address"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "uint256",
+          "name": "agentId",
+          "type": "uint256"
+        },
+        {
+          "internalType": "address",
+          "name": "clientAddress",
+          "type": "address"
+        }
+      ],
+      "name": "getLastIndex",
+      "outputs": [
+        {
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "uint256",
+          "name": "agentId",
+          "type": "uint256"
+        }
+      ],
+      "name": "getSummary",
+      "outputs": [
+        {
+          "internalType": "int128",
+          "name": "totalScore",
+          "type": "int128"
+        },
+        {
+          "internalType": "uint256",
+          "name": "feedbackCount",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "uint256",
+          "name": "agentId",
+          "type": "uint256"
+        },
+        {
+          "internalType": "int128",
+          "name": "value",
+          "type": "int128"
+        },
+        {
+          "internalType": "string",
+          "name": "tag",
+          "type": "string"
+        }
+      ],
+      "name": "giveFeedback",
+      "outputs": [
+        {
+          "internalType": "uint64",
+          "name": "feedbackIndex",
+          "type": "uint64"
+        }
+      ],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "identityRegistry",
+      "outputs": [
+        {
+          "internalType": "address",
+          "name": "",
+          "type": "address"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "uint256",
+          "name": "agentId",
+          "type": "uint256"
+        },
+        {
+          "internalType": "address",
+          "name": "clientAddress",
+          "type": "address"
+        },
+        {
+          "internalType": "uint64",
+          "name": "feedbackIndex",
+          "type": "uint64"
+        }
+      ],
+      "name": "readFeedback",
+      "outputs": [
+        {
+          "components": [
+            {
+              "internalType": "int128",
+              "name": "value",
+              "type": "int128"
+            },
+            {
+              "internalType": "string",
+              "name": "tag",
+              "type": "string"
+            },
+            {
+              "internalType": "bool",
+              "name": "isRevoked",
+              "type": "bool"
+            },
+            {
+              "internalType": "uint64",
+              "name": "feedbackIndex",
+              "type": "uint64"
+            }
+          ],
+          "internalType": "struct AgentReputationRegistry.Feedback",
+          "name": "",
+          "type": "tuple"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "uint256",
+          "name": "agentId",
+          "type": "uint256"
+        },
+        {
+          "internalType": "uint64",
+          "name": "feedbackIndex",
+          "type": "uint64"
+        }
+      ],
+      "name": "revokeFeedback",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    }
+  ],
+  "transactionHash": "0x61fc02c10cc5614a75977dfdd1b2b775612f8e2ff70141042373f84cb3b45ba1",
+  "receipt": {
+    "to": null,
+    "from": "0xEdb246a99882178f2B79998a92b331e43001AF91",
+    "contractAddress": "0xDae9f4b27ECce1e537a7223a064cDfAc90d96D5A",
+    "transactionIndex": 6,
+    "gasUsed": "806644",
+    "logsBloom": "0x00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000",
+    "blockHash": "0xb1deb054e259f6bb4120f66c970cd72b80f243e9c670bade20aca64503b8e523",
+    "transactionHash": "0x61fc02c10cc5614a75977dfdd1b2b775612f8e2ff70141042373f84cb3b45ba1",
+    "logs": [],
+    "blockNumber": 13494853,
+    "cumulativeGasUsed": "4980090",
+    "status": 1,
+    "byzantium": true
+  },
+  "args": [
+    "0x099C54434f38FAC5F785fe742c6ce82453a4a450"
+  ],
+  "numDeployments": 1,
+  "solcInputHash": "705d9d996bf62a232ddf74bbfdab39d8",
+  "metadata": "{\"compiler\":{\"version\":\"0.8.20+commit.a1b79de6\"},\"language\":\"Solidity\",\"output\":{\"abi\":[{\"inputs\":[{\"internalType\":\"address\",\"name\":\"_identityRegistry\",\"type\":\"address\"}],\"stateMutability\":\"nonpayable\",\"type\":\"constructor\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":true,\"internalType\":\"uint256\",\"name\":\"agentId\",\"type\":\"uint256\"},{\"indexed\":true,\"internalType\":\"address\",\"name\":\"clientAddress\",\"type\":\"address\"},{\"indexed\":true,\"internalType\":\"uint64\",\"name\":\"feedbackIndex\",\"type\":\"uint64\"}],\"name\":\"FeedbackRevoked\",\"type\":\"event\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":true,\"internalType\":\"uint256\",\"name\":\"agentId\",\"type\":\"uint256\"},{\"indexed\":true,\"internalType\":\"address\",\"name\":\"clientAddress\",\"type\":\"address\"},{\"indexed\":false,\"internalType\":\"uint64\",\"name\":\"feedbackIndex\",\"type\":\"uint64\"},{\"indexed\":false,\"internalType\":\"int128\",\"name\":\"value\",\"type\":\"int128\"},{\"indexed\":false,\"internalType\":\"string\",\"name\":\"tag\",\"type\":\"string\"}],\"name\":\"NewFeedback\",\"type\":\"event\"},{\"inputs\":[{\"internalType\":\"uint256\",\"name\":\"agentId\",\"type\":\"uint256\"}],\"name\":\"getClients\",\"outputs\":[{\"internalType\":\"address[]\",\"name\":\"\",\"type\":\"address[]\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"getIdentityRegistry\",\"outputs\":[{\"internalType\":\"address\",\"name\":\"\",\"type\":\"address\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"uint256\",\"name\":\"agentId\",\"type\":\"uint256\"},{\"internalType\":\"address\",\"name\":\"clientAddress\",\"type\":\"address\"}],\"name\":\"getLastIndex\",\"outputs\":[{\"internalType\":\"uint256\",\"name\":\"\",\"type\":\"uint256\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"uint256\",\"name\":\"agentId\",\"type\":\"uint256\"}],\"name\":\"getSummary\",\"outputs\":[{\"internalType\":\"int128\",\"name\":\"totalScore\",\"type\":\"int128\"},{\"internalType\":\"uint256\",\"name\":\"feedbackCount\",\"type\":\"uint256\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"uint256\",\"name\":\"agentId\",\"type\":\"uint256\"},{\"internalType\":\"int128\",\"name\":\"value\",\"type\":\"int128\"},{\"internalType\":\"string\",\"name\":\"tag\",\"type\":\"string\"}],\"name\":\"giveFeedback\",\"outputs\":[{\"internalType\":\"uint64\",\"name\":\"feedbackIndex\",\"type\":\"uint64\"}],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"identityRegistry\",\"outputs\":[{\"internalType\":\"address\",\"name\":\"\",\"type\":\"address\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"uint256\",\"name\":\"agentId\",\"type\":\"uint256\"},{\"internalType\":\"address\",\"name\":\"clientAddress\",\"type\":\"address\"},{\"internalType\":\"uint64\",\"name\":\"feedbackIndex\",\"type\":\"uint64\"}],\"name\":\"readFeedback\",\"outputs\":[{\"components\":[{\"internalType\":\"int128\",\"name\":\"value\",\"type\":\"int128\"},{\"internalType\":\"string\",\"name\":\"tag\",\"type\":\"string\"},{\"internalType\":\"bool\",\"name\":\"isRevoked\",\"type\":\"bool\"},{\"internalType\":\"uint64\",\"name\":\"feedbackIndex\",\"type\":\"uint64\"}],\"internalType\":\"struct AgentReputationRegistry.Feedback\",\"name\":\"\",\"type\":\"tuple\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"uint256\",\"name\":\"agentId\",\"type\":\"uint256\"},{\"internalType\":\"uint64\",\"name\":\"feedbackIndex\",\"type\":\"uint64\"}],\"name\":\"revokeFeedback\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"}],\"devdoc\":{\"kind\":\"dev\",\"methods\":{\"getSummary(uint256)\":{\"returns\":{\"feedbackCount\":\"Number of non-revoked feedback entries.\",\"totalScore\":\"  Sum of all non-revoked feedback values.\"}},\"giveFeedback(uint256,int128,string)\":{\"params\":{\"agentId\":\"The ERC-8004 agent token ID.\",\"tag\":\"Label for context (e.g. \\\"poker-tournament\\\").\",\"value\":\"Signed score (e.g. +1 for win, -1 for loss).\"},\"returns\":{\"feedbackIndex\":\"Index of this feedback entry.\"}}},\"version\":1},\"userdoc\":{\"kind\":\"user\",\"methods\":{\"getClients(uint256)\":{\"notice\":\"Get all clients who have given feedback to an agent.\"},\"getLastIndex(uint256,address)\":{\"notice\":\"Get the count of feedback entries from a specific client for an agent.\"},\"getSummary(uint256)\":{\"notice\":\"Aggregate reputation score for an agent across all clients and all tags.\"},\"giveFeedback(uint256,int128,string)\":{\"notice\":\"Submit feedback for an agent. msg.sender is the \\\"client\\\" (e.g. PokerVault).\"},\"readFeedback(uint256,address,uint64)\":{\"notice\":\"Read a single feedback entry.\"},\"revokeFeedback(uint256,uint64)\":{\"notice\":\"Revoke a previously submitted feedback. Only the original submitter can revoke.\"}},\"notice\":\"ERC-8004: Agent Reputation Registry Tracks feedback signals (e.g. tournament results) for registered agents. Any third-party \\\"client\\\" (such as the PokerVault contract) can submit feedback; feedback is indexed by (agentId, client, feedbackIndex). Scores and aggregation can be read on-chain for composability.\",\"version\":1}},\"settings\":{\"compilationTarget\":{\"contracts/AgentReputationRegistry.sol\":\"AgentReputationRegistry\"},\"evmVersion\":\"paris\",\"libraries\":{},\"metadata\":{\"bytecodeHash\":\"ipfs\",\"useLiteralContent\":true},\"optimizer\":{\"enabled\":true,\"runs\":200},\"remappings\":[]},\"sources\":{\"contracts/AgentReputationRegistry.sol\":{\"content\":\"// SPDX-License-Identifier: MIT\\npragma solidity >=0.8.0 <0.9.0;\\n\\n/**\\n * ERC-8004: Agent Reputation Registry\\n *\\n * Tracks feedback signals (e.g. tournament results) for registered agents.\\n * Any third-party \\\"client\\\" (such as the PokerVault contract) can submit\\n * feedback; feedback is indexed by (agentId, client, feedbackIndex).\\n *\\n * Scores and aggregation can be read on-chain for composability.\\n */\\ncontract AgentReputationRegistry {\\n    address public immutable identityRegistry;\\n\\n    struct Feedback {\\n        int128 value;          // signed score: +1 win, -1 loss, etc.\\n        string tag;            // context label, e.g. \\\"poker-tournament\\\"\\n        bool isRevoked;\\n        uint64 feedbackIndex;\\n    }\\n\\n    // agentId => client address => list of feedbacks\\n    mapping(uint256 => mapping(address => Feedback[])) private _feedbacks;\\n\\n    // agentId => ordered list of clients who submitted feedback\\n    mapping(uint256 => address[]) private _clients;\\n\\n    // agentId => client => whether they've given at least one feedback (for deduplication)\\n    mapping(uint256 => mapping(address => bool)) private _hasGivenFeedback;\\n\\n    event NewFeedback(\\n        uint256 indexed agentId,\\n        address indexed clientAddress,\\n        uint64 feedbackIndex,\\n        int128 value,\\n        string tag\\n    );\\n    event FeedbackRevoked(\\n        uint256 indexed agentId,\\n        address indexed clientAddress,\\n        uint64 indexed feedbackIndex\\n    );\\n\\n    constructor(address _identityRegistry) {\\n        identityRegistry = _identityRegistry;\\n    }\\n\\n    function getIdentityRegistry() external view returns (address) {\\n        return identityRegistry;\\n    }\\n\\n    /**\\n     * Submit feedback for an agent. msg.sender is the \\\"client\\\" (e.g. PokerVault).\\n     * @param agentId    The ERC-8004 agent token ID.\\n     * @param value      Signed score (e.g. +1 for win, -1 for loss).\\n     * @param tag        Label for context (e.g. \\\"poker-tournament\\\").\\n     * @return feedbackIndex Index of this feedback entry.\\n     */\\n    function giveFeedback(\\n        uint256 agentId,\\n        int128 value,\\n        string calldata tag\\n    ) external returns (uint64 feedbackIndex) {\\n        feedbackIndex = uint64(_feedbacks[agentId][msg.sender].length);\\n        _feedbacks[agentId][msg.sender].push(Feedback({\\n            value: value,\\n            tag: tag,\\n            isRevoked: false,\\n            feedbackIndex: feedbackIndex\\n        }));\\n        if (!_hasGivenFeedback[agentId][msg.sender]) {\\n            _hasGivenFeedback[agentId][msg.sender] = true;\\n            _clients[agentId].push(msg.sender);\\n        }\\n        emit NewFeedback(agentId, msg.sender, feedbackIndex, value, tag);\\n    }\\n\\n    /**\\n     * Revoke a previously submitted feedback. Only the original submitter can revoke.\\n     */\\n    function revokeFeedback(uint256 agentId, uint64 feedbackIndex) external {\\n        Feedback storage fb = _feedbacks[agentId][msg.sender][feedbackIndex];\\n        require(!fb.isRevoked, \\\"Already revoked\\\");\\n        fb.isRevoked = true;\\n        emit FeedbackRevoked(agentId, msg.sender, feedbackIndex);\\n    }\\n\\n    /**\\n     * Aggregate reputation score for an agent across all clients and all tags.\\n     * @return totalScore   Sum of all non-revoked feedback values.\\n     * @return feedbackCount Number of non-revoked feedback entries.\\n     */\\n    function getSummary(uint256 agentId) external view returns (int128 totalScore, uint256 feedbackCount) {\\n        address[] memory clients = _clients[agentId];\\n        for (uint256 i = 0; i < clients.length; i++) {\\n            Feedback[] memory fbs = _feedbacks[agentId][clients[i]];\\n            for (uint256 j = 0; j < fbs.length; j++) {\\n                if (!fbs[j].isRevoked) {\\n                    totalScore += fbs[j].value;\\n                    feedbackCount++;\\n                }\\n            }\\n        }\\n    }\\n\\n    /**\\n     * Read a single feedback entry.\\n     */\\n    function readFeedback(\\n        uint256 agentId,\\n        address clientAddress,\\n        uint64 feedbackIndex\\n    ) external view returns (Feedback memory) {\\n        return _feedbacks[agentId][clientAddress][feedbackIndex];\\n    }\\n\\n    /**\\n     * Get all clients who have given feedback to an agent.\\n     */\\n    function getClients(uint256 agentId) external view returns (address[] memory) {\\n        return _clients[agentId];\\n    }\\n\\n    /**\\n     * Get the count of feedback entries from a specific client for an agent.\\n     */\\n    function getLastIndex(uint256 agentId, address clientAddress) external view returns (uint256) {\\n        return _feedbacks[agentId][clientAddress].length;\\n    }\\n}\\n\",\"keccak256\":\"0x765683aafc31e97c5865e43e4a49c745d08cf993f15c312c45867822fb0a6424\",\"license\":\"MIT\"}},\"version\":1}",
+  "bytecode": "0x60a060405234801561001057600080fd5b50604051610e07380380610e0783398101604081905261002f91610040565b6001600160a01b0316608052610070565b60006020828403121561005257600080fd5b81516001600160a01b038116811461006957600080fd5b9392505050565b608051610d7661009160003960008181609201526101550152610d766000f3fe608060405234801561001057600080fd5b50600436106100885760003560e01c8063aee144601161005b578063aee1446014610126578063bc4d861b14610153578063f2d8175914610179578063ff10aae41461019a57600080fd5b8063134e18f41461008d578063232b0810146100d157806342dd519c146100f15780634ab3ca9914610111575b600080fd5b6100b47f000000000000000000000000000000000000000000000000000000000000000081565b6040516001600160a01b0390911681526020015b60405180910390f35b6100e46100df36600461090f565b6101c5565b6040516100c8919061094b565b6101046100ff3660046109d2565b610309565b6040516100c891906109eb565b61012461011f366004610a38565b610375565b005b6101396101343660046109d2565b610451565b60408051600f9390930b83526020830191909152016100c8565b7f00000000000000000000000000000000000000000000000000000000000000006100b4565b61018c610187366004610a64565b6106cf565b6040519081526020016100c8565b6101ad6101a8366004610a87565b6106f7565b6040516001600160401b0390911681526020016100c8565b604080516080810182526000808252606060208084018290528385018390529083018290528682528181528382206001600160a01b038716835290529190912080546001600160401b03841690811061022057610220610b15565b600091825260209182902060408051608081019091526003909202018054600f0b8252600181018054929391929184019161025a90610b2b565b80601f016020809104026020016040519081016040528092919081815260200182805461028690610b2b565b80156102d35780601f106102a8576101008083540402835291602001916102d3565b820191906000526020600020905b8154815290600101906020018083116102b657829003601f168201915b50505091835250506002919091015460ff81161515602083015261010090046001600160401b0316604090910152949350505050565b60008181526001602090815260409182902080548351818402810184019094528084526060939283018282801561036957602002820191906000526020600020905b81546001600160a01b0316815260019091019060200180831161034b575b50505050509050919050565b600082815260208181526040808320338452909152812080546001600160401b0384169081106103a7576103a7610b15565b60009182526020909120600390910201600281015490915060ff16156104055760405162461bcd60e51b815260206004820152600f60248201526e105b1c9958591e481c995d9bdad959608a1b604482015260640160405180910390fd5b60028101805460ff191660011790556040516001600160401b03831690339085907f25156fd3288212246d8b008d5921fde376c71ed14ac2e072a506eb06fde6d09d90600090a4505050565b60008181526001602090815260408083208054825181850281018501909352808352849384939291908301828280156104b357602002820191906000526020600020905b81546001600160a01b03168152600190910190602001808311610495575b5050505050905060005b81518110156106c8576000858152602081905260408120835182908590859081106104ea576104ea610b15565b60200260200101516001600160a01b03166001600160a01b03168152602001908152602001600020805480602002602001604051908101604052809291908181526020016000905b828210156106345760008481526020908190206040805160808101909152600385029091018054600f0b8252600181018054929391929184019161057590610b2b565b80601f01602080910402602001604051908101604052809291908181526020018280546105a190610b2b565b80156105ee5780601f106105c3576101008083540402835291602001916105ee565b820191906000526020600020905b8154815290600101906020018083116105d157829003601f168201915b50505091835250506002919091015460ff811615156020808401919091526101009091046001600160401b03166040909201919091529082526001929092019101610532565b50505050905060005b81518110156106b35781818151811061065857610658610b15565b6020026020010151604001516106a15781818151811061067a5761067a610b15565b602002602001015160000151866106919190610b7b565b95508461069d81610bba565b9550505b806106ab81610bba565b91505061063d565b505080806106c090610bba565b9150506104bd565b5050915091565b6000828152602081815260408083206001600160a01b03851684529091529020545b92915050565b60008481526020818152604080832033845282529182902080548351608081018552600f88900b81528451601f8701859004850281018501909552858552909391929091828201918790879081908401838280828437600092018290525093855250505060208083018290526001600160401b03861660409093019290925283546001808201865594825290829020835160039092020180546fffffffffffffffffffffffffffffffff19166fffffffffffffffffffffffffffffffff9092169190911781559082015191929091908201906107d39082610c38565b50604082810151600292830180546060909501516001600160401b03166101000268ffffffffffffffff00199215159290921668ffffffffffffffffff19909516949094171790925560008781526020918252828120338252909152205460ff1661088c57600085815260026020908152604080832033808552908352818420805460ff191660019081179091558985528084529184208054928301815584529190922090910180546001600160a01b03191690911790555b336001600160a01b0316857f0511301e5912625744311fb243035c8da622f8d954d8f35d2b32b4cdb44c30f4838787876040516108cc9493929190610cf7565b60405180910390a3949350505050565b80356001600160a01b03811681146108f357600080fd5b919050565b80356001600160401b03811681146108f357600080fd5b60008060006060848603121561092457600080fd5b83359250610934602085016108dc565b9150610942604085016108f8565b90509250925092565b600060208083528351600f0b81840152808401516080604085015280518060a086015260005b8181101561098d5782810184015186820160c001528301610971565b50600085820160c0015260408601518015156060870152925060608601516001600160401b03811660808701529250601f01601f19169390930160c001949350505050565b6000602082840312156109e457600080fd5b5035919050565b6020808252825182820181905260009190848201906040850190845b81811015610a2c5783516001600160a01b031683529284019291840191600101610a07565b50909695505050505050565b60008060408385031215610a4b57600080fd5b82359150610a5b602084016108f8565b90509250929050565b60008060408385031215610a7757600080fd5b82359150610a5b602084016108dc565b60008060008060608587031215610a9d57600080fd5b84359350602085013580600f0b8114610ab557600080fd5b925060408501356001600160401b0380821115610ad157600080fd5b818701915087601f830112610ae557600080fd5b813581811115610af457600080fd5b886020828501011115610b0657600080fd5b95989497505060200194505050565b634e487b7160e01b600052603260045260246000fd5b600181811c90821680610b3f57607f821691505b602082108103610b5f57634e487b7160e01b600052602260045260246000fd5b50919050565b634e487b7160e01b600052601160045260246000fd5b600f81810b9083900b016f7fffffffffffffffffffffffffffffff81136f7fffffffffffffffffffffffffffffff19821217156106f1576106f1610b65565b600060018201610bcc57610bcc610b65565b5060010190565b634e487b7160e01b600052604160045260246000fd5b601f821115610c3357600081815260208120601f850160051c81016020861015610c105750805b601f850160051c820191505b81811015610c2f57828155600101610c1c565b5050505b505050565b81516001600160401b03811115610c5157610c51610bd3565b610c6581610c5f8454610b2b565b84610be9565b602080601f831160018114610c9a5760008415610c825750858301515b600019600386901b1c1916600185901b178555610c2f565b600085815260208120601f198616915b82811015610cc957888601518255948401946001909101908401610caa565b5085821015610ce75787850151600019600388901b60f8161c191681555b5050505050600190811b01905550565b6001600160401b038516815283600f0b602082015260606040820152816060820152818360808301376000818301608090810191909152601f909201601f19160101939250505056fea2646970667358221220a4714c78229ba847ecd0c01c6c5c8ed109ac7a208132f28be0e654438e41ba8264736f6c63430008140033",
+  "deployedBytecode": "0x608060405234801561001057600080fd5b50600436106100885760003560e01c8063aee144601161005b578063aee1446014610126578063bc4d861b14610153578063f2d8175914610179578063ff10aae41461019a57600080fd5b8063134e18f41461008d578063232b0810146100d157806342dd519c146100f15780634ab3ca9914610111575b600080fd5b6100b47f000000000000000000000000000000000000000000000000000000000000000081565b6040516001600160a01b0390911681526020015b60405180910390f35b6100e46100df36600461090f565b6101c5565b6040516100c8919061094b565b6101046100ff3660046109d2565b610309565b6040516100c891906109eb565b61012461011f366004610a38565b610375565b005b6101396101343660046109d2565b610451565b60408051600f9390930b83526020830191909152016100c8565b7f00000000000000000000000000000000000000000000000000000000000000006100b4565b61018c610187366004610a64565b6106cf565b6040519081526020016100c8565b6101ad6101a8366004610a87565b6106f7565b6040516001600160401b0390911681526020016100c8565b604080516080810182526000808252606060208084018290528385018390529083018290528682528181528382206001600160a01b038716835290529190912080546001600160401b03841690811061022057610220610b15565b600091825260209182902060408051608081019091526003909202018054600f0b8252600181018054929391929184019161025a90610b2b565b80601f016020809104026020016040519081016040528092919081815260200182805461028690610b2b565b80156102d35780601f106102a8576101008083540402835291602001916102d3565b820191906000526020600020905b8154815290600101906020018083116102b657829003601f168201915b50505091835250506002919091015460ff81161515602083015261010090046001600160401b0316604090910152949350505050565b60008181526001602090815260409182902080548351818402810184019094528084526060939283018282801561036957602002820191906000526020600020905b81546001600160a01b0316815260019091019060200180831161034b575b50505050509050919050565b600082815260208181526040808320338452909152812080546001600160401b0384169081106103a7576103a7610b15565b60009182526020909120600390910201600281015490915060ff16156104055760405162461bcd60e51b815260206004820152600f60248201526e105b1c9958591e481c995d9bdad959608a1b604482015260640160405180910390fd5b60028101805460ff191660011790556040516001600160401b03831690339085907f25156fd3288212246d8b008d5921fde376c71ed14ac2e072a506eb06fde6d09d90600090a4505050565b60008181526001602090815260408083208054825181850281018501909352808352849384939291908301828280156104b357602002820191906000526020600020905b81546001600160a01b03168152600190910190602001808311610495575b5050505050905060005b81518110156106c8576000858152602081905260408120835182908590859081106104ea576104ea610b15565b60200260200101516001600160a01b03166001600160a01b03168152602001908152602001600020805480602002602001604051908101604052809291908181526020016000905b828210156106345760008481526020908190206040805160808101909152600385029091018054600f0b8252600181018054929391929184019161057590610b2b565b80601f01602080910402602001604051908101604052809291908181526020018280546105a190610b2b565b80156105ee5780601f106105c3576101008083540402835291602001916105ee565b820191906000526020600020905b8154815290600101906020018083116105d157829003601f168201915b50505091835250506002919091015460ff811615156020808401919091526101009091046001600160401b03166040909201919091529082526001929092019101610532565b50505050905060005b81518110156106b35781818151811061065857610658610b15565b6020026020010151604001516106a15781818151811061067a5761067a610b15565b602002602001015160000151866106919190610b7b565b95508461069d81610bba565b9550505b806106ab81610bba565b91505061063d565b505080806106c090610bba565b9150506104bd565b5050915091565b6000828152602081815260408083206001600160a01b03851684529091529020545b92915050565b60008481526020818152604080832033845282529182902080548351608081018552600f88900b81528451601f8701859004850281018501909552858552909391929091828201918790879081908401838280828437600092018290525093855250505060208083018290526001600160401b03861660409093019290925283546001808201865594825290829020835160039092020180546fffffffffffffffffffffffffffffffff19166fffffffffffffffffffffffffffffffff9092169190911781559082015191929091908201906107d39082610c38565b50604082810151600292830180546060909501516001600160401b03166101000268ffffffffffffffff00199215159290921668ffffffffffffffffff19909516949094171790925560008781526020918252828120338252909152205460ff1661088c57600085815260026020908152604080832033808552908352818420805460ff191660019081179091558985528084529184208054928301815584529190922090910180546001600160a01b03191690911790555b336001600160a01b0316857f0511301e5912625744311fb243035c8da622f8d954d8f35d2b32b4cdb44c30f4838787876040516108cc9493929190610cf7565b60405180910390a3949350505050565b80356001600160a01b03811681146108f357600080fd5b919050565b80356001600160401b03811681146108f357600080fd5b60008060006060848603121561092457600080fd5b83359250610934602085016108dc565b9150610942604085016108f8565b90509250925092565b600060208083528351600f0b81840152808401516080604085015280518060a086015260005b8181101561098d5782810184015186820160c001528301610971565b50600085820160c0015260408601518015156060870152925060608601516001600160401b03811660808701529250601f01601f19169390930160c001949350505050565b6000602082840312156109e457600080fd5b5035919050565b6020808252825182820181905260009190848201906040850190845b81811015610a2c5783516001600160a01b031683529284019291840191600101610a07565b50909695505050505050565b60008060408385031215610a4b57600080fd5b82359150610a5b602084016108f8565b90509250929050565b60008060408385031215610a7757600080fd5b82359150610a5b602084016108dc565b60008060008060608587031215610a9d57600080fd5b84359350602085013580600f0b8114610ab557600080fd5b925060408501356001600160401b0380821115610ad157600080fd5b818701915087601f830112610ae557600080fd5b813581811115610af457600080fd5b886020828501011115610b0657600080fd5b95989497505060200194505050565b634e487b7160e01b600052603260045260246000fd5b600181811c90821680610b3f57607f821691505b602082108103610b5f57634e487b7160e01b600052602260045260246000fd5b50919050565b634e487b7160e01b600052601160045260246000fd5b600f81810b9083900b016f7fffffffffffffffffffffffffffffff81136f7fffffffffffffffffffffffffffffff19821217156106f1576106f1610b65565b600060018201610bcc57610bcc610b65565b5060010190565b634e487b7160e01b600052604160045260246000fd5b601f821115610c3357600081815260208120601f850160051c81016020861015610c105750805b601f850160051c820191505b81811015610c2f57828155600101610c1c565b5050505b505050565b81516001600160401b03811115610c5157610c51610bd3565b610c6581610c5f8454610b2b565b84610be9565b602080601f831160018114610c9a5760008415610c825750858301515b600019600386901b1c1916600185901b178555610c2f565b600085815260208120601f198616915b82811015610cc957888601518255948401946001909101908401610caa565b5085821015610ce75787850151600019600388901b60f8161c191681555b5050505050600190811b01905550565b6001600160401b038516815283600f0b602082015260606040820152816060820152818360808301376000818301608090810191909152601f909201601f19160101939250505056fea2646970667358221220a4714c78229ba847ecd0c01c6c5c8ed109ac7a208132f28be0e654438e41ba8264736f6c63430008140033",
+  "devdoc": {
+    "kind": "dev",
+    "methods": {
+      "getSummary(uint256)": {
+        "returns": {
+          "feedbackCount": "Number of non-revoked feedback entries.",
+          "totalScore": "  Sum of all non-revoked feedback values."
+        }
+      },
+      "giveFeedback(uint256,int128,string)": {
+        "params": {
+          "agentId": "The ERC-8004 agent token ID.",
+          "tag": "Label for context (e.g. \"poker-tournament\").",
+          "value": "Signed score (e.g. +1 for win, -1 for loss)."
+        },
+        "returns": {
+          "feedbackIndex": "Index of this feedback entry."
+        }
+      }
+    },
+    "version": 1
+  },
+  "userdoc": {
+    "kind": "user",
+    "methods": {
+      "getClients(uint256)": {
+        "notice": "Get all clients who have given feedback to an agent."
+      },
+      "getLastIndex(uint256,address)": {
+        "notice": "Get the count of feedback entries from a specific client for an agent."
+      },
+      "getSummary(uint256)": {
+        "notice": "Aggregate reputation score for an agent across all clients and all tags."
+      },
+      "giveFeedback(uint256,int128,string)": {
+        "notice": "Submit feedback for an agent. msg.sender is the \"client\" (e.g. PokerVault)."
+      },
+      "readFeedback(uint256,address,uint64)": {
+        "notice": "Read a single feedback entry."
+      },
+      "revokeFeedback(uint256,uint64)": {
+        "notice": "Revoke a previously submitted feedback. Only the original submitter can revoke."
+      }
+    },
+    "notice": "ERC-8004: Agent Reputation Registry Tracks feedback signals (e.g. tournament results) for registered agents. Any third-party \"client\" (such as the PokerVault contract) can submit feedback; feedback is indexed by (agentId, client, feedbackIndex). Scores and aggregation can be read on-chain for composability.",
+    "version": 1
+  },
+  "storageLayout": {
+    "storage": [
+      {
+        "astId": 3163,
+        "contract": "contracts/AgentReputationRegistry.sol:AgentReputationRegistry",
+        "label": "_feedbacks",
+        "offset": 0,
+        "slot": "0",
+        "type": "t_mapping(t_uint256,t_mapping(t_address,t_array(t_struct(Feedback)3155_storage)dyn_storage))"
+      },
+      {
+        "astId": 3168,
+        "contract": "contracts/AgentReputationRegistry.sol:AgentReputationRegistry",
+        "label": "_clients",
+        "offset": 0,
+        "slot": "1",
+        "type": "t_mapping(t_uint256,t_array(t_address)dyn_storage)"
+      },
+      {
+        "astId": 3174,
+        "contract": "contracts/AgentReputationRegistry.sol:AgentReputationRegistry",
+        "label": "_hasGivenFeedback",
+        "offset": 0,
+        "slot": "2",
+        "type": "t_mapping(t_uint256,t_mapping(t_address,t_bool))"
+      }
+    ],
+    "types": {
+      "t_address": {
+        "encoding": "inplace",
+        "label": "address",
+        "numberOfBytes": "20"
+      },
+      "t_array(t_address)dyn_storage": {
+        "base": "t_address",
+        "encoding": "dynamic_array",
+        "label": "address[]",
+        "numberOfBytes": "32"
+      },
+      "t_array(t_struct(Feedback)3155_storage)dyn_storage": {
+        "base": "t_struct(Feedback)3155_storage",
+        "encoding": "dynamic_array",
+        "label": "struct AgentReputationRegistry.Feedback[]",
+        "numberOfBytes": "32"
+      },
+      "t_bool": {
+        "encoding": "inplace",
+        "label": "bool",
+        "numberOfBytes": "1"
+      },
+      "t_int128": {
+        "encoding": "inplace",
+        "label": "int128",
+        "numberOfBytes": "16"
+      },
+      "t_mapping(t_address,t_array(t_struct(Feedback)3155_storage)dyn_storage)": {
+        "encoding": "mapping",
+        "key": "t_address",
+        "label": "mapping(address => struct AgentReputationRegistry.Feedback[])",
+        "numberOfBytes": "32",
+        "value": "t_array(t_struct(Feedback)3155_storage)dyn_storage"
+      },
+      "t_mapping(t_address,t_bool)": {
+        "encoding": "mapping",
+        "key": "t_address",
+        "label": "mapping(address => bool)",
+        "numberOfBytes": "32",
+        "value": "t_bool"
+      },
+      "t_mapping(t_uint256,t_array(t_address)dyn_storage)": {
+        "encoding": "mapping",
+        "key": "t_uint256",
+        "label": "mapping(uint256 => address[])",
+        "numberOfBytes": "32",
+        "value": "t_array(t_address)dyn_storage"
+      },
+      "t_mapping(t_uint256,t_mapping(t_address,t_array(t_struct(Feedback)3155_storage)dyn_storage))": {
+        "encoding": "mapping",
+        "key": "t_uint256",
+        "label": "mapping(uint256 => mapping(address => struct AgentReputationRegistry.Feedback[]))",
+        "numberOfBytes": "32",
+        "value": "t_mapping(t_address,t_array(t_struct(Feedback)3155_storage)dyn_storage)"
+      },
+      "t_mapping(t_uint256,t_mapping(t_address,t_bool))": {
+        "encoding": "mapping",
+        "key": "t_uint256",
+        "label": "mapping(uint256 => mapping(address => bool))",
+        "numberOfBytes": "32",
+        "value": "t_mapping(t_address,t_bool)"
+      },
+      "t_string_storage": {
+        "encoding": "bytes",
+        "label": "string",
+        "numberOfBytes": "32"
+      },
+      "t_struct(Feedback)3155_storage": {
+        "encoding": "inplace",
+        "label": "struct AgentReputationRegistry.Feedback",
+        "members": [
+          {
+            "astId": 3148,
+            "contract": "contracts/AgentReputationRegistry.sol:AgentReputationRegistry",
+            "label": "value",
+            "offset": 0,
+            "slot": "0",
+            "type": "t_int128"
+          },
+          {
+            "astId": 3150,
+            "contract": "contracts/AgentReputationRegistry.sol:AgentReputationRegistry",
+            "label": "tag",
+            "offset": 0,
+            "slot": "1",
+            "type": "t_string_storage"
+          },
+          {
+            "astId": 3152,
+            "contract": "contracts/AgentReputationRegistry.sol:AgentReputationRegistry",
+            "label": "isRevoked",
+            "offset": 0,
+            "slot": "2",
+            "type": "t_bool"
+          },
+          {
+            "astId": 3154,
+            "contract": "contracts/AgentReputationRegistry.sol:AgentReputationRegistry",
+            "label": "feedbackIndex",
+            "offset": 1,
+            "slot": "2",
+            "type": "t_uint64"
+          }
+        ],
+        "numberOfBytes": "96"
+      },
+      "t_uint256": {
+        "encoding": "inplace",
+        "label": "uint256",
+        "numberOfBytes": "32"
+      },
+      "t_uint64": {
+        "encoding": "inplace",
+        "label": "uint64",
+        "numberOfBytes": "8"
+      }
+    }
+  }
+}
