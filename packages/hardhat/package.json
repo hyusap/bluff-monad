@@ -23,13 +23,16 @@
     "run-game": "hardhat run scripts/runGame.ts --network localhost"
   },
   "dependencies": {
+    "@ai-sdk/anthropic": "^3.0.44",
     "@anthropic-ai/sdk": "^0.74.0",
     "@inquirer/password": "^4.0.2",
     "@openzeppelin/contracts": "~5.0.2",
     "@typechain/ethers-v6": "~0.5.1",
+    "ai": "^6.0.87",
     "dotenv": "~16.4.5",
     "envfile": "~7.1.0",
-    "qrcode": "~1.5.4"
+    "qrcode": "~1.5.4",
+    "zod": "^4.3.6"
   },
   "devDependencies": {
     "@ethersproject/abi": "~5.7.0",

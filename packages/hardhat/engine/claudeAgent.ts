@@ -1,7 +1,6 @@
-import Anthropic from "@anthropic-ai/sdk";
+import { anthropic } from "@ai-sdk/anthropic";
+import { generateText } from "ai";
 import { Player, GameState, PlayerAction } from "./types";
-
-const client = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY });
 
 const POKER_RULES = `
 You are playing Texas Hold'em poker. Your goal is to win chips.
@@ -55,24 +54,15 @@ Min raise: ${state.currentBet * 2 || 40}`;
 
 function parseResponse(
   text: string,
+  thinking: string,
   validActions: PlayerAction[],
   player: Player,
   state: GameState,
 ): { action: PlayerAction; raiseAmount?: number; reasoning: string; thinking: string } {
   const toCall = state.currentBet - player.currentBet;
 
-  // Extract thinking section
-  const thinkingMatch = text.match(/<thinking>([\s\S]*?)<\/thinking>/);
-  const thinking = thinkingMatch ? thinkingMatch[1].trim() : "";
-
-  // Get the action line (after thinking or first line)
-  const afterThinking = thinkingMatch ? text.split("</thinking>")[1] : text;
-  const line =
-    afterThinking
-      .trim()
-      .toLowerCase()
-      .split("\n")
-      .find(l => l.trim()) || "";
+  // Get the action line from the response
+  const line = text.trim().toLowerCase().split("\n").find(l => l.trim()) || "";
 
   if (validActions.includes("fold") && line.startsWith("fold")) {
     return { action: "fold", reasoning: "folded", thinking };
@@ -104,26 +94,26 @@ export async function getAgentDecision(
   const fallback = toCall === 0 ? "check" : "call";
 
   try {
-    const response = await Promise.race([
-      client.messages.create({
-        model: "claude-haiku-4-5-20251001",
-        max_tokens: 1500,
-        thinking: {
-          type: "enabled",
-          budget_tokens: 1024,
-        },
+    const result = await Promise.race([
+      generateText({
+        model: anthropic("claude-haiku-4-5-20251001", {
+          thinkingConfig: {
+            type: "enabled",
+            budgetTokens: 1024,
+          },
+        }),
         system: player.systemPrompt + "\n\n" + POKER_RULES,
-        messages: [{ role: "user", content: buildPrompt(player, state, validActions) }],
+        prompt: buildPrompt(player, state, validActions),
+        maxTokens: 1500,
       }),
       new Promise<never>((_, reject) => setTimeout(() => reject(new Error("timeout")), 15000)),
     ]);
 
-    const text =
-      (response as Anthropic.Message).content[0].type === "text"
-        ? (response as Anthropic.Message).content[0].text
-        : fallback;
+    // Extract thinking from experimental_thinking if available
+    const thinking = result.experimental_thinking || "";
+    const text = result.text || fallback;
 
-    return parseResponse(text, validActions, player, state);
+    return parseResponse(text, thinking, validActions, player, state);
   } catch (err) {
     console.warn(`Agent ${player.name} decision failed: ${err}. Defaulting to ${fallback}.`);
     return { action: fallback as PlayerAction, reasoning: `${fallback} (timeout/error)`, thinking: "" };
