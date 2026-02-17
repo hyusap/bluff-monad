@@ -12,7 +12,11 @@ import { GameFeed } from "~~/components/poker/GameFeed";
 import { PokerTable } from "~~/components/poker/PokerTable";
 import { TournamentStatusBadge } from "~~/components/poker/TournamentStatusBadge";
 import { ScrollArea } from "~~/components/ui/scroll-area";
-import { useScaffoldReadContract, useScaffoldWriteContract } from "~~/hooks/scaffold-eth";
+import {
+  useScaffoldReadContract,
+  useScaffoldWatchContractEvent,
+  useScaffoldWriteContract,
+} from "~~/hooks/scaffold-eth";
 import { useGameFeed } from "~~/hooks/useGameFeed";
 import { useTournament } from "~~/hooks/useTournaments";
 
@@ -62,6 +66,39 @@ export default function TournamentDetail({ params }: { params: Promise<{ id: str
   const isFull = tournament ? tournament.agentCount >= tournament.maxPlayers : false;
   const hasEnoughPlayers = tournament ? tournament.agentCount >= 2 : false;
   const canStart = isOpen && hasEnoughPlayers;
+
+  // Watch for tournament settlement (agent prize payout)
+  useScaffoldWatchContractEvent({
+    contractName: "PokerVault",
+    eventName: "TournamentSettled",
+    onLogs: logs => {
+      for (const log of logs) {
+        const args = (log as any).args;
+        if (args?.tournamentId?.toString() !== id) continue;
+        const payout = args.payout ? formatEther(args.payout) : "0";
+        toast.success("Tournament settled", {
+          description: `Prize of ${payout} MON paid to winner (seat ${args.winningSeat?.toString()})`,
+        });
+        refetch();
+      }
+    },
+  });
+
+  // Watch for betting settlement (spectator payouts ready)
+  useScaffoldWatchContractEvent({
+    contractName: "TournamentBetting",
+    eventName: "BettingSettled",
+    onLogs: logs => {
+      for (const log of logs) {
+        const args = (log as any).args;
+        if (args?.tournamentId?.toString() !== id) continue;
+        const pool = args.totalPool ? formatEther(args.totalPool) : "0";
+        toast.success("Spectator betting settled", {
+          description: `Betting pool: ${pool} MON. Winners can now claim!`,
+        });
+      }
+    },
+  });
 
   useEffect(() => {
     if (!canStartTournament || !isFull || !isOpen || autoStarting) return;
@@ -394,8 +431,6 @@ export default function TournamentDetail({ params }: { params: Promise<{ id: str
                   tournamentId={tournamentId}
                   tournamentStatus={tournament.status}
                   agents={(agents ?? []) as any}
-                  isOperator={!!isOperator}
-                  onSettled={refetch}
                 />
               </div>
             </div>

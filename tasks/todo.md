@@ -1,90 +1,56 @@
-# EIP-8004 (ERC-8004: Trustless Agents) Integration
+# Fix Spectator Betting, Verify EIP-8004, Add Leaderboard
 
-## Overview
-EIP-8004 defines three on-chain registries for AI agent identity, reputation, and validation.
-We'll integrate these into the PokerVault poker tournament app so agents can have persistent
-identities and build reputation across tournaments.
+## Problems Found
 
-## Plan
+### 1. CRITICAL BUG: Spectator betting allows claiming before game starts
+**Root cause:** In `TournamentBetting.sol`, the `_winningSeat` mapping defaults to `0` (Solidity default for `int256`), NOT `-1`. This means:
+- `claimWinnings()` checks `ws >= 0` — passes immediately since default is `0`
+- `settleBetting()` checks `_winningSeat == -1` — fails with "Already settled" since default is `0`
+- The UI reads `getWinningSeat()` which returns `0`, and `isSettled = winSeat >= 0` is `true`
 
-### Contracts (packages/hardhat/contracts/)
+**Result:** Any spectator who bet on seat 0 can claim winnings before the game even starts. Settlement can never work.
 
-- [ ] 1. `AgentIdentityRegistry.sol` — ERC-721 based registry
-  - `register(string agentURI)` — mint agent NFT with a metadata URI
-  - `setAgentURI(uint256 agentId, string newURI)` — update URI
-  - `setAgentWallet(uint256 agentId, address wallet)` — set payment wallet
-  - Events: `Registered`, `URIUpdated`
-  - Inherits ERC-721, Ownable
+**Fix:** Initialize `_winningSeat` to `-1` when the first bet is placed (or use a separate `_isSettled` bool). Simplest: use a `_settled` mapping and keep winning seat separate.
 
-- [ ] 2. `AgentReputationRegistry.sol` — feedback/reputation tracker
-  - Links to IdentityRegistry
-  - `giveFeedback(uint256 agentId, int128 value, string tag)` — post tournament result
-  - `revokeFeedback(uint256 agentId, uint64 feedbackIndex)` — withdraw feedback
-  - `getSummary(uint256 agentId)` — aggregate score
-  - Events: `NewFeedback`, `FeedbackRevoked`
+### 2. EIP-8004 Implementation Review
+- `AgentIdentityRegistry.sol` — Looks correct: ERC-721 NFT for agent identity, register/update/wallet functions
+- `AgentReputationRegistry.sol` — Looks correct: feedback tracking with getSummary()
+- `PokerVault.sol` — Integration looks correct: posts +1/-1 feedback after settlement for agents with agentId > 0
+- **Issue:** No frontend leaderboard page exists. Agents can persist but there's no way to view rankings.
 
-- [ ] 3. Update `PokerVault.sol`
-  - Add optional `agentId` field to the `Agent` struct (0 = unregistered)
-  - Update `enterTournament` to accept optional `agentId` param
-  - In `settleTournament`, post reputation feedback to ReputationRegistry if set
-  - Add `setReputationRegistry(address)` admin function
+### 3. Missing Leaderboard
+No leaderboard page or component exists in the frontend. Need to add one that queries `AgentReputationRegistry.getSummary()` for all registered agents.
 
-### Deploy (packages/hardhat/deploy/)
+## Tasks
 
-- [ ] 4. `01_deploy_identity_registry.ts` — deploy IdentityRegistry
-- [ ] 5. `02_deploy_reputation_registry.ts` — deploy ReputationRegistry (linked to Identity)
-- [ ] 6. Update `00_deploy_your_contract.ts` to wire PokerVault to ReputationRegistry
-
-### Betting (packages/hardhat/contracts/)
-
-- [ ] 7. `TournamentBetting.sol` — parimutuel betting pool per tournament
-  - References PokerVault to read tournament state (status, agents, seat count)
-  - `placeBet(uint256 tournamentId, uint256 seatIndex)` payable — bet on a specific agent seat
-    - Only allowed while tournament status is Open
-    - Min bet enforced (e.g. 0.01 MON), no max
-    - Tracks: `bets[tournamentId][seatIndex][bettor] = amount` and per-seat totals
-  - `claimWinnings(uint256 tournamentId)` — after settlement, bettors who picked the winner
-    share the total betting pool proportional to their stake (minus platform fee)
-  - `settleBetting(uint256 tournamentId, uint256 winningSeat)` — called by operator after
-    PokerVault.settleTournament; records the winning seat so claimWinnings can proceed
-  - `getBettingPool(uint256 tournamentId)` view — total pool and per-seat totals
-  - `getOdds(uint256 tournamentId, uint256 seatIndex)` view — implied odds (seat pool / total pool)
-  - Platform fee: configurable % taken from total pool before payout, sent to owner
-  - Events: `BetPlaced`, `BettingSettled`, `WinningsClaimed`
-
-- [ ] 8. `03_deploy_betting.ts` — deploy TournamentBetting (linked to PokerVault)
-
-### Out of scope
-- ValidationRegistry (no clear use case in a poker game, adds complexity)
-- Frontend UI changes (scope is contracts only)
-
-### Key design decisions
-- **Parimutuel (pool-based) odds** — no fixed odds bookmaker needed; winners split the loser pool,
-  which is fair and simple on-chain
-- **Separate contract** — keeps PokerVault unchanged except for the ERC-8004 wiring; betting is
-  fully opt-in and standalone
-- **Bets locked at tournament start** — once operator calls startTournament, no new bets accepted
-- **Claim model** — winners pull their winnings rather than auto-push, avoiding failed-send issues
+- [x] Fix `_winningSeat` default value bug in `TournamentBetting.sol` (use a separate `_settled` mapping)
+- [x] Fix `BettingPanel.tsx` to correctly check settlement status (no changes needed — frontend logic was already correct, bug was in contract)
+- [x] Add a leaderboard page that shows agent rankings from the reputation registry
+- [x] Redeploy contracts (since contract changed)
+- [x] Add review section
 
 ## Review
 
-All 8 tasks completed. Here's a summary:
+### Changes Made
 
-### Contracts (4 files)
-- `AgentIdentityRegistry.sol` — ERC-721 registry where agents mint a persistent on-chain identity (tokenURI resolves to ERC-8004 metadata JSON). Owners can update their URI and set a separate payment wallet.
-- `AgentReputationRegistry.sol` — Tracks signed feedback scores per agentId from any third-party caller. PokerVault uses this to post +1 (win) / -1 (loss) after each settlement. Scores are aggregatable on-chain.
-- `PokerVault.sol` (updated) — Agent struct now includes optional `agentId` field (0 = ephemeral). `enterTournament` takes a 4th param `agentId`. `settleTournament` auto-posts reputation feedback for all registered agents via `IAgentReputationRegistry`. Failures are silently caught so settlement is never blocked.
-- `TournamentBetting.sol` — Parimutuel spectator betting. Bets accepted while tournament is Open; locked on start. After PokerVault settles, operator calls `settleBetting(winningSeat)` which deducts platform fee and pays it to owner. Winners call `claimWinnings()` to pull their share proportional to stake.
+**1. `packages/hardhat/contracts/TournamentBetting.sol`** — Fixed critical betting bug
+- Added `_settled` mapping (bool) to explicitly track whether betting is settled
+- Changed `_winningSeat` from `int256` to `uint256` (no longer needs sentinel value)
+- `settleBetting()` now checks `!_settled[tournamentId]` instead of `_winningSeat == -1`
+- `claimWinnings()` now checks `_settled[tournamentId]` instead of `ws >= 0`
+- `getWinningSeat()` returns `-1` when `_settled` is false, otherwise the actual seat
 
-### Deploy scripts (3 new files)
-- `01_deploy_identity_registry.ts` — deploys AgentIdentityRegistry
-- `02_deploy_reputation_registry.ts` — deploys AgentReputationRegistry and wires it to PokerVault via `setReputationRegistry()`
-- `03_deploy_betting.ts` — deploys TournamentBetting linked to PokerVault
+**2. `packages/nextjs/app/leaderboard/page.tsx`** — New leaderboard page
+- Reads all registered agents from `AgentIdentityRegistry.nextAgentId`
+- For each agent, queries `AgentReputationRegistry.getSummary()` for score/game count
+- Displays agent ID, owner, URI, total score, wins, losses, and games played
+- Follows existing dark theme styling conventions
 
-### Frontend (6 files changed/created)
-- `hooks/useBetting.ts` — hooks: `useBettingPool`, `useWinningSeat`, `useUserBets`, `useHasClaimed`
-- `components/poker/BettingPanel.tsx` — full betting UI: odds table, bet placement form, operator settle button, claim winnings button
-- `components/poker/EnterAgentModal.tsx` — added optional ERC-8004 Agent ID field; passes `agentId` to updated contract
-- `app/tournaments/[id]/page.tsx` — added `<BettingPanel>` section between agent roster and game feed
-- `components/poker/TournamentCard.tsx` — shows live betting pool badge when > 0
-- `components/poker/AgentRoster.tsx` — shows ERC-8004 ID column with badge for registered agents
+**3. `packages/nextjs/components/Header.tsx`** — Added nav link
+- Added "Leaderboard" link to the header navigation menu
+
+### EIP-8004 Verification
+- `AgentIdentityRegistry.sol` — Correctly implements ERC-721 based agent identity with register/setURI/setWallet
+- `AgentReputationRegistry.sol` — Correctly tracks per-agent feedback with getSummary aggregation
+- `PokerVault.sol` — Correctly posts +1/-1 feedback after tournament settlement for agents with `agentId > 0`
+- Agents persist across games via their NFT identity and accumulate reputation

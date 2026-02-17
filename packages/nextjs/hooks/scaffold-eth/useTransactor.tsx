@@ -1,10 +1,41 @@
 import { Hash, SendTransactionParameters, TransactionReceipt, WalletClient } from "viem";
+import { hardhat } from "viem/chains";
 import { Config, useWalletClient } from "wagmi";
 import { getPublicClient } from "wagmi/actions";
 import { SendTransactionMutate } from "wagmi/query";
 import { wagmiConfig } from "~~/services/web3/wagmiConfig";
 import { getBlockExplorerTxLink, getParsedError, notification } from "~~/utils/scaffold-eth";
 import { TransactorFuncOptions } from "~~/utils/scaffold-eth/contract";
+
+/**
+ * On local Hardhat networks, MetaMask can cache a stale nonce after node restarts.
+ * This detects "nonce too high" errors, fast-forwards the chain nonce to match
+ * what the wallet expects, and signals the caller to retry.
+ */
+async function tryFixHardhatNonce(walletClient: WalletClient, error: any): Promise<boolean> {
+  const chainId = await walletClient.getChainId();
+  if (chainId !== hardhat.id) return false;
+
+  const msg = typeof error?.message === "string" ? error.message : String(error);
+  const match = msg.match(/Expected nonce to be (\d+) but got (\d+)/i);
+  if (!match) return false;
+
+  const walletNonce = parseInt(match[2], 10);
+  const account = walletClient.account?.address;
+  if (!account) return false;
+
+  try {
+    const transport = walletClient.transport;
+    await transport.request({
+      method: "hardhat_setNonce",
+      params: [account, `0x${walletNonce.toString(16)}`],
+    });
+    console.log(`🔧 Fixed nonce mismatch: fast-forwarded chain nonce to ${walletNonce}`);
+    return true;
+  } catch {
+    return false;
+  }
+}
 
 type TransactionFunc = (
   tx: (() => Promise<Hash>) | Parameters<SendTransactionMutate<Config, undefined>>[0],
@@ -93,6 +124,14 @@ export const useTransactor = (_walletClient?: WalletClient): TransactionFunc => 
       if (notificationId) {
         notification.remove(notificationId);
       }
+
+      // Auto-fix nonce mismatch on local Hardhat and retry once
+      const nonceFixed = await tryFixHardhatNonce(walletClient, error);
+      if (nonceFixed) {
+        notification.info("Nonce mismatch detected — fixed automatically. Retrying...");
+        return result(tx, options);
+      }
+
       console.error("⚡️ ~ file: useTransactor.ts ~ error", error);
       const message = getParsedError(error);
 

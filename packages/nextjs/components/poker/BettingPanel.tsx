@@ -17,8 +17,6 @@ type Props = {
   tournamentId: bigint;
   tournamentStatus: number; // 0=Open, 1=Running, 2=Finished
   agents: readonly Agent[];
-  isOperator: boolean;
-  onSettled?: () => void;
 };
 
 function oddsLabel(seatAmount: bigint, total: bigint): string {
@@ -34,11 +32,11 @@ function multiplierLabel(seatAmount: bigint, total: bigint): string {
   return `${mult.toFixed(2)}x`;
 }
 
-export function BettingPanel({ tournamentId, tournamentStatus, agents, isOperator, onSettled }: Props) {
+export function BettingPanel({ tournamentId, tournamentStatus, agents }: Props) {
   const { isConnected } = useAccount();
 
   const { data: poolData, refetch: refetchPool } = useBettingPool(tournamentId);
-  const { data: winningSeat, refetch: refetchWinner } = useWinningSeat(tournamentId);
+  const { data: winningSeat } = useWinningSeat(tournamentId);
   const { data: userBets, refetch: refetchUserBets } = useUserBets(tournamentId);
   const { data: hasClaimed, refetch: refetchClaimed } = useHasClaimed(tournamentId);
 
@@ -48,8 +46,6 @@ export function BettingPanel({ tournamentId, tournamentStatus, agents, isOperato
 
   const [selectedSeat, setSelectedSeat] = useState<number>(0);
   const [betAmount, setBetAmount] = useState("0.01");
-  const [settling, setSettling] = useState(false);
-  const [settleSeat, setSettleSeat] = useState<number>(0);
 
   const totalPool = poolData?.[0] ?? 0n;
   const seatAmounts = poolData?.[1] ?? [];
@@ -72,21 +68,6 @@ export function BettingPanel({ tournamentId, tournamentStatus, agents, isOperato
     });
     refetchPool();
     refetchUserBets();
-  }
-
-  async function handleSettleBetting() {
-    setSettling(true);
-    try {
-      await writeBetting({
-        functionName: "settleBetting",
-        args: [tournamentId, BigInt(settleSeat)],
-      });
-      refetchPool();
-      refetchWinner();
-      onSettled?.();
-    } finally {
-      setSettling(false);
-    }
   }
 
   async function handleClaimWinnings() {
@@ -242,32 +223,11 @@ export function BettingPanel({ tournamentId, tournamentStatus, agents, isOperato
 
       {hasClaimed && <div className="alert alert-info text-sm">Winnings claimed.</div>}
 
-      {/* Operator settle betting button — only after tournament finishes */}
-      {isOperator && !isSettled && tournamentStatus === 2 && (
-        <div className="card bg-base-200 p-4 flex flex-col gap-3">
-          <p className="font-semibold text-sm">Settle Betting (Operator)</p>
-          <div className="flex gap-3 items-end flex-wrap">
-            <div className="form-control">
-              <label className="label py-1">
-                <span className="label-text text-xs">Winning seat</span>
-              </label>
-              <select
-                className="select select-bordered select-sm w-44"
-                value={settleSeat}
-                onChange={e => setSettleSeat(Number(e.target.value))}
-              >
-                {agents.map((agent, i) => (
-                  <option key={i} value={i}>
-                    Seat {i} — {agent.name}
-                  </option>
-                ))}
-              </select>
-            </div>
-            <button className="btn btn-warning btn-sm" onClick={handleSettleBetting} disabled={settling || isMining}>
-              {settling ? <span className="loading loading-spinner loading-xs" /> : null}
-              Settle Betting
-            </button>
-          </div>
+      {/* Waiting for auto-settlement */}
+      {!isSettled && tournamentStatus === 2 && totalPool > 0n && (
+        <div className="alert bg-base-200 text-sm">
+          <span className="loading loading-spinner loading-xs" />
+          Settling bets...
         </div>
       )}
     </div>

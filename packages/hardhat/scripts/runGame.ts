@@ -42,19 +42,25 @@ server.listen(API_PORT, () => {
 async function main() {
   const [operator] = await ethers.getSigners();
 
-  // Get the deployed contract address from deployment file
-  const deploymentPath = path.join(__dirname, "../deployments/localhost/PokerVault.json");
-  if (!fs.existsSync(deploymentPath)) {
+  // Get the deployed contract addresses from deployment files
+  const vaultPath = path.join(__dirname, "../deployments/localhost/PokerVault.json");
+  const bettingPath = path.join(__dirname, "../deployments/localhost/TournamentBetting.json");
+  if (!fs.existsSync(vaultPath)) {
     console.error("❌ Contract not deployed! Run 'yarn deploy' first.");
     process.exit(1);
   }
-  const deployment = JSON.parse(fs.readFileSync(deploymentPath, "utf-8"));
-  const contractAddress = deployment.address;
+  const vaultDeployment = JSON.parse(fs.readFileSync(vaultPath, "utf-8"));
+  const vault = await ethers.getContractAt("PokerVault", vaultDeployment.address, operator);
 
-  const vault = await ethers.getContractAt("PokerVault", contractAddress, operator);
+  let betting: Awaited<ReturnType<typeof ethers.getContractAt>> | null = null;
+  if (fs.existsSync(bettingPath)) {
+    const bettingDeployment = JSON.parse(fs.readFileSync(bettingPath, "utf-8"));
+    betting = await ethers.getContractAt("TournamentBetting", bettingDeployment.address, operator);
+  }
 
   console.log(`🎮 Game engine running`);
-  console.log(`📍 Contract: ${contractAddress}`);
+  console.log(`📍 PokerVault: ${vaultDeployment.address}`);
+  console.log(`📍 Betting: ${betting ? await betting.getAddress() : "not deployed"}`);
   console.log(`👤 Operator: ${operator.address}`);
   console.log("👂 Listening for TournamentStarted events...\n");
 
@@ -76,6 +82,17 @@ async function main() {
         const tx = await vault.settleTournament(id, winningSeat);
         await tx.wait();
         console.log(`✅ Tournament ${id} settled. Tx: ${tx.hash}`);
+
+        // Auto-settle spectator betting
+        if (betting) {
+          try {
+            const btx = await betting.settleBetting(id, winningSeat);
+            await btx.wait();
+            console.log(`✅ Betting settled for tournament ${id}. Tx: ${btx.hash}`);
+          } catch {
+            console.log(`ℹ️  Betting settlement skipped (no bets or already settled)`);
+          }
+        }
       });
     } catch (err) {
       console.error(`❌ Error running tournament ${id}:`, err);
