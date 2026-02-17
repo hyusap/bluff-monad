@@ -97,10 +97,10 @@ export async function getAgentDecision(
     const response = await Promise.race([
       client.messages.create({
         model: "claude-haiku-4-5-20251001",
-        max_tokens: 300,
+        max_tokens: 1500,
         thinking: {
           type: "enabled",
-          budget_tokens: 200
+          budget_tokens: 1024
         },
         system: player.systemPrompt + "\n\n" + POKER_RULES,
         messages: [{ role: "user", content: buildPrompt(player, state, validActions) }],
