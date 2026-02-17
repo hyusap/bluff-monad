@@ -2,8 +2,42 @@ import * as dotenv from "dotenv";
 dotenv.config();
 import { ethers } from "hardhat";
 import { runPokerGame } from "../engine/pokerGame";
+import { getEvents } from "../engine/eventLogger";
 import * as fs from "fs";
 import * as path from "path";
+import * as http from "http";
+
+// Create HTTP server for game events API
+const server = http.createServer((req, res) => {
+  // Set CORS headers
+  res.setHeader("Access-Control-Allow-Origin", "*");
+  res.setHeader("Access-Control-Allow-Methods", "GET, OPTIONS");
+  res.setHeader("Access-Control-Allow-Headers", "Content-Type");
+
+  if (req.method === "OPTIONS") {
+    res.writeHead(200);
+    res.end();
+    return;
+  }
+
+  // Match /api/game/:id
+  const match = req.url?.match(/^\/api\/game\/(\d+)$/);
+  if (match && req.method === "GET") {
+    const tournamentId = parseInt(match[1], 10);
+    const events = getEvents(tournamentId);
+    res.writeHead(200, { "Content-Type": "application/json" });
+    res.end(JSON.stringify({ events }));
+    return;
+  }
+
+  res.writeHead(404);
+  res.end("Not Found");
+});
+
+const API_PORT = process.env.GAME_ENGINE_PORT || 3001;
+server.listen(API_PORT, () => {
+  console.log(`📡 Game API listening on http://localhost:${API_PORT}`);
+});
 
 async function main() {
   const [operator] = await ethers.getSigners();
