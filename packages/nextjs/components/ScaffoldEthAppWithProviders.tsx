@@ -5,11 +5,12 @@ import { RainbowKitProvider, darkTheme, lightTheme } from "@rainbow-me/rainbowki
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { AppProgressBar as ProgressBar } from "next-nprogress-bar";
 import { useTheme } from "next-themes";
-import { Toaster } from "react-hot-toast";
+import { Toaster as HotToaster } from "react-hot-toast";
 import { WagmiProvider } from "wagmi";
 import { Footer } from "~~/components/Footer";
 import { Header } from "~~/components/Header";
 import { BlockieAvatar } from "~~/components/scaffold-eth";
+import { Toaster as SonnerToaster } from "~~/components/ui/sonner";
 import { useInitializeNativeCurrencyPrice } from "~~/hooks/scaffold-eth";
 import { wagmiConfig } from "~~/services/web3/wagmiConfig";
 
@@ -23,7 +24,8 @@ const ScaffoldEthApp = ({ children }: { children: React.ReactNode }) => {
         <main className="relative flex flex-col flex-1">{children}</main>
         <Footer />
       </div>
-      <Toaster />
+      <HotToaster />
+      <SonnerToaster richColors position="top-right" />
     </>
   );
 };

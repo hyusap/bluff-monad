@@ -1,11 +1,10 @@
 "use client";
 
 import type { CSSProperties } from "react";
-import { formatEther } from "viem";
 
 type PlayerPosition = {
   name: string;
-  stack: bigint;
+  stack: number;
   cards?: string[];
   isActive: boolean;
   isFolded: boolean;
@@ -16,10 +15,36 @@ type PlayerPosition = {
 type PokerTableProps = {
   players: PlayerPosition[];
   communityCards: string[];
-  pot: bigint;
+  pot: number;
   currentPlayer?: number;
   maxPlayers: number;
 };
+
+type SeatLayout = {
+  namePosition: CSSProperties;
+  cardsPosition: CSSProperties;
+  cardsRotation: number;
+};
+
+const DEFAULT_LAYOUTS: SeatLayout[] = [
+  { namePosition: { left: "20%", top: "5%" }, cardsPosition: { left: "18%", top: "8%" }, cardsRotation: -14 },
+  { namePosition: { left: "80%", top: "5%" }, cardsPosition: { left: "82%", top: "8%" }, cardsRotation: 14 },
+  { namePosition: { left: "20%", top: "97%" }, cardsPosition: { left: "18%", top: "92%" }, cardsRotation: -14 },
+  { namePosition: { left: "80%", top: "97%" }, cardsPosition: { left: "82%", top: "92%" }, cardsRotation: 14 },
+  { namePosition: { left: "6%", top: "50%" }, cardsPosition: { left: "5%", top: "50%" }, cardsRotation: -90 },
+  { namePosition: { left: "94%", top: "50%" }, cardsPosition: { left: "95%", top: "50%" }, cardsRotation: 90 },
+];
+
+const TWO_PLAYER_LAYOUTS: SeatLayout[] = [
+  { namePosition: { left: "50%", top: "5%" }, cardsPosition: { left: "50%", top: "8%" }, cardsRotation: 0 },
+  { namePosition: { left: "50%", top: "97%" }, cardsPosition: { left: "50%", top: "92%" }, cardsRotation: 0 },
+];
+
+const THREE_PLAYER_LAYOUTS: SeatLayout[] = [
+  { namePosition: { left: "50%", top: "5%" }, cardsPosition: { left: "50%", top: "8%" }, cardsRotation: 0 },
+  { namePosition: { left: "20%", top: "97%" }, cardsPosition: { left: "18%", top: "92%" }, cardsRotation: -14 },
+  { namePosition: { left: "80%", top: "97%" }, cardsPosition: { left: "82%", top: "92%" }, cardsRotation: 14 },
+];
 
 function parseCard(card?: string) {
   if (!card || card.length < 2) return null;
@@ -29,6 +54,10 @@ function parseCard(card?: string) {
   const suitSymbol = suit === "s" ? "\u2660" : suit === "h" ? "\u2665" : suit === "d" ? "\u2666" : "\u2663";
   const isRed = suit === "h" || suit === "d";
   return { rank, suitSymbol, isRed };
+}
+
+function formatChips(chips: number) {
+  return Math.max(0, Math.floor(chips)).toLocaleString();
 }
 
 function Card({ card, faceDown, size = "md" }: { card?: string; faceDown?: boolean; size?: "sm" | "md" | "lg" }) {
@@ -62,7 +91,15 @@ function Card({ card, faceDown, size = "md" }: { card?: string; faceDown?: boole
   }
 
   const parsedCard = parseCard(card);
-  if (!parsedCard) return null;
+  if (!parsedCard) {
+    return (
+      <div
+        className={`${sizes[size]} relative bg-[#FAFAFA] border border-[#DADADA] shadow-[0_8px_20px_rgba(0,0,0,0.25)] overflow-hidden flex items-center justify-center text-neutral-400`}
+      >
+        <span className="text-base font-semibold">?</span>
+      </div>
+    );
+  }
 
   const textColor = parsedCard.isRed ? "text-[#B42336]" : "text-[#1D1D1D]";
 
@@ -93,14 +130,17 @@ function Card({ card, faceDown, size = "md" }: { card?: string; faceDown?: boole
   );
 }
 
-function FaceDownPair({ size = "md" }: { size?: "sm" | "md" }) {
+function FaceUpPair({ cards }: { cards: string[] }) {
+  const cardA = cards[0] ?? "??";
+  const cardB = cards[1] ?? "??";
+
   return (
-    <div className={`relative flex items-center justify-center ${size === "sm" ? "w-14 h-11" : "w-20 h-14"}`}>
-      <div className="absolute -rotate-8">
-        <Card faceDown size={size} />
+    <div className="relative w-[86px] h-16">
+      <div className="absolute left-0 top-0 -rotate-10">
+        <Card card={cardA} size="sm" />
       </div>
-      <div className="absolute rotate-8 translate-x-4">
-        <Card faceDown size={size} />
+      <div className="absolute left-8 top-0 rotate-10">
+        <Card card={cardB} size="sm" />
       </div>
     </div>
   );
@@ -110,17 +150,19 @@ function PlayerSpot({
   player,
   namePosition,
   cardsPosition,
+  cardsRotation,
   isCurrentPlayer,
 }: {
   player?: PlayerPosition;
   namePosition: CSSProperties;
   cardsPosition: CSSProperties;
+  cardsRotation: number;
   isCurrentPlayer: boolean;
 }) {
   if (!player) return null;
 
-  const hasVisibleCards = !!player.cards?.length;
   const folded = player.isFolded;
+  const visibleCards = player.cards?.length ? player.cards.slice(0, 2) : ["??", "??"];
 
   return (
     <>
@@ -132,19 +174,16 @@ function PlayerSpot({
         >
           {player.name}
         </div>
+        <div className={`text-[11px] ${folded ? "text-neutral-700" : "text-neutral-400"}`}>
+          {formatChips(player.stack)} chips
+        </div>
       </div>
 
       {player.isActive && (
         <div className="absolute z-20 -translate-x-1/2 -translate-y-1/2" style={cardsPosition}>
-          {hasVisibleCards ? (
-            <div className={`flex items-center gap-1 ${folded ? "opacity-55" : ""}`}>
-              {player.cards?.slice(0, 2).map(card => <Card key={`${player.seat}-${card}`} card={card} size="sm" />)}
-            </div>
-          ) : (
-            <div className={folded ? "opacity-55" : ""}>
-              <FaceDownPair size="sm" />
-            </div>
-          )}
+          <div className={folded ? "opacity-55" : ""} style={{ transform: `rotate(${cardsRotation}deg)` }}>
+            <FaceUpPair cards={visibleCards} />
+          </div>
         </div>
       )}
     </>
@@ -153,13 +192,13 @@ function PlayerSpot({
 
 export function PokerTable({ players, communityCards, pot, currentPlayer, maxPlayers }: PokerTableProps) {
   const playersByPosition = Array.from({ length: maxPlayers }, (_, i) => players.find(p => p.seat === i));
-  const totalSeats = Math.max(maxPlayers, 2);
+  const layouts = maxPlayers === 2 ? TWO_PLAYER_LAYOUTS : maxPlayers === 3 ? THREE_PLAYER_LAYOUTS : DEFAULT_LAYOUTS;
 
   return (
-    <div className="relative w-full max-w-[760px] aspect-square mx-auto">
-      <div className="absolute inset-0 rounded-full bg-[#282A2E] shadow-[0_30px_70px_rgba(0,0,0,0.65)]" />
+    <div className="relative w-full max-w-[720px] aspect-[16/10] mx-auto">
+      <div className="absolute inset-0 rounded-[72px] bg-[#282A2E] shadow-[0_30px_70px_rgba(0,0,0,0.65)]" />
 
-      <div className="absolute inset-4 rounded-full bg-gradient-to-b from-[#1CA24E] via-[#0F903E] to-[#0A7631] border border-[#2D7F43] overflow-hidden">
+      <div className="absolute inset-4 rounded-[62px] bg-gradient-to-b from-[#1CA24E] via-[#0F903E] to-[#0A7631] border border-[#2D7F43] overflow-hidden">
         <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 flex flex-col items-center gap-4">
           <div className="flex gap-2 md:gap-2.5">
             {Array.from({ length: 5 }).map((_, i) =>
@@ -178,28 +217,21 @@ export function PokerTable({ players, communityCards, pot, currentPlayer, maxPla
             <div className="w-6 h-6 rounded-full bg-[#A0153E] border border-[#C41E56] flex items-center justify-center">
               <div className="w-3 h-3 rounded-full border border-white/60" />
             </div>
-            <span className="text-white font-semibold text-base tracking-wide">{formatEther(pot)} MON</span>
+            <span className="text-white font-semibold text-base tracking-wide">POT {formatChips(pot)}</span>
           </div>
         </div>
       </div>
 
       {playersByPosition.map((player, i) => {
-        const angle = (i / totalSeats) * 2 * Math.PI - Math.PI / 2;
-        const namePosition = {
-          left: `${50 + Math.cos(angle) * 47}%`,
-          top: `${50 + Math.sin(angle) * 47}%`,
-        };
-        const cardsPosition = {
-          left: `${50 + Math.cos(angle) * 36}%`,
-          top: `${50 + Math.sin(angle) * 36}%`,
-        };
+        const layout = layouts[i] ?? DEFAULT_LAYOUTS[i % DEFAULT_LAYOUTS.length];
 
         return (
           <PlayerSpot
             key={i}
             player={player}
-            namePosition={namePosition}
-            cardsPosition={cardsPosition}
+            namePosition={layout.namePosition}
+            cardsPosition={layout.cardsPosition}
+            cardsRotation={layout.cardsRotation}
             isCurrentPlayer={currentPlayer === i}
           />
         );

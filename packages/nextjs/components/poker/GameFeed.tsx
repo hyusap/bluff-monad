@@ -204,13 +204,11 @@ export function GameFeed({ events, isLoading }: { events: GameEvent[]; isLoading
   }
 
   return (
-    <div className="overflow-hidden h-full flex flex-col">
-      <div className="flex-1 overflow-y-auto px-4 py-3 space-y-0 scrollbar-thin">
-        {events.map((event, i) => (
-          <EventRow key={i} event={event} />
-        ))}
-        <div ref={bottomRef} />
-      </div>
+    <div className="px-4 py-3 space-y-0">
+      {events.map((event, i) => (
+        <EventRow key={i} event={event} />
+      ))}
+      <div ref={bottomRef} />
     </div>
   );
 }
