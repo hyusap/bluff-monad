@@ -1,6 +1,6 @@
 import { GameState, Player, PlayerAction, AgentData } from "./types";
 
-const STARTING_STACK = 1000;
+const DEFAULT_STARTING_STACK = 1000;
 const BASE_SMALL_BLIND = 10;
 const BASE_BIG_BLIND = 20;
 const HANDS_PER_LEVEL = 3; // double blinds every 3 hands
@@ -13,13 +13,17 @@ export function getBlinds(blindLevel: number): { smallBlind: number; bigBlind: n
   };
 }
 
-export function initGameState(tournamentId: number, agents: AgentData[]): GameState {
+export function initGameState(
+  tournamentId: number,
+  agents: AgentData[],
+  startingStack = DEFAULT_STARTING_STACK,
+): GameState {
   const players: Player[] = agents.map(a => ({
     seat: a.seat,
     name: a.name,
     systemPrompt: a.systemPrompt,
     wallet: a.wallet,
-    stack: STARTING_STACK,
+    stack: startingStack,
     cards: [],
     folded: false,
     allIn: false,
@@ -96,8 +100,10 @@ export function postBlinds(state: GameState): GameState {
     pot: sbAmount + bbAmount,
     currentBet: bbAmount,
     players: state.players.map(p => {
-      if (p.seat === sb.seat) return { ...p, stack: p.stack - sbAmount, currentBet: sbAmount, allIn: p.stack === sbAmount };
-      if (p.seat === bb.seat) return { ...p, stack: p.stack - bbAmount, currentBet: bbAmount, allIn: p.stack === bbAmount };
+      if (p.seat === sb.seat)
+        return { ...p, stack: p.stack - sbAmount, currentBet: sbAmount, allIn: p.stack === sbAmount };
+      if (p.seat === bb.seat)
+        return { ...p, stack: p.stack - bbAmount, currentBet: bbAmount, allIn: p.stack === bbAmount };
       return p;
     }),
   };
@@ -120,17 +126,12 @@ export function getValidActions(player: Player, state: GameState): PlayerAction[
   return actions;
 }
 
-export function applyAction(
-  state: GameState,
-  seat: number,
-  action: PlayerAction,
-  raiseAmount?: number,
-): GameState {
+export function applyAction(state: GameState, seat: number, action: PlayerAction, raiseAmount?: number): GameState {
   const player = state.players.find(p => p.seat === seat)!;
   const toCall = state.currentBet - player.currentBet;
   const { bigBlind } = getBlinds(state.blindLevel);
 
-  let updatedPlayer = { ...player };
+  const updatedPlayer = { ...player };
   let potDelta = 0;
 
   if (action === "fold") {
@@ -156,21 +157,19 @@ export function applyAction(
       ...state,
       pot: state.pot + potDelta,
       currentBet: totalBet,
-      players: state.players.map(p => p.seat === seat ? updatedPlayer : p),
+      players: state.players.map(p => (p.seat === seat ? updatedPlayer : p)),
     };
   }
 
   return {
     ...state,
     pot: state.pot + potDelta,
-    players: state.players.map(p => p.seat === seat ? updatedPlayer : p),
+    players: state.players.map(p => (p.seat === seat ? updatedPlayer : p)),
   };
 }
 
 export function advanceStreet(state: GameState, newCommunityCards: string[]): GameState {
-  const nextStreet = state.street === "preflop" ? "flop"
-    : state.street === "flop" ? "turn"
-    : "river";
+  const nextStreet = state.street === "preflop" ? "flop" : state.street === "flop" ? "turn" : "river";
   return {
     ...state,
     street: nextStreet,
@@ -184,8 +183,6 @@ export function awardPot(state: GameState, winnerSeat: number): GameState {
   return {
     ...state,
     pot: 0,
-    players: state.players.map(p =>
-      p.seat === winnerSeat ? { ...p, stack: p.stack + state.pot } : p,
-    ),
+    players: state.players.map(p => (p.seat === winnerSeat ? { ...p, stack: p.stack + state.pot } : p)),
   };
 }

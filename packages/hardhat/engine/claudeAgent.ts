@@ -7,17 +7,21 @@ import { Player, GameState, PlayerAction } from "./types";
 const PokerDecisionSchema = z.object({
   thinking: z
     .string()
-    .describe("Your thought process: analyze hand strength, pot odds, opponent patterns, and strategy"),
+    .max(280)
+    .describe("One short paragraph only (max 4 sentences): briefly explain hand strength, pot odds, and strategy."),
   decision: z.object({
     action: z.enum(["fold", "check", "call", "raise"]).describe("Your chosen action"),
     raiseAmount: z.number().optional().describe("Amount to raise to when action is raise"),
   }),
 });
 
-const POKER_RULES = `
-You are playing Texas Hold'em poker. Your goal is to win chips.
+const MAX_AGENT_TOKENS = 220;
 
-Analyze the situation carefully and make the best decision.
+const POKER_RULES = `
+You are playing no-limit Texas Hold'em.
+Only choose from the provided valid actions.
+If action is "raise", return a numeric "raiseAmount".
+Use only the provided hand state and table state.
 `.trim();
 
 function formatCards(cards: string[]): string {
@@ -53,6 +57,7 @@ ${others}
 Valid actions: ${validActions.join(", ")}
 Min raise: ${state.currentBet * 2 || 40}
 
+Return "thinking" as exactly one short paragraph.
 Make your decision now.`;
 }
 
@@ -72,7 +77,8 @@ export async function getAgentDecision(
       generateObject({
         model: anthropic("claude-haiku-4-5-20251001"),
         schema: PokerDecisionSchema,
-        system: player.systemPrompt + "\n\n" + POKER_RULES,
+        maxTokens: MAX_AGENT_TOKENS,
+        system: POKER_RULES + "\n\nAgent strategy and objectives:\n" + player.systemPrompt,
         prompt: buildPrompt(player, state, validActions),
       }),
       new Promise<never>((_, reject) => setTimeout(() => reject(new Error("AI request timeout after 15s")), 15000)),

@@ -39,8 +39,21 @@ server.listen(API_PORT, () => {
   console.log(`📡 Game API listening on http://localhost:${API_PORT}`);
 });
 
+function parseStartingStack(): number | undefined {
+  const raw = process.env.POKER_STARTING_STACK;
+  if (!raw) return undefined;
+  const parsed = Number(raw);
+  if (!Number.isFinite(parsed) || parsed <= 0) {
+    throw new Error("POKER_STARTING_STACK must be a positive number.");
+  }
+  return Math.floor(parsed);
+}
+
 async function main() {
   const [operator] = await ethers.getSigners();
+  const debugMode = ["1", "true", "yes", "on"].includes((process.env.POKER_DEBUG_MODE || "").toLowerCase());
+  const explicitStartingStack = parseStartingStack();
+  const startingStack = explicitStartingStack ?? (debugMode ? 50 : undefined);
 
   // Get the deployed contract address from deployment file
   const deploymentPath = path.join(__dirname, "../deployments/localhost/PokerVault.json");
@@ -54,6 +67,8 @@ async function main() {
   const vault = await ethers.getContractAt("PokerVault", contractAddress, operator);
 
   console.log(`🎮 Game engine running`);
+  console.log(`🧪 Debug mode: ${debugMode ? "ON" : "OFF"}`);
+  console.log(`🪙 Starting stack: ${startingStack ?? 1000}`);
   console.log(`📍 Contract: ${contractAddress}`);
   console.log(`👤 Operator: ${operator.address}`);
   console.log("👂 Listening for TournamentStarted events...\n");
@@ -71,12 +86,17 @@ async function main() {
         systemPrompt: a.systemPrompt,
       }));
 
-      await runPokerGame(id, agentData, async (winningSeat: number) => {
-        console.log(`\n🏆 Settling tournament ${id}. Winner: seat ${winningSeat}`);
-        const tx = await vault.settleTournament(id, winningSeat);
-        await tx.wait();
-        console.log(`✅ Tournament ${id} settled. Tx: ${tx.hash}`);
-      });
+      await runPokerGame(
+        id,
+        agentData,
+        async (winningSeat: number) => {
+          console.log(`\n🏆 Settling tournament ${id}. Winner: seat ${winningSeat}`);
+          const tx = await vault.settleTournament(id, winningSeat);
+          await tx.wait();
+          console.log(`✅ Tournament ${id} settled. Tx: ${tx.hash}`);
+        },
+        { startingStack },
+      );
     } catch (err) {
       console.error(`❌ Error running tournament ${id}:`, err);
     }

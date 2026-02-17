@@ -27,23 +27,23 @@ type SeatLayout = {
 };
 
 const DEFAULT_LAYOUTS: SeatLayout[] = [
-  { namePosition: { left: "20%", top: "5%" }, cardsPosition: { left: "18%", top: "8%" }, cardsRotation: -14 },
-  { namePosition: { left: "80%", top: "5%" }, cardsPosition: { left: "82%", top: "8%" }, cardsRotation: 14 },
-  { namePosition: { left: "20%", top: "97%" }, cardsPosition: { left: "18%", top: "92%" }, cardsRotation: -14 },
-  { namePosition: { left: "80%", top: "97%" }, cardsPosition: { left: "82%", top: "92%" }, cardsRotation: 14 },
-  { namePosition: { left: "6%", top: "50%" }, cardsPosition: { left: "5%", top: "50%" }, cardsRotation: -90 },
-  { namePosition: { left: "94%", top: "50%" }, cardsPosition: { left: "95%", top: "50%" }, cardsRotation: 90 },
+  { namePosition: { left: "18%", top: "21%" }, cardsPosition: { left: "18%", top: "8%" }, cardsRotation: -14 },
+  { namePosition: { left: "82%", top: "21%" }, cardsPosition: { left: "82%", top: "8%" }, cardsRotation: 14 },
+  { namePosition: { left: "18%", top: "79%" }, cardsPosition: { left: "18%", top: "92%" }, cardsRotation: -14 },
+  { namePosition: { left: "82%", top: "79%" }, cardsPosition: { left: "82%", top: "92%" }, cardsRotation: 14 },
+  { namePosition: { left: "-3%", top: "63%" }, cardsPosition: { left: "5%", top: "50%" }, cardsRotation: -90 },
+  { namePosition: { left: "103%", top: "63%" }, cardsPosition: { left: "95%", top: "50%" }, cardsRotation: 90 },
 ];
 
 const TWO_PLAYER_LAYOUTS: SeatLayout[] = [
-  { namePosition: { left: "50%", top: "5%" }, cardsPosition: { left: "50%", top: "8%" }, cardsRotation: 0 },
-  { namePosition: { left: "50%", top: "97%" }, cardsPosition: { left: "50%", top: "92%" }, cardsRotation: 0 },
+  { namePosition: { left: "50%", top: "21%" }, cardsPosition: { left: "50%", top: "8%" }, cardsRotation: 0 },
+  { namePosition: { left: "50%", top: "79%" }, cardsPosition: { left: "50%", top: "92%" }, cardsRotation: 0 },
 ];
 
 const THREE_PLAYER_LAYOUTS: SeatLayout[] = [
-  { namePosition: { left: "50%", top: "5%" }, cardsPosition: { left: "50%", top: "8%" }, cardsRotation: 0 },
-  { namePosition: { left: "20%", top: "97%" }, cardsPosition: { left: "18%", top: "92%" }, cardsRotation: -14 },
-  { namePosition: { left: "80%", top: "97%" }, cardsPosition: { left: "82%", top: "92%" }, cardsRotation: 14 },
+  { namePosition: { left: "50%", top: "21%" }, cardsPosition: { left: "50%", top: "8%" }, cardsRotation: 0 },
+  { namePosition: { left: "18%", top: "79%" }, cardsPosition: { left: "18%", top: "92%" }, cardsRotation: -14 },
+  { namePosition: { left: "82%", top: "79%" }, cardsPosition: { left: "82%", top: "92%" }, cardsRotation: 14 },
 ];
 
 function parseCard(card?: string) {
@@ -75,8 +75,8 @@ function Card({ card, faceDown, size = "md" }: { card?: string; faceDown?: boole
 
   const centerSizes = {
     sm: "text-base",
-    md: "text-lg",
-    lg: "text-xl",
+    md: "text-xl",
+    lg: "text-2xl",
   };
 
   if (faceDown) {
@@ -110,9 +110,6 @@ function Card({ card, faceDown, size = "md" }: { card?: string; faceDown?: boole
       <div className={`absolute top-1 left-1 leading-none font-bold ${cornerSizes[size]} ${textColor}`}>
         {parsedCard.rank}
       </div>
-      <div className={`absolute top-3 left-1 leading-none ${cornerSizes[size]} ${textColor}`}>
-        {parsedCard.suitSymbol}
-      </div>
 
       <div
         className={`absolute inset-0 flex items-center justify-center font-semibold ${centerSizes[size]} ${textColor}`}
@@ -122,9 +119,6 @@ function Card({ card, faceDown, size = "md" }: { card?: string; faceDown?: boole
 
       <div className={`absolute bottom-1 right-1 leading-none rotate-180 font-bold ${cornerSizes[size]} ${textColor}`}>
         {parsedCard.rank}
-      </div>
-      <div className={`absolute bottom-3 right-1 leading-none rotate-180 ${cornerSizes[size]} ${textColor}`}>
-        {parsedCard.suitSymbol}
       </div>
     </div>
   );
@@ -166,16 +160,29 @@ function PlayerSpot({
 
   return (
     <>
-      <div className="absolute z-20 -translate-x-1/2 -translate-y-1/2 text-center" style={namePosition}>
+      <div
+        className="absolute z-30 -translate-x-1/2 -translate-y-1/2 text-center pointer-events-none"
+        style={namePosition}
+      >
         <div
-          className={`text-sm font-semibold ${
-            folded ? "text-neutral-600" : isCurrentPlayer ? "text-white" : "text-neutral-200"
+          className={`min-w-[122px] rounded-lg border px-2.5 py-1.5 shadow-[0_8px_24px_rgba(0,0,0,0.35)] backdrop-blur-sm ${
+            isCurrentPlayer
+              ? "bg-[#A0153E]/18 border-[#A0153E]/60"
+              : folded
+                ? "bg-black/55 border-[#2A2A2A]/75"
+                : "bg-black/70 border-[#2A2A2A]"
           }`}
         >
-          {player.name}
-        </div>
-        <div className={`text-[11px] ${folded ? "text-neutral-700" : "text-neutral-400"}`}>
-          {formatChips(player.stack)} chips
+          <div
+            className={`text-sm font-semibold leading-tight ${
+              folded ? "text-neutral-500" : isCurrentPlayer ? "text-white" : "text-neutral-100"
+            }`}
+          >
+            {player.name}
+          </div>
+          <div className={`text-[11px] leading-tight ${folded ? "text-neutral-500" : "text-neutral-300"}`}>
+            {formatChips(player.stack)} chips
+          </div>
         </div>
       </div>
 

@@ -17,6 +17,10 @@ import {
   getBlinds,
 } from "./gameState";
 
+type RunPokerGameOptions = {
+  startingStack?: number;
+};
+
 async function runBettingRound(state: GameState, startSeat: number): Promise<GameState> {
   // Only players still in this hand (chips + not folded)
   const canAct = handActivePlayers(state).filter(p => !p.allIn);
@@ -197,13 +201,19 @@ export async function runPokerGame(
   tournamentId: number,
   agents: AgentData[],
   onSettle: (winningSeat: number) => Promise<void>,
+  options?: RunPokerGameOptions,
 ): Promise<void> {
+  const startingStack =
+    typeof options?.startingStack === "number" && Number.isFinite(options.startingStack) && options.startingStack > 0
+      ? Math.floor(options.startingStack)
+      : 1000;
+
   initLogFile(tournamentId);
-  let state = initGameState(tournamentId, agents);
+  let state = initGameState(tournamentId, agents, startingStack);
 
   logEvent(tournamentId, "game_start", {
     tournamentId,
-    players: agents.map(a => ({ seat: a.seat, name: a.name, stack: 1000 })),
+    players: agents.map(a => ({ seat: a.seat, name: a.name, stack: startingStack })),
   });
 
   let handsPlayed = 0;
