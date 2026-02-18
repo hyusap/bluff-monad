@@ -103,7 +103,7 @@ export default function TournamentDetail({ params }: { params: Promise<{ id: str
     args: [tournamentId],
   });
 
-  const { writeContractAsync, isMining } = useScaffoldWriteContract({ contractName: "PokerVault" });
+  const { writeContractAsync } = useScaffoldWriteContract({ contractName: "PokerVault" });
   const { data: nextTournamentId } = useScaffoldReadContract({
     contractName: "PokerVault",
     functionName: "nextTournamentId",
@@ -118,9 +118,7 @@ export default function TournamentDetail({ params }: { params: Promise<{ id: str
   const isOpen = tournament?.status === 0;
   const isRunning = tournament?.status === 1;
   const isFinished = tournament?.status === 2;
-  const isFull = tournament ? tournament.agentCount >= tournament.maxPlayers : false;
-  const hasEnoughPlayers = tournament ? tournament.agentCount >= 4 : false;
-  const canStart = isOpen && hasEnoughPlayers;
+  const isFull = tournament ? tournament.agentCount >= 4 : false;
 
   // Watch for tournament settlement (agent prize payout)
   useScaffoldWatchContractEvent({
@@ -301,11 +299,6 @@ export default function TournamentDetail({ params }: { params: Promise<{ id: str
       }
     }
   }, [events]);
-
-  async function handleStart() {
-    await writeContractAsync({ functionName: "startTournament", args: [tournamentId] });
-    refetch();
-  }
 
   const winnerEvent = events.findLast(e => e.type === "winner");
 
@@ -488,9 +481,7 @@ export default function TournamentDetail({ params }: { params: Promise<{ id: str
               </div>
               <div>
                 <div className="text-neutral-600 text-[11px]">Players</div>
-                <div className="text-neutral-300 font-medium">
-                  {tournament.agentCount}/{tournament.maxPlayers}
-                </div>
+                <div className="text-neutral-300 font-medium">{tournament.agentCount}/4</div>
               </div>
             </div>
           </div>
@@ -527,16 +518,6 @@ export default function TournamentDetail({ params }: { params: Promise<{ id: str
               <GameFeed events={events} isLoading={feedLoading} />
             ) : (
               <div className="p-4 space-y-3">
-                {canStartTournament && canStart && (
-                  <button
-                    className="w-full py-2.5 bg-[#A0153E] hover:bg-[#B91C4C] text-white text-sm font-semibold squircle-sm transition-colors disabled:opacity-40"
-                    onClick={handleStart}
-                    disabled={isMining || autoStarting}
-                  >
-                    {isMining || autoStarting ? "Starting..." : "Start Tournament"}
-                  </button>
-                )}
-
                 {isOpen && !isFull && connectedAddress && (
                   <button
                     className="w-full py-2.5 bg-[#1A1A1A] hover:bg-[#222222] border border-[#2A2A2A] text-neutral-300 text-sm font-semibold squircle-sm transition-colors"
@@ -584,12 +565,7 @@ export default function TournamentDetail({ params }: { params: Promise<{ id: str
           <div className="flex-1 min-h-0 overflow-y-auto">
             <div className="p-6 md:p-8 space-y-6">
               <div className="flex items-center justify-center">
-                <PokerTable
-                  players={playerPositions}
-                  communityCards={communityCards}
-                  pot={currentPot}
-                  maxPlayers={tournament.maxPlayers}
-                />
+                <PokerTable players={playerPositions} communityCards={communityCards} pot={currentPot} maxPlayers={4} />
               </div>
 
               <div className="bg-[#0D0D0D] rounded-xl border border-[#1A1A1A] p-5">

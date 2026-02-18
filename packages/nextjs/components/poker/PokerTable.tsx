@@ -203,9 +203,9 @@ export function PokerTable({ players, communityCards, pot, currentPlayer, maxPla
 
   return (
     <div className="relative w-full max-w-[720px] aspect-[16/10] mx-auto">
-      <div className="absolute inset-0 rounded-[72px] bg-[#282A2E] shadow-[0_30px_70px_rgba(0,0,0,0.65)]" />
+      <div className="absolute inset-0 rounded-[96px] bg-[#282A2E] shadow-[0_30px_70px_rgba(0,0,0,0.65)]" />
 
-      <div className="absolute inset-4 rounded-[62px] bg-gradient-to-b from-[#1CA24E] via-[#0F903E] to-[#0A7631] border border-[#2D7F43] overflow-hidden">
+      <div className="absolute inset-6 rounded-[82px] bg-[#0F9040] border border-[#2D7F43] overflow-hidden">
         <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 flex flex-col items-center gap-4">
           <div className="flex gap-2 md:gap-2.5">
             {Array.from({ length: 5 }).map((_, i) =>
