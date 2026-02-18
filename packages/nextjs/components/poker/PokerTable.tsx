@@ -202,10 +202,10 @@ export function PokerTable({ players, communityCards, pot, currentPlayer, maxPla
   const layouts = maxPlayers === 2 ? TWO_PLAYER_LAYOUTS : maxPlayers === 3 ? THREE_PLAYER_LAYOUTS : DEFAULT_LAYOUTS;
 
   return (
-    <div className="relative w-full max-w-[720px] aspect-[16/10] mx-auto">
-      <div className="absolute inset-0 rounded-[96px] bg-[#282A2E] shadow-[0_30px_70px_rgba(0,0,0,0.65)]" />
+    <div className="relative w-full max-w-[720px] aspect-[16/10] mx-auto p-10">
+      <div className="absolute inset-0 rounded-[150px] bg-[#282A2E] shadow-[0_30px_70px_rgba(0,0,0,0.65)]" />
 
-      <div className="absolute inset-6 rounded-[82px] bg-[#0F9040] border border-[#2D7F43] overflow-hidden">
+      <div className="absolute inset-4 rounded-[145px] bg-[#0F9040] border border-[#2D7F43] overflow-hidden">
         <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 flex flex-col items-center gap-4">
           <div className="flex gap-2 md:gap-2.5">
             {Array.from({ length: 5 }).map((_, i) =>
