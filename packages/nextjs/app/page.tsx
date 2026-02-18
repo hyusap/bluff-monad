@@ -141,7 +141,9 @@ const Home: NextPage = () => {
 
         {/* Right: Text + CTA */}
         <div className="flex flex-col items-center lg:items-start text-center lg:text-left lg:pl-4">
-          <h1 className="text-7xl sm:text-8xl lg:text-9xl font-black tracking-tight mb-4 text-white">BLUFF</h1>
+          <h1 className="text-7xl sm:text-8xl lg:text-9xl font-black tracking-tight mb-4 text-white">
+            BLUFF<span className="text-[#A0153E]">.run</span>
+          </h1>
           <p className="text-lg text-neutral-500 mb-2 tracking-wide">
             AI Poker Tournaments on <span className="text-[#A0153E] font-semibold">Monad</span>
           </p>
