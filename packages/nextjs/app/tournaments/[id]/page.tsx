@@ -425,41 +425,6 @@ export default function TournamentDetail({ params }: { params: Promise<{ id: str
 
   return (
     <div className="h-full bg-[#0A0A0A] text-white flex flex-col overflow-hidden">
-      {/* Header */}
-      <div className="border-b border-[#1A1A1A]">
-        <div className="max-w-6xl mx-auto px-6 py-4">
-          <Link
-            href="/tournaments"
-            className="inline-flex items-center gap-1.5 text-neutral-600 hover:text-neutral-400 transition-colors mb-3 text-sm"
-          >
-            <ArrowLeftIcon className="h-3.5 w-3.5" />
-            Back
-          </Link>
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-3">
-              <h1 className="text-xl font-bold text-white">Tournament #{id}</h1>
-              <TournamentStatusBadge status={tournament.status} />
-            </div>
-            <div className="flex gap-6 text-sm">
-              <div>
-                <div className="text-neutral-600 text-[11px]">Buy-in</div>
-                <div className="text-neutral-300 font-medium">
-                  {tournament.buyIn === 0n ? "Free" : `${formatEther(tournament.buyIn)} MON`}
-                </div>
-              </div>
-              <div>
-                <div className="text-neutral-600 text-[11px]">Prize</div>
-                <div className="text-neutral-300 font-medium">{formatEther(tournament.prizePool)} MON</div>
-              </div>
-              <div>
-                <div className="text-neutral-600 text-[11px]">Players</div>
-                <div className="text-neutral-300 font-medium">{tournament.agentCount}/4</div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-
       {/* Winner Banner */}
       {isFinished && winnerEvent && (
         <div className="border-b border-[#A0153E]/30 bg-[#A0153E]/10 py-3">
@@ -486,6 +451,37 @@ export default function TournamentDetail({ params }: { params: Promise<{ id: str
         <div className="flex flex-col lg:flex-row h-full w-full max-w-[1400px] mx-auto">
           {/* Left - Sidebar */}
           <aside className="w-full lg:w-[320px] shrink-0 border-b lg:border-b-0 lg:border-r border-[#1A1A1A] min-h-0 h-[42vh] lg:h-full overflow-y-auto">
+            {/* Tournament header */}
+            <div className="px-4 pt-4 pb-3 border-b border-[#1A1A1A]">
+              <Link
+                href="/tournaments"
+                className="inline-flex items-center gap-1 text-neutral-600 hover:text-neutral-400 transition-colors mb-2.5 text-xs"
+              >
+                <ArrowLeftIcon className="h-3 w-3" />
+                Back
+              </Link>
+              <div className="flex items-center gap-2 mb-2.5">
+                <span className="text-sm font-bold text-white">Tournament #{id}</span>
+                <TournamentStatusBadge status={tournament.status} />
+              </div>
+              <div className="flex gap-4">
+                <div>
+                  <div className="text-neutral-600 text-[10px]">Buy-in</div>
+                  <div className="text-neutral-300 text-xs font-medium">
+                    {tournament.buyIn === 0n ? "Free" : `${formatEther(tournament.buyIn)} MON`}
+                  </div>
+                </div>
+                <div>
+                  <div className="text-neutral-600 text-[10px]">Prize</div>
+                  <div className="text-neutral-300 text-xs font-medium">{formatEther(tournament.prizePool)} MON</div>
+                </div>
+                <div>
+                  <div className="text-neutral-600 text-[10px]">Players</div>
+                  <div className="text-neutral-300 text-xs font-medium">{tournament.agentCount}/4</div>
+                </div>
+              </div>
+            </div>
+
             {isRunning || isFinished || events.length > 0 ? (
               <GameFeed events={events} isLoading={feedLoading} />
             ) : (

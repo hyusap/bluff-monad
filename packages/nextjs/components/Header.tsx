@@ -36,7 +36,7 @@ export const HeaderMenuLinks = () => {
               passHref
               className={`${
                 isActive ? "text-white" : "text-neutral-500"
-              } hover:text-white text-sm font-medium transition-colors px-3 py-1.5`}
+              } hover:text-white text-base font-medium transition-colors px-3 py-1.5`}
             >
               {label}
             </Link>
@@ -58,7 +58,7 @@ export const Header = () => {
 
   return (
     <div className="sticky lg:static top-0 z-20 bg-[#0A0A0A] border-b border-[#1A1A1A]">
-      <div className="flex items-center justify-between px-4 sm:px-6 h-14">
+      <div className="flex items-center justify-between px-4 sm:px-6 h-16">
         <div className="flex items-center gap-6">
           <details className="dropdown lg:hidden" ref={burgerMenuRef}>
             <summary className="btn btn-ghost btn-sm p-1 hover:bg-transparent">
@@ -73,7 +73,7 @@ export const Header = () => {
               </Suspense>
             </ul>
           </details>
-          <Link href="/" className="font-black text-lg text-white tracking-tight">
+          <Link href="/" className="font-black text-xl text-white tracking-tight">
             BLUFF
           </Link>
           <ul className="hidden lg:flex items-center gap-1">
