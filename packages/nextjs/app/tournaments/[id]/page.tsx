@@ -14,11 +14,7 @@ import { LastTournamentResultsModal } from "~~/components/poker/LastTournamentRe
 import type { LastTournamentResult } from "~~/components/poker/LastTournamentResultsModal";
 import { PokerTable } from "~~/components/poker/PokerTable";
 import { TournamentStatusBadge } from "~~/components/poker/TournamentStatusBadge";
-import {
-  useScaffoldReadContract,
-  useScaffoldWatchContractEvent,
-  useScaffoldWriteContract,
-} from "~~/hooks/scaffold-eth";
+import { useScaffoldReadContract, useScaffoldWatchContractEvent } from "~~/hooks/scaffold-eth";
 import { useGameFeed } from "~~/hooks/useGameFeed";
 import type { GameEvent } from "~~/hooks/useGameFeed";
 import { useTournament } from "~~/hooks/useTournaments";
@@ -86,24 +82,11 @@ export default function TournamentDetail({ params }: { params: Promise<{ id: str
   const [showEnterModal, setShowEnterModal] = useState(false);
   const [showLastTournamentResultModal, setShowLastTournamentResultModal] = useState(false);
   const [lastTournamentResult, setLastTournamentResult] = useState<LastTournamentResult | null>(null);
-  const [autoStarting, setAutoStarting] = useState(false);
   const [countdown, setCountdown] = useState<number | null>(null);
   const notifiedEventCountRef = useRef<number | null>(null);
   const autoFollowRef = useRef(false);
   const handledRedirectRef = useRef<string | null>(null);
 
-  const { data: operatorAddress } = useScaffoldReadContract({
-    contractName: "PokerVault",
-    functionName: "operator",
-  });
-
-  const { data: creatorAddress } = useScaffoldReadContract({
-    contractName: "PokerVault",
-    functionName: "getTournamentCreator",
-    args: [tournamentId],
-  });
-
-  const { writeContractAsync } = useScaffoldWriteContract({ contractName: "PokerVault" });
   const { data: nextTournamentId, refetch: refetchNextId } = useScaffoldReadContract({
     contractName: "PokerVault",
     functionName: "nextTournamentId",
@@ -114,12 +97,6 @@ export default function TournamentDetail({ params }: { params: Promise<{ id: str
     const interval = setInterval(() => refetchNextId(), 2000);
     return () => clearInterval(interval);
   }, []); // eslint-disable-line react-hooks/exhaustive-deps
-
-  const isOperator =
-    connectedAddress && operatorAddress && connectedAddress.toLowerCase() === (operatorAddress as string).toLowerCase();
-  const isCreator =
-    connectedAddress && creatorAddress && connectedAddress.toLowerCase() === (creatorAddress as string).toLowerCase();
-  const canStartTournament = isOperator || isCreator;
 
   const isOpen = tournament?.status === 0;
   const isRunning = tournament?.status === 1;
@@ -166,21 +143,10 @@ export default function TournamentDetail({ params }: { params: Promise<{ id: str
   }, [isFull, isOpen]); // eslint-disable-line react-hooks/exhaustive-deps
 
   useEffect(() => {
-    if (countdown === null || !isOpen) return;
-    if (countdown <= 0) {
-      // Countdown finished — auto-start if we have permission
-      if (canStartTournament && !autoStarting) {
-        setAutoStarting(true);
-        writeContractAsync({ functionName: "startTournament", args: [tournamentId] })
-          .then(() => refetch())
-          .catch(() => {})
-          .finally(() => setAutoStarting(false));
-      }
-      return;
-    }
+    if (countdown === null || !isOpen || countdown <= 0) return;
     const timer = setTimeout(() => setCountdown(prev => (prev !== null ? prev - 1 : null)), 1000);
     return () => clearTimeout(timer);
-  }, [countdown, isOpen, canStartTournament]); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [countdown, isOpen]);
 
   useEffect(() => {
     if (!isFinished || !nextTournamentId || autoFollowRef.current) return;
@@ -537,9 +503,7 @@ export default function TournamentDetail({ params }: { params: Promise<{ id: str
                   <div className="bg-[#111111] border border-amber-500/20 squircle-sm px-3 py-2 text-amber-400 text-sm text-center">
                     {countdown !== null && countdown > 0
                       ? `Starting in ${countdown}s — place your bets!`
-                      : autoStarting
-                        ? "Starting..."
-                        : "Waiting to start..."}
+                      : "Starting..."}
                   </div>
                 )}
 
