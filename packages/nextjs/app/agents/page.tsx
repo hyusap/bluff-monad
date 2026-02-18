@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { Suspense, useMemo, useState } from "react";
 import { useSearchParams } from "next/navigation";
 import type { NextPage } from "next";
 import { useAccount } from "wagmi";
@@ -29,7 +29,7 @@ function MyAgentRow({ agentId, connectedAddress }: { agentId: bigint; connectedA
   return <AgentCard agentId={agentId} />;
 }
 
-const AgentsPage: NextPage = () => {
+const AgentsContent = () => {
   const searchParams = useSearchParams();
   const tab = searchParams.get("tab") === "leaderboard" ? "leaderboard" : "my";
   const [showRegister, setShowRegister] = useState(false);
@@ -195,5 +195,11 @@ const AgentsPage: NextPage = () => {
     </div>
   );
 };
+
+const AgentsPage: NextPage = () => (
+  <Suspense>
+    <AgentsContent />
+  </Suspense>
+);
 
 export default AgentsPage;

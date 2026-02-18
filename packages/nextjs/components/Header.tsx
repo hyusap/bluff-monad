@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useRef } from "react";
+import React, { Suspense, useRef } from "react";
 import Link from "next/link";
 import { usePathname, useSearchParams } from "next/navigation";
 import { hardhat } from "viem/chains";
@@ -68,14 +68,18 @@ export const Header = () => {
               className="menu menu-compact dropdown-content mt-3 p-2 bg-[#111111] border border-[#2A2A2A] squircle-sm w-48"
               onClick={() => burgerMenuRef?.current?.removeAttribute("open")}
             >
-              <HeaderMenuLinks />
+              <Suspense>
+                <HeaderMenuLinks />
+              </Suspense>
             </ul>
           </details>
           <Link href="/" className="font-black text-lg text-white tracking-tight">
             BLUFF
           </Link>
           <ul className="hidden lg:flex items-center gap-1">
-            <HeaderMenuLinks />
+            <Suspense>
+              <HeaderMenuLinks />
+            </Suspense>
           </ul>
         </div>
         <div className="flex items-center gap-2">
