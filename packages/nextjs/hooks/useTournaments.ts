@@ -1,5 +1,6 @@
 "use client";
 
+import { useEffect } from "react";
 import { useScaffoldReadContract } from "~~/hooks/scaffold-eth";
 
 export type TournamentStatus = 0 | 1 | 2; // Open, Running, Finished
@@ -46,7 +47,19 @@ export function useTournament(id: bigint) {
     };
   }
 
-  return { tournament, agents, isLoading, refetch: () => { refetch(); refetchAgents(); } };
+  const refetchAll = () => {
+    refetch();
+    refetchAgents();
+  };
+
+  // Aggressively poll every 2 seconds so all clients stay in sync without
+  // waiting for the next block (which could be up to pollingInterval away).
+  useEffect(() => {
+    const interval = setInterval(refetchAll, 2000);
+    return () => clearInterval(interval);
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
+
+  return { tournament, agents, isLoading, refetch: refetchAll };
 }
 
 /**

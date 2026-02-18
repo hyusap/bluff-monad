@@ -104,10 +104,16 @@ export default function TournamentDetail({ params }: { params: Promise<{ id: str
   });
 
   const { writeContractAsync } = useScaffoldWriteContract({ contractName: "PokerVault" });
-  const { data: nextTournamentId } = useScaffoldReadContract({
+  const { data: nextTournamentId, refetch: refetchNextId } = useScaffoldReadContract({
     contractName: "PokerVault",
     functionName: "nextTournamentId",
   });
+
+  // Keep nextTournamentId fresh so auto-redirect to a newly created tournament fires quickly
+  useEffect(() => {
+    const interval = setInterval(() => refetchNextId(), 2000);
+    return () => clearInterval(interval);
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
   const isOperator =
     connectedAddress && operatorAddress && connectedAddress.toLowerCase() === (operatorAddress as string).toLowerCase();
@@ -452,7 +458,7 @@ export default function TournamentDetail({ params }: { params: Promise<{ id: str
   }
 
   return (
-    <div className="h-screen bg-[#0A0A0A] text-white flex flex-col overflow-hidden">
+    <div className="h-full bg-[#0A0A0A] text-white flex flex-col overflow-hidden">
       {/* Header */}
       <div className="border-b border-[#1A1A1A]">
         <div className="max-w-6xl mx-auto px-6 py-4">

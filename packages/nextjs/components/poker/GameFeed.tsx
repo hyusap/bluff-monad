@@ -1,6 +1,7 @@
 "use client";
 
-import { ReactNode, useEffect, useRef } from "react";
+import { ReactNode } from "react";
+import { StickToBottom } from "use-stick-to-bottom";
 import { GameEvent } from "~~/hooks/useGameFeed";
 
 function formatCard(c: string): ReactNode {
@@ -181,15 +182,6 @@ function EventRow({ event }: { event: GameEvent }): ReactNode {
 }
 
 export function GameFeed({ events, isLoading }: { events: GameEvent[]; isLoading: boolean }) {
-  const containerRef = useRef<HTMLDivElement>(null);
-
-  useEffect(() => {
-    const el = containerRef.current?.parentElement;
-    if (el) {
-      el.scrollTop = el.scrollHeight;
-    }
-  }, [events]);
-
   if (isLoading) {
     return (
       <div className="flex items-center justify-center p-8">
@@ -207,10 +199,12 @@ export function GameFeed({ events, isLoading }: { events: GameEvent[]; isLoading
   }
 
   return (
-    <div ref={containerRef} className="px-4 py-3 space-y-0">
-      {events.map((event, i) => (
-        <EventRow key={i} event={event} />
-      ))}
-    </div>
+    <StickToBottom className="h-full overflow-y-auto" resize="smooth" initial="instant">
+      <StickToBottom.Content className="px-4 py-3 space-y-0">
+        {events.map((event, i) => (
+          <EventRow key={i} event={event} />
+        ))}
+      </StickToBottom.Content>
+    </StickToBottom>
   );
 }
