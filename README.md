@@ -1,116 +1,73 @@
-# 🏗 Scaffold-ETH 2 with Hardhat + Monad Testnet Configuration 
+# BLUFF — AI Poker Tournaments on Monad
 
-<h4 align="center">
-  <a href="https://docs.scaffoldeth.io">Documentation</a> |
-  <a href="https://scaffoldeth.io">Website</a>
-</h4>
+BLUFF is a decentralized AI poker tournament platform built on the Monad blockchain. Create AI agents with custom strategies, enter them into live poker tournaments, and compete for real prizes.
 
-🧪 An open-source, up-to-date toolkit for building decentralized applications (dapps) on the Ethereum blockchain. It's designed to make it easier for developers to create and deploy smart contracts and build user interfaces that interact with those contracts.
+## How It Works
 
-⚙️ Built using NextJS, RainbowKit, Hardhat, Wagmi, Viem, and Typescript.
+1. **Create an Agent** — Define an AI agent with a custom name and strategy prompt
+2. **Join a Tournament** — Enter your agent into a tournament by paying the buy-in
+3. **Watch It Play** — The poker engine runs games using Claude AI to make decisions based on your strategy
+4. **Win Prizes** — Smart contracts handle escrow and prize distribution automatically
 
-- ✅ **Contract Hot Reload**: Your frontend auto-adapts to your smart contract as you edit it.
-- 🪝 **[Custom hooks](https://docs.scaffoldeth.io/hooks/)**: Collection of React hooks wrapper around [wagmi](https://wagmi.sh/) to simplify interactions with smart contracts with typescript autocompletion.
-- 🧱 [**Components**](https://docs.scaffoldeth.io/components/): Collection of common web3 components to quickly build your frontend.
-- 🔥 **Burner Wallet & Local Faucet**: Quickly test your application with a burner wallet and local faucet.
-- 🔐 **Integration with Wallet Providers**: Connect to different wallet providers and interact with the Ethereum network.
+## Tech Stack
 
-![Debug Contracts tab](https://github.com/scaffold-eth/scaffold-eth-2/assets/55535804/b237af0c-5027-4849-a5c1-2e31495cccb1)
-
-## Requirements
-
-Before you begin, you need to install the following tools:
-
-- [Node (>= v20.18.3)](https://nodejs.org/en/download/)
-- Yarn ([v1](https://classic.yarnpkg.com/en/docs/install/) or [v2+](https://yarnpkg.com/getting-started/install))
-- [Git](https://git-scm.com/downloads)
+| Layer | Tech |
+|-------|------|
+| Frontend | Next.js 15, React 19, Tailwind CSS, DaisyUI |
+| Web3 | Wagmi, Viem, RainbowKit |
+| Smart Contracts | Solidity, Hardhat, OpenZeppelin |
+| AI Engine | Anthropic Claude SDK |
+| Chain | Monad Testnet |
 
 ## Quickstart
 
-To get started with Scaffold-ETH 2, follow the steps below:
+### Prerequisites
 
-1. Install dependencies if it was skipped in CLI:
+- [Node.js](https://nodejs.org/) >= v20
+- [Yarn](https://yarnpkg.com/)
+- [Git](https://git-scm.com/)
 
-```
-cd my-dapp-example
+### Setup
+
+```bash
+# Install dependencies
 yarn install
-```
 
-2. Run a local network in the first terminal:
-
-```
+# Start a local chain
 yarn chain
-```
 
-This command starts a local Ethereum network using Hardhat. The network runs on your local machine and can be used for testing and development. You can customize the network configuration in `packages/hardhat/hardhat.config.ts`.
-
-3. On a second terminal, deploy the test contract:
-
-```
+# Deploy contracts (in a second terminal)
 yarn deploy
-```
 
-This command deploys a test smart contract to the local network. The contract is located in `packages/hardhat/contracts` and can be modified to suit your needs. The `yarn deploy` command uses the deploy script located in `packages/hardhat/deploy` to deploy the contract to the network. You can also customize the deploy script.
-
-4. On a third terminal, start your NextJS app:
-
-```
+# Start the frontend (in a third terminal)
 yarn start
 ```
 
-Visit your app on: `http://localhost:3000`. You can interact with your smart contract using the `Debug Contracts` page. You can tweak the app config in `packages/nextjs/scaffold.config.ts`.
+Visit `http://localhost:3000` to use the app.
 
-Run smart contract test with `yarn hardhat:test`
+### Deploy to Monad Testnet
 
-- Edit your smart contracts in `packages/hardhat/contracts`
-- Edit your frontend homepage at `packages/nextjs/app/page.tsx`. For guidance on [routing](https://nextjs.org/docs/app/building-your-application/routing/defining-routes) and configuring [pages/layouts](https://nextjs.org/docs/app/building-your-application/routing/pages-and-layouts) checkout the Next.js documentation.
-- Edit your deployment scripts in `packages/hardhat/deploy`
-
-
-## Contract Verification
-
-After deploying your smart contract to a testnet or mainnet, you can verify it on block explorers like Etherscan or Sourcify. This makes your contract source code publicly available and allows users to interact with it through the block explorer.
-
-### Sourcify Verification (Recommended)
-
-Scaffold-ETH 2 is configured to use Sourcify for contract verification by default. Sourcify is a decentralized verification platform that supports multiple block explorers.
-
-#### For Monad Testnet
-
-1. Deploy your contract to Monad testnet:
 ```bash
 yarn deploy --network monadTestnet
 ```
 
-2. Verify your contract using the hardhat-deploy plugin:
+## Project Structure
+
+```
+packages/
+├── hardhat/          # Smart contracts & game engine
+│   ├── contracts/    # Solidity contracts (PokerVault, AgentRegistry, etc.)
+│   ├── deploy/       # Deployment scripts
+│   └── engine/       # Off-chain poker engine + Claude AI integration
+└── nextjs/           # Frontend application
+    ├── app/          # Next.js pages (tournaments, agents, etc.)
+    └── components/   # React components (poker table, betting panel, etc.)
+```
+
+## Contract Verification
+
 ```bash
 yarn hardhat-verify --network monadTestnet <CONTRACT_ADDRESS>
 ```
 
-Replace `<CONTRACT_ADDRESS>` with the address of your deployed contract.
-
-#### Configuration
-
-The Sourcify configuration is already set up in `packages/hardhat/hardhat.config.ts`:
-
-```typescript
-sourcify: {
-  enabled: true,
-  apiUrl: "https://sourcify-api-monad.blockvision.org",
-  browserUrl: "https://testnet.monadexplorer.com",
-},
-```
-
-## Documentation
-
-Visit our [docs](https://docs.scaffoldeth.io) to learn how to start building with Scaffold-ETH 2.
-
-To know more about its features, check out our [website](https://scaffoldeth.io).
-
-For deployment steps in this repo, see [DEPLOYMENT.md](./DEPLOYMENT.md).
-
-## Contributing to Scaffold-ETH 2
-
-We welcome contributions to Scaffold-ETH 2!
-
-Please see [CONTRIBUTING.MD](https://github.com/scaffold-eth/scaffold-eth-2/blob/main/CONTRIBUTING.md) for more information and guidelines for contributing to Scaffold-ETH 2.
+Sourcify verification is configured by default — see `packages/hardhat/hardhat.config.ts`.
