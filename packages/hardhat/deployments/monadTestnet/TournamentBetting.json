@@ -1,0 +1,755 @@
+{
+  "address": "0x1376FCC548a4E18CD67BB736c1Cd1fB9cd1D6756",
+  "abi": [
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "_pokerVault",
+          "type": "address"
+        },
+        {
+          "internalType": "address",
+          "name": "_operator",
+          "type": "address"
+        }
+      ],
+      "stateMutability": "nonpayable",
+      "type": "constructor"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "owner",
+          "type": "address"
+        }
+      ],
+      "name": "OwnableInvalidOwner",
+      "type": "error"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "account",
+          "type": "address"
+        }
+      ],
+      "name": "OwnableUnauthorizedAccount",
+      "type": "error"
+    },
+    {
+      "anonymous": false,
+      "inputs": [
+        {
+          "indexed": true,
+          "internalType": "uint256",
+          "name": "tournamentId",
+          "type": "uint256"
+        },
+        {
+          "indexed": true,
+          "internalType": "uint256",
+          "name": "seatIndex",
+          "type": "uint256"
+        },
+        {
+          "indexed": true,
+          "internalType": "address",
+          "name": "bettor",
+          "type": "address"
+        },
+        {
+          "indexed": false,
+          "internalType": "uint256",
+          "name": "amount",
+          "type": "uint256"
+        }
+      ],
+      "name": "BetPlaced",
+      "type": "event"
+    },
+    {
+      "anonymous": false,
+      "inputs": [
+        {
+          "indexed": true,
+          "internalType": "uint256",
+          "name": "tournamentId",
+          "type": "uint256"
+        },
+        {
+          "indexed": true,
+          "internalType": "uint256",
+          "name": "winningSeat",
+          "type": "uint256"
+        },
+        {
+          "indexed": false,
+          "internalType": "uint256",
+          "name": "totalPool",
+          "type": "uint256"
+        },
+        {
+          "indexed": false,
+          "internalType": "uint256",
+          "name": "platformFee",
+          "type": "uint256"
+        }
+      ],
+      "name": "BettingSettled",
+      "type": "event"
+    },
+    {
+      "anonymous": false,
+      "inputs": [
+        {
+          "indexed": true,
+          "internalType": "address",
+          "name": "previousOwner",
+          "type": "address"
+        },
+        {
+          "indexed": true,
+          "internalType": "address",
+          "name": "newOwner",
+          "type": "address"
+        }
+      ],
+      "name": "OwnershipTransferred",
+      "type": "event"
+    },
+    {
+      "anonymous": false,
+      "inputs": [
+        {
+          "indexed": true,
+          "internalType": "uint256",
+          "name": "tournamentId",
+          "type": "uint256"
+        },
+        {
+          "indexed": true,
+          "internalType": "address",
+          "name": "bettor",
+          "type": "address"
+        },
+        {
+          "indexed": false,
+          "internalType": "uint256",
+          "name": "amount",
+          "type": "uint256"
+        }
+      ],
+      "name": "WinningsClaimed",
+      "type": "event"
+    },
+    {
+      "inputs": [],
+      "name": "MIN_BET",
+      "outputs": [
+        {
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
+        },
+        {
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
+        },
+        {
+          "internalType": "address",
+          "name": "",
+          "type": "address"
+        }
+      ],
+      "name": "bets",
+      "outputs": [
+        {
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "uint256",
+          "name": "tournamentId",
+          "type": "uint256"
+        }
+      ],
+      "name": "claimWinnings",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
+        },
+        {
+          "internalType": "address",
+          "name": "",
+          "type": "address"
+        }
+      ],
+      "name": "claimed",
+      "outputs": [
+        {
+          "internalType": "bool",
+          "name": "",
+          "type": "bool"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "uint256",
+          "name": "tournamentId",
+          "type": "uint256"
+        }
+      ],
+      "name": "getBettingPool",
+      "outputs": [
+        {
+          "internalType": "uint256",
+          "name": "total",
+          "type": "uint256"
+        },
+        {
+          "internalType": "uint256[]",
+          "name": "seatAmounts",
+          "type": "uint256[]"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "uint256",
+          "name": "tournamentId",
+          "type": "uint256"
+        }
+      ],
+      "name": "getPayoutPool",
+      "outputs": [
+        {
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "uint256",
+          "name": "tournamentId",
+          "type": "uint256"
+        },
+        {
+          "internalType": "address",
+          "name": "bettor",
+          "type": "address"
+        }
+      ],
+      "name": "getUserBets",
+      "outputs": [
+        {
+          "internalType": "uint256[]",
+          "name": "amounts",
+          "type": "uint256[]"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "uint256",
+          "name": "tournamentId",
+          "type": "uint256"
+        }
+      ],
+      "name": "getWinningSeat",
+      "outputs": [
+        {
+          "internalType": "int256",
+          "name": "",
+          "type": "int256"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "operator",
+      "outputs": [
+        {
+          "internalType": "address",
+          "name": "",
+          "type": "address"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "owner",
+      "outputs": [
+        {
+          "internalType": "address",
+          "name": "",
+          "type": "address"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "uint256",
+          "name": "tournamentId",
+          "type": "uint256"
+        },
+        {
+          "internalType": "uint256",
+          "name": "seatIndex",
+          "type": "uint256"
+        }
+      ],
+      "name": "placeBet",
+      "outputs": [],
+      "stateMutability": "payable",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "platformFeeBps",
+      "outputs": [
+        {
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "pokerVault",
+      "outputs": [
+        {
+          "internalType": "contract IPokerVault",
+          "name": "",
+          "type": "address"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "renounceOwnership",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
+        },
+        {
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "name": "seatTotals",
+      "outputs": [
+        {
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "_operator",
+          "type": "address"
+        }
+      ],
+      "name": "setOperator",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "uint256",
+          "name": "_feeBps",
+          "type": "uint256"
+        }
+      ],
+      "name": "setPlatformFeeBps",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "uint256",
+          "name": "tournamentId",
+          "type": "uint256"
+        },
+        {
+          "internalType": "uint256",
+          "name": "winningSeat",
+          "type": "uint256"
+        }
+      ],
+      "name": "settleBetting",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "name": "totalPool",
+      "outputs": [
+        {
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "newOwner",
+          "type": "address"
+        }
+      ],
+      "name": "transferOwnership",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    }
+  ],
+  "transactionHash": "0xd4a77fd9549fc5ed4db59107353df28ed75b61330b248ac2c91e3c6096188aa1",
+  "receipt": {
+    "to": null,
+    "from": "0xC7A9F6295BbE871cfaDB56022ec9bD301Df4804a",
+    "contractAddress": "0x1376FCC548a4E18CD67BB736c1Cd1fB9cd1D6756",
+    "transactionIndex": 1,
+    "gasUsed": "1250301",
+    "logsBloom": "0x00000000000000000000000000000000000000000000000000800000000000000000020000000000000000000000000000000000000000200000000000000000000000000000000000000000000000000001000000000000000000000000008000000000020000000000000000000800000000000000000000000000000000400000000000000000000000000000000000000000000000040000800000000000000000000000400000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000020000000000000000000000000000000000000000000000000000000000000000000",
+    "blockHash": "0xa0326a75f8852ee6be2e2240c774884ca6c66d8ea97347b0fab083d55e7197ca",
+    "transactionHash": "0xd4a77fd9549fc5ed4db59107353df28ed75b61330b248ac2c91e3c6096188aa1",
+    "logs": [
+      {
+        "transactionIndex": 1,
+        "blockNumber": 13502561,
+        "transactionHash": "0xd4a77fd9549fc5ed4db59107353df28ed75b61330b248ac2c91e3c6096188aa1",
+        "address": "0x1376FCC548a4E18CD67BB736c1Cd1fB9cd1D6756",
+        "topics": [
+          "0x8be0079c531659141344cd1fd0a4f28419497f9722a3daafe3b4186f6b6457e0",
+          "0x0000000000000000000000000000000000000000000000000000000000000000",
+          "0x000000000000000000000000c7a9f6295bbe871cfadb56022ec9bd301df4804a"
+        ],
+        "data": "0x",
+        "logIndex": 1,
+        "blockHash": "0xa0326a75f8852ee6be2e2240c774884ca6c66d8ea97347b0fab083d55e7197ca"
+      }
+    ],
+    "blockNumber": 13502561,
+    "cumulativeGasUsed": "1250301",
+    "status": 1,
+    "byzantium": true
+  },
+  "args": [
+    "0xc6bbC6182e18DbB738c1F85070C19256440E3566",
+    "0xC7A9F6295BbE871cfaDB56022ec9bD301Df4804a"
+  ],
+  "numDeployments": 1,
+  "solcInputHash": "d0b06612ed64fafa3c84a7836e9c0e15",
+  "metadata": "{\"compiler\":{\"version\":\"0.8.20+commit.a1b79de6\"},\"language\":\"Solidity\",\"output\":{\"abi\":[{\"inputs\":[{\"internalType\":\"address\",\"name\":\"_pokerVault\",\"type\":\"address\"},{\"internalType\":\"address\",\"name\":\"_operator\",\"type\":\"address\"}],\"stateMutability\":\"nonpayable\",\"type\":\"constructor\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"owner\",\"type\":\"address\"}],\"name\":\"OwnableInvalidOwner\",\"type\":\"error\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"account\",\"type\":\"address\"}],\"name\":\"OwnableUnauthorizedAccount\",\"type\":\"error\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":true,\"internalType\":\"uint256\",\"name\":\"tournamentId\",\"type\":\"uint256\"},{\"indexed\":true,\"internalType\":\"uint256\",\"name\":\"seatIndex\",\"type\":\"uint256\"},{\"indexed\":true,\"internalType\":\"address\",\"name\":\"bettor\",\"type\":\"address\"},{\"indexed\":false,\"internalType\":\"uint256\",\"name\":\"amount\",\"type\":\"uint256\"}],\"name\":\"BetPlaced\",\"type\":\"event\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":true,\"internalType\":\"uint256\",\"name\":\"tournamentId\",\"type\":\"uint256\"},{\"indexed\":true,\"internalType\":\"uint256\",\"name\":\"winningSeat\",\"type\":\"uint256\"},{\"indexed\":false,\"internalType\":\"uint256\",\"name\":\"totalPool\",\"type\":\"uint256\"},{\"indexed\":false,\"internalType\":\"uint256\",\"name\":\"platformFee\",\"type\":\"uint256\"}],\"name\":\"BettingSettled\",\"type\":\"event\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":true,\"internalType\":\"address\",\"name\":\"previousOwner\",\"type\":\"address\"},{\"indexed\":true,\"internalType\":\"address\",\"name\":\"newOwner\",\"type\":\"address\"}],\"name\":\"OwnershipTransferred\",\"type\":\"event\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":true,\"internalType\":\"uint256\",\"name\":\"tournamentId\",\"type\":\"uint256\"},{\"indexed\":true,\"internalType\":\"address\",\"name\":\"bettor\",\"type\":\"address\"},{\"indexed\":false,\"internalType\":\"uint256\",\"name\":\"amount\",\"type\":\"uint256\"}],\"name\":\"WinningsClaimed\",\"type\":\"event\"},{\"inputs\":[],\"name\":\"MIN_BET\",\"outputs\":[{\"internalType\":\"uint256\",\"name\":\"\",\"type\":\"uint256\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"uint256\",\"name\":\"\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"\",\"type\":\"uint256\"},{\"internalType\":\"address\",\"name\":\"\",\"type\":\"address\"}],\"name\":\"bets\",\"outputs\":[{\"internalType\":\"uint256\",\"name\":\"\",\"type\":\"uint256\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"uint256\",\"name\":\"tournamentId\",\"type\":\"uint256\"}],\"name\":\"claimWinnings\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"uint256\",\"name\":\"\",\"type\":\"uint256\"},{\"internalType\":\"address\",\"name\":\"\",\"type\":\"address\"}],\"name\":\"claimed\",\"outputs\":[{\"internalType\":\"bool\",\"name\":\"\",\"type\":\"bool\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"uint256\",\"name\":\"tournamentId\",\"type\":\"uint256\"}],\"name\":\"getBettingPool\",\"outputs\":[{\"internalType\":\"uint256\",\"name\":\"total\",\"type\":\"uint256\"},{\"internalType\":\"uint256[]\",\"name\":\"seatAmounts\",\"type\":\"uint256[]\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"uint256\",\"name\":\"tournamentId\",\"type\":\"uint256\"}],\"name\":\"getPayoutPool\",\"outputs\":[{\"internalType\":\"uint256\",\"name\":\"\",\"type\":\"uint256\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"uint256\",\"name\":\"tournamentId\",\"type\":\"uint256\"},{\"internalType\":\"address\",\"name\":\"bettor\",\"type\":\"address\"}],\"name\":\"getUserBets\",\"outputs\":[{\"internalType\":\"uint256[]\",\"name\":\"amounts\",\"type\":\"uint256[]\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"uint256\",\"name\":\"tournamentId\",\"type\":\"uint256\"}],\"name\":\"getWinningSeat\",\"outputs\":[{\"internalType\":\"int256\",\"name\":\"\",\"type\":\"int256\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"operator\",\"outputs\":[{\"internalType\":\"address\",\"name\":\"\",\"type\":\"address\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"owner\",\"outputs\":[{\"internalType\":\"address\",\"name\":\"\",\"type\":\"address\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"uint256\",\"name\":\"tournamentId\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"seatIndex\",\"type\":\"uint256\"}],\"name\":\"placeBet\",\"outputs\":[],\"stateMutability\":\"payable\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"platformFeeBps\",\"outputs\":[{\"internalType\":\"uint256\",\"name\":\"\",\"type\":\"uint256\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"pokerVault\",\"outputs\":[{\"internalType\":\"contract IPokerVault\",\"name\":\"\",\"type\":\"address\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"renounceOwnership\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"uint256\",\"name\":\"\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"\",\"type\":\"uint256\"}],\"name\":\"seatTotals\",\"outputs\":[{\"internalType\":\"uint256\",\"name\":\"\",\"type\":\"uint256\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"_operator\",\"type\":\"address\"}],\"name\":\"setOperator\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"uint256\",\"name\":\"_feeBps\",\"type\":\"uint256\"}],\"name\":\"setPlatformFeeBps\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"uint256\",\"name\":\"tournamentId\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"winningSeat\",\"type\":\"uint256\"}],\"name\":\"settleBetting\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"uint256\",\"name\":\"\",\"type\":\"uint256\"}],\"name\":\"totalPool\",\"outputs\":[{\"internalType\":\"uint256\",\"name\":\"\",\"type\":\"uint256\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"newOwner\",\"type\":\"address\"}],\"name\":\"transferOwnership\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"}],\"devdoc\":{\"errors\":{\"OwnableInvalidOwner(address)\":[{\"details\":\"The owner is not a valid owner account. (eg. `address(0)`)\"}],\"OwnableUnauthorizedAccount(address)\":[{\"details\":\"The caller account is not authorized to perform an operation.\"}]},\"kind\":\"dev\",\"methods\":{\"owner()\":{\"details\":\"Returns the address of the current owner.\"},\"placeBet(uint256,uint256)\":{\"params\":{\"seatIndex\":\"The 0-based agent seat to bet on.\",\"tournamentId\":\"The PokerVault tournament ID.\"}},\"renounceOwnership()\":{\"details\":\"Leaves the contract without owner. It will not be possible to call `onlyOwner` functions. Can only be called by the current owner. NOTE: Renouncing ownership will leave the contract without an owner, thereby disabling any functionality that is only available to the owner.\"},\"settleBetting(uint256,uint256)\":{\"params\":{\"tournamentId\":\"The tournament ID.\",\"winningSeat\":\"The winning seat (must match PokerVault result).\"}},\"transferOwnership(address)\":{\"details\":\"Transfers ownership of the contract to a new account (`newOwner`). Can only be called by the current owner.\"}},\"version\":1},\"userdoc\":{\"kind\":\"user\",\"methods\":{\"claimWinnings(uint256)\":{\"notice\":\"Claim winnings after betting is settled. Pull-pattern to avoid failed sends. Winners share the payout pool proportional to their stake on the winning seat.\"},\"getBettingPool(uint256)\":{\"notice\":\"Get the total pool and per-seat totals for a tournament.\"},\"getPayoutPool(uint256)\":{\"notice\":\"Returns the payout pool (after platform fee) for a settled tournament.\"},\"getUserBets(uint256,address)\":{\"notice\":\"Returns this bettor's bet amounts on each seat.\"},\"getWinningSeat(uint256)\":{\"notice\":\"Returns the winning seat for a settled tournament, or -1 if not yet settled.\"},\"placeBet(uint256,uint256)\":{\"notice\":\"Place a bet on an agent seat. Only allowed while the tournament is Open. Multiple bets on the same seat accumulate; betting different seats is allowed.\"},\"settleBetting(uint256,uint256)\":{\"notice\":\"Settle betting for a finished tournament. Only the operator can call this. Must be called after PokerVault.settleTournament() so status == Finished. Deducts the platform fee and transfers it to the contract owner.\"}},\"notice\":\"TournamentBetting \\u2014 parimutuel betting pool for PokerVault tournaments. Spectators can bet MON on which agent seat they think will win while the tournament is Open. Once settled, winners share the total pool proportionally to their stake (minus a small platform fee). Betting lifecycle:   1. placeBet()       \\u2014 while tournament is Open   2. (tournament runs)   3. settleBetting()  \\u2014 operator calls after PokerVault.settleTournament()   4. claimWinnings()  \\u2014 winners pull their share\",\"version\":1}},\"settings\":{\"compilationTarget\":{\"contracts/TournamentBetting.sol\":\"TournamentBetting\"},\"evmVersion\":\"paris\",\"libraries\":{},\"metadata\":{\"bytecodeHash\":\"ipfs\",\"useLiteralContent\":true},\"optimizer\":{\"enabled\":true,\"runs\":200},\"remappings\":[]},\"sources\":{\"@openzeppelin/contracts/access/Ownable.sol\":{\"content\":\"// SPDX-License-Identifier: MIT\\n// OpenZeppelin Contracts (last updated v5.0.0) (access/Ownable.sol)\\n\\npragma solidity ^0.8.20;\\n\\nimport {Context} from \\\"../utils/Context.sol\\\";\\n\\n/**\\n * @dev Contract module which provides a basic access control mechanism, where\\n * there is an account (an owner) that can be granted exclusive access to\\n * specific functions.\\n *\\n * The initial owner is set to the address provided by the deployer. This can\\n * later be changed with {transferOwnership}.\\n *\\n * This module is used through inheritance. It will make available the modifier\\n * `onlyOwner`, which can be applied to your functions to restrict their use to\\n * the owner.\\n */\\nabstract contract Ownable is Context {\\n    address private _owner;\\n\\n    /**\\n     * @dev The caller account is not authorized to perform an operation.\\n     */\\n    error OwnableUnauthorizedAccount(address account);\\n\\n    /**\\n     * @dev The owner is not a valid owner account. (eg. `address(0)`)\\n     */\\n    error OwnableInvalidOwner(address owner);\\n\\n    event OwnershipTransferred(address indexed previousOwner, address indexed newOwner);\\n\\n    /**\\n     * @dev Initializes the contract setting the address provided by the deployer as the initial owner.\\n     */\\n    constructor(address initialOwner) {\\n        if (initialOwner == address(0)) {\\n            revert OwnableInvalidOwner(address(0));\\n        }\\n        _transferOwnership(initialOwner);\\n    }\\n\\n    /**\\n     * @dev Throws if called by any account other than the owner.\\n     */\\n    modifier onlyOwner() {\\n        _checkOwner();\\n        _;\\n    }\\n\\n    /**\\n     * @dev Returns the address of the current owner.\\n     */\\n    function owner() public view virtual returns (address) {\\n        return _owner;\\n    }\\n\\n    /**\\n     * @dev Throws if the sender is not the owner.\\n     */\\n    function _checkOwner() internal view virtual {\\n        if (owner() != _msgSender()) {\\n            revert OwnableUnauthorizedAccount(_msgSender());\\n        }\\n    }\\n\\n    /**\\n     * @dev Leaves the contract without owner. It will not be possible to call\\n     * `onlyOwner` functions. Can only be called by the current owner.\\n     *\\n     * NOTE: Renouncing ownership will leave the contract without an owner,\\n     * thereby disabling any functionality that is only available to the owner.\\n     */\\n    function renounceOwnership() public virtual onlyOwner {\\n        _transferOwnership(address(0));\\n    }\\n\\n    /**\\n     * @dev Transfers ownership of the contract to a new account (`newOwner`).\\n     * Can only be called by the current owner.\\n     */\\n    function transferOwnership(address newOwner) public virtual onlyOwner {\\n        if (newOwner == address(0)) {\\n            revert OwnableInvalidOwner(address(0));\\n        }\\n        _transferOwnership(newOwner);\\n    }\\n\\n    /**\\n     * @dev Transfers ownership of the contract to a new account (`newOwner`).\\n     * Internal function without access restriction.\\n     */\\n    function _transferOwnership(address newOwner) internal virtual {\\n        address oldOwner = _owner;\\n        _owner = newOwner;\\n        emit OwnershipTransferred(oldOwner, newOwner);\\n    }\\n}\\n\",\"keccak256\":\"0xff6d0bb2e285473e5311d9d3caacb525ae3538a80758c10649a4d61029b017bb\",\"license\":\"MIT\"},\"@openzeppelin/contracts/utils/Context.sol\":{\"content\":\"// SPDX-License-Identifier: MIT\\n// OpenZeppelin Contracts (last updated v5.0.1) (utils/Context.sol)\\n\\npragma solidity ^0.8.20;\\n\\n/**\\n * @dev Provides information about the current execution context, including the\\n * sender of the transaction and its data. While these are generally available\\n * via msg.sender and msg.data, they should not be accessed in such a direct\\n * manner, since when dealing with meta-transactions the account sending and\\n * paying for execution may not be the actual sender (as far as an application\\n * is concerned).\\n *\\n * This contract is only required for intermediate, library-like contracts.\\n */\\nabstract contract Context {\\n    function _msgSender() internal view virtual returns (address) {\\n        return msg.sender;\\n    }\\n\\n    function _msgData() internal view virtual returns (bytes calldata) {\\n        return msg.data;\\n    }\\n\\n    function _contextSuffixLength() internal view virtual returns (uint256) {\\n        return 0;\\n    }\\n}\\n\",\"keccak256\":\"0x493033a8d1b176a037b2cc6a04dad01a5c157722049bbecf632ca876224dd4b2\",\"license\":\"MIT\"},\"contracts/TournamentBetting.sol\":{\"content\":\"// SPDX-License-Identifier: MIT\\npragma solidity >=0.8.0 <0.9.0;\\n\\nimport \\\"@openzeppelin/contracts/access/Ownable.sol\\\";\\n\\ninterface IPokerVault {\\n    function tournaments(uint256 tournamentId) external view returns (\\n        uint256 buyIn,\\n        uint256 prizePool,\\n        uint8   status,\\n        uint8   maxPlayers,\\n        address creator\\n    );\\n}\\n\\n/**\\n * TournamentBetting \\u2014 parimutuel betting pool for PokerVault tournaments.\\n *\\n * Spectators can bet MON on which agent seat they think will win while\\n * the tournament is Open. Once settled, winners share the total pool\\n * proportionally to their stake (minus a small platform fee).\\n *\\n * Betting lifecycle:\\n *   1. placeBet()       \\u2014 while tournament is Open\\n *   2. (tournament runs)\\n *   3. settleBetting()  \\u2014 operator calls after PokerVault.settleTournament()\\n *   4. claimWinnings()  \\u2014 winners pull their share\\n */\\ncontract TournamentBetting is Ownable {\\n\\n    // \\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\n    // State\\n    // \\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\n\\n    IPokerVault public immutable pokerVault;\\n\\n    address public operator;\\n\\n    // Platform fee in basis points (100 bps = 1%). Default 5%.\\n    uint256 public platformFeeBps = 500;\\n\\n    uint256 public constant MIN_BET = 0.001 ether;\\n\\n    // tournamentId => seatIndex => bettor => bet amount\\n    mapping(uint256 => mapping(uint256 => mapping(address => uint256))) public bets;\\n\\n    // tournamentId => seatIndex => total amount bet on that seat\\n    mapping(uint256 => mapping(uint256 => uint256)) public seatTotals;\\n\\n    // tournamentId => total amount in the betting pool\\n    mapping(uint256 => uint256) public totalPool;\\n\\n    // tournamentId => whether betting has been settled\\n    mapping(uint256 => bool) private _settled;\\n\\n    // tournamentId => winning seat (only valid when _settled is true)\\n    mapping(uint256 => uint256) private _winningSeat;\\n\\n    // tournamentId => payout pool (totalPool minus platform fee, set on settlement)\\n    mapping(uint256 => uint256) private _payoutPool;\\n\\n    // tournamentId => bettor => has claimed winnings\\n    mapping(uint256 => mapping(address => bool)) public claimed;\\n\\n    // \\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\n    // Events\\n    // \\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\n\\n    event BetPlaced(\\n        uint256 indexed tournamentId,\\n        uint256 indexed seatIndex,\\n        address indexed bettor,\\n        uint256 amount\\n    );\\n    event BettingSettled(\\n        uint256 indexed tournamentId,\\n        uint256 indexed winningSeat,\\n        uint256 totalPool,\\n        uint256 platformFee\\n    );\\n    event WinningsClaimed(\\n        uint256 indexed tournamentId,\\n        address indexed bettor,\\n        uint256 amount\\n    );\\n\\n    // \\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\n    // Constructor\\n    // \\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\n\\n    constructor(address _pokerVault, address _operator) Ownable(msg.sender) {\\n        pokerVault = IPokerVault(_pokerVault);\\n        operator = _operator;\\n    }\\n\\n    // \\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\n    // Betting\\n    // \\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\n\\n    /**\\n     * Place a bet on an agent seat. Only allowed while the tournament is Open.\\n     * Multiple bets on the same seat accumulate; betting different seats is allowed.\\n     * @param tournamentId The PokerVault tournament ID.\\n     * @param seatIndex    The 0-based agent seat to bet on.\\n     */\\n    function placeBet(uint256 tournamentId, uint256 seatIndex) external payable {\\n        require(msg.value >= MIN_BET, \\\"Bet below minimum\\\");\\n\\n        (, , uint8 status, uint8 maxPlayers, ) = pokerVault.tournaments(tournamentId);\\n        require(status == 0, \\\"Betting closed (tournament not open)\\\");\\n        require(seatIndex < maxPlayers, \\\"Seat out of range\\\");\\n\\n        bets[tournamentId][seatIndex][msg.sender] += msg.value;\\n        seatTotals[tournamentId][seatIndex] += msg.value;\\n        totalPool[tournamentId] += msg.value;\\n\\n        emit BetPlaced(tournamentId, seatIndex, msg.sender, msg.value);\\n    }\\n\\n    /**\\n     * Settle betting for a finished tournament. Only the operator can call this.\\n     * Must be called after PokerVault.settleTournament() so status == Finished.\\n     * Deducts the platform fee and transfers it to the contract owner.\\n     * @param tournamentId The tournament ID.\\n     * @param winningSeat  The winning seat (must match PokerVault result).\\n     */\\n    function settleBetting(uint256 tournamentId, uint256 winningSeat) external {\\n        require(msg.sender == operator, \\\"Not operator\\\");\\n\\n        (, , uint8 status, , ) = pokerVault.tournaments(tournamentId);\\n        require(status == 2, \\\"Tournament not finished\\\");\\n        require(!_settled[tournamentId], \\\"Already settled\\\");\\n\\n        _settled[tournamentId] = true;\\n        _winningSeat[tournamentId] = winningSeat;\\n\\n        uint256 pool = totalPool[tournamentId];\\n\\n        if (pool == 0) {\\n            emit BettingSettled(tournamentId, winningSeat, 0, 0);\\n            return;\\n        }\\n\\n        // If no bets on the winning seat, send the whole pool to the owner (edge case)\\n        if (seatTotals[tournamentId][winningSeat] == 0) {\\n            (bool ok, ) = owner().call{ value: pool }(\\\"\\\");\\n            require(ok, \\\"Fee transfer failed\\\");\\n            emit BettingSettled(tournamentId, winningSeat, pool, pool);\\n            return;\\n        }\\n\\n        uint256 fee = (pool * platformFeeBps) / 10000;\\n        if (fee > 0) {\\n            (bool ok, ) = owner().call{ value: fee }(\\\"\\\");\\n            require(ok, \\\"Fee transfer failed\\\");\\n        }\\n\\n        _payoutPool[tournamentId] = pool - fee;\\n\\n        emit BettingSettled(tournamentId, winningSeat, pool, fee);\\n    }\\n\\n    /**\\n     * Claim winnings after betting is settled. Pull-pattern to avoid failed sends.\\n     * Winners share the payout pool proportional to their stake on the winning seat.\\n     */\\n    function claimWinnings(uint256 tournamentId) external {\\n        require(_settled[tournamentId], \\\"Betting not settled yet\\\");\\n        uint256 winningSeat = _winningSeat[tournamentId];\\n\\n        require(!claimed[tournamentId][msg.sender], \\\"Already claimed\\\");\\n\\n        uint256 userBet = bets[tournamentId][winningSeat][msg.sender];\\n        require(userBet > 0, \\\"No winning bet\\\");\\n\\n        claimed[tournamentId][msg.sender] = true;\\n\\n        uint256 payoutPool = _payoutPool[tournamentId];\\n        uint256 seatPool = seatTotals[tournamentId][winningSeat];\\n        uint256 payout = (userBet * payoutPool) / seatPool;\\n\\n        emit WinningsClaimed(tournamentId, msg.sender, payout);\\n\\n        (bool success, ) = msg.sender.call{ value: payout }(\\\"\\\");\\n        require(success, \\\"Transfer failed\\\");\\n    }\\n\\n    // \\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\n    // View helpers\\n    // \\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\n\\n    /**\\n     * Get the total pool and per-seat totals for a tournament.\\n     */\\n    function getBettingPool(uint256 tournamentId)\\n        external\\n        view\\n        returns (uint256 total, uint256[] memory seatAmounts)\\n    {\\n        (, , , uint8 maxPlayers, ) = pokerVault.tournaments(tournamentId);\\n        total = totalPool[tournamentId];\\n        seatAmounts = new uint256[](maxPlayers);\\n        for (uint256 i = 0; i < maxPlayers; i++) {\\n            seatAmounts[i] = seatTotals[tournamentId][i];\\n        }\\n    }\\n\\n    /**\\n     * Returns the winning seat for a settled tournament, or -1 if not yet settled.\\n     */\\n    function getWinningSeat(uint256 tournamentId) external view returns (int256) {\\n        if (!_settled[tournamentId]) return -1;\\n        return int256(_winningSeat[tournamentId]);\\n    }\\n\\n    /**\\n     * Returns this bettor's bet amounts on each seat.\\n     */\\n    function getUserBets(uint256 tournamentId, address bettor)\\n        external\\n        view\\n        returns (uint256[] memory amounts)\\n    {\\n        (, , , uint8 maxPlayers, ) = pokerVault.tournaments(tournamentId);\\n        amounts = new uint256[](maxPlayers);\\n        for (uint256 i = 0; i < maxPlayers; i++) {\\n            amounts[i] = bets[tournamentId][i][bettor];\\n        }\\n    }\\n\\n    /**\\n     * Returns the payout pool (after platform fee) for a settled tournament.\\n     */\\n    function getPayoutPool(uint256 tournamentId) external view returns (uint256) {\\n        return _payoutPool[tournamentId];\\n    }\\n\\n    // \\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\n    // Admin\\n    // \\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\u2500\\n\\n    function setOperator(address _operator) external onlyOwner {\\n        operator = _operator;\\n    }\\n\\n    function setPlatformFeeBps(uint256 _feeBps) external onlyOwner {\\n        require(_feeBps <= 2000, \\\"Fee too high\\\"); // max 20%\\n        platformFeeBps = _feeBps;\\n    }\\n}\\n\",\"keccak256\":\"0xac2e50727f72cf687fb7e52684ff37140cae184df09138905c5a24c657ee50ba\",\"license\":\"MIT\"}},\"version\":1}",
+  "bytecode": "0x60a06040526101f46002553480156200001757600080fd5b5060405162001544380380620015448339810160408190526200003a9162000103565b33806200006157604051631e4fbdf760e01b81526000600482015260240160405180910390fd5b6200006c8162000096565b506001600160a01b03918216608052600180546001600160a01b031916919092161790556200013b565b600080546001600160a01b038381166001600160a01b0319831681178455604051919092169283917f8be0079c531659141344cd1fd0a4f28419497f9722a3daafe3b4186f6b6457e09190a35050565b80516001600160a01b0381168114620000fe57600080fd5b919050565b600080604083850312156200011757600080fd5b6200012283620000e6565b91506200013260208401620000e6565b90509250929050565b6080516113d162000173600039600081816101aa015281816104c50152818161096a01528181610d1d0152610f7601526113d16000f3fe60806040526004361061011f5760003560e01c80638da5cb5b116100a0578063c580c94211610064578063c580c9421461038b578063d1f8774b146103ab578063e4d20bca146103d8578063f2fde38b14610405578063fa744dd31461042557600080fd5b80638da5cb5b146102c7578063944e52c7146102e5578063afeb25e914610313578063b3ab15fb1461034b578063bf198fc91461036b57600080fd5b8063570ca735116100e7578063570ca735146102375780636540742f14610257578063677bd9ff14610272578063715018a6146102925780638a31629f146102a757600080fd5b8063120aa8771461012457806322dcd13e146101745780632bea0b49146101985780634afe62b5146101e45780634b2f63e6146101f9575b600080fd5b34801561013057600080fd5b5061015f61013f366004611133565b600960209081526000928352604080842090915290825290205460ff1681565b60405190151581526020015b60405180910390f35b34801561018057600080fd5b5061018a60025481565b60405190815260200161016b565b3480156101a457600080fd5b506101cc7f000000000000000000000000000000000000000000000000000000000000000081565b6040516001600160a01b03909116815260200161016b565b6101f76101f2366004611163565b610452565b005b34801561020557600080fd5b5061018a610214366004611185565b600360209081526000938452604080852082529284528284209052825290205481565b34801561024357600080fd5b506001546101cc906001600160a01b031681565b34801561026357600080fd5b5061018a66038d7ea4c6800081565b34801561027e57600080fd5b506101f761028d3660046111be565b6106a2565b34801561029e57600080fd5b506101f76108f4565b3480156102b357600080fd5b506101f76102c2366004611163565b610908565b3480156102d357600080fd5b506000546001600160a01b03166101cc565b3480156102f157600080fd5b506103056103003660046111be565b610d15565b60405161016b929190611212565b34801561031f57600080fd5b5061018a61032e366004611163565b600460209081526000928352604080842090915290825290205481565b34801561035757600080fd5b506101f7610366366004611233565b610e6a565b34801561037757600080fd5b5061018a6103863660046111be565b610e94565b34801561039757600080fd5b506101f76103a63660046111be565b610ec6565b3480156103b757600080fd5b5061018a6103c63660046111be565b60056020526000908152604090205481565b3480156103e457600080fd5b5061018a6103f33660046111be565b60009081526008602052604090205490565b34801561041157600080fd5b506101f7610420366004611233565b610f14565b34801561043157600080fd5b50610445610440366004611133565b610f52565b60405161016b9190611257565b66038d7ea4c680003410156104a25760405162461bcd60e51b81526020600482015260116024820152704265742062656c6f77206d696e696d756d60781b60448201526064015b60405180910390fd5b604051637503e1b760e01b81526004810183905260009081906001600160a01b037f00000000000000000000000000000000000000000000000000000000000000001690637503e1b79060240160a060405180830381865afa15801561050c573d6000803e3d6000fd5b505050506040513d601f19601f820116820180604052508101906105309190611280565b509350935050508160ff166000146105965760405162461bcd60e51b8152602060048201526024808201527f42657474696e6720636c6f7365642028746f75726e616d656e74206e6f74206f60448201526370656e2960e01b6064820152608401610499565b8060ff1683106105dc5760405162461bcd60e51b815260206004820152601160248201527053656174206f7574206f662072616e676560781b6044820152606401610499565b600084815260036020908152604080832086845282528083203384529091528120805434929061060d9084906112f1565b909155505060008481526004602090815260408083208684529091528120805434929061063b9084906112f1565b90915550506000848152600560205260408120805434929061065e9084906112f1565b90915550506040513481523390849086907ffdd8ed02332acacb3420e7345a9adadb30877075eade2bcde9fe778e8bb71e429060200160405180910390a450505050565b60008181526006602052604090205460ff166107005760405162461bcd60e51b815260206004820152601760248201527f42657474696e67206e6f7420736574746c6564207965740000000000000000006044820152606401610499565b600081815260076020908152604080832054600983528184203385529092529091205460ff16156107655760405162461bcd60e51b815260206004820152600f60248201526e105b1c9958591e4818db185a5b5959608a1b6044820152606401610499565b60008281526003602090815260408083208484528252808320338452909152902054806107c55760405162461bcd60e51b815260206004820152600e60248201526d139bc81dda5b9b9a5b99c818995d60921b6044820152606401610499565b60008381526009602090815260408083203384528252808320805460ff19166001179055858352600882528083205460048352818420868552909252822054909181610811848661130a565b61081b9190611321565b9050336001600160a01b0316867f5380cf6fe903b40c6d5a9e0dfbca2f3a423f0a21520b4d5947ed5169bdba946d8360405161085991815260200190565b60405180910390a3604051600090339083908381818185875af1925050503d80600081146108a3576040519150601f19603f3d011682016040523d82523d6000602084013e6108a8565b606091505b50509050806108eb5760405162461bcd60e51b815260206004820152600f60248201526e151c985b9cd9995c8819985a5b1959608a1b6044820152606401610499565b50505050505050565b6108fc6110a1565b61090660006110ce565b565b6001546001600160a01b031633146109515760405162461bcd60e51b815260206004820152600c60248201526b2737ba1037b832b930ba37b960a11b6044820152606401610499565b604051637503e1b760e01b8152600481018390526000907f00000000000000000000000000000000000000000000000000000000000000006001600160a01b031690637503e1b79060240160a060405180830381865afa1580156109b9573d6000803e3d6000fd5b505050506040513d601f19601f820116820180604052508101906109dd9190611280565b5050925050508060ff16600214610a365760405162461bcd60e51b815260206004820152601760248201527f546f75726e616d656e74206e6f742066696e69736865640000000000000000006044820152606401610499565b60008381526006602052604090205460ff1615610a875760405162461bcd60e51b815260206004820152600f60248201526e105b1c9958591e481cd95d1d1b1959608a1b6044820152606401610499565b6000838152600660209081526040808320805460ff1916600117905560078252808320859055600590915281205490819003610b00576040805160008082526020820152849186917f3d463bc4c73092a2d98d9cd89b47c04d573748d115ccfd6ff4cb2ea9d238f069910160405180910390a350505050565b60008481526004602090815260408083208684529091528120549003610bfe57600080546040516001600160a01b039091169083908381818185875af1925050503d8060008114610b6d576040519150601f19603f3d011682016040523d82523d6000602084013e610b72565b606091505b5050905080610bb95760405162461bcd60e51b8152602060048201526013602482015272119959481d1c985b9cd9995c8819985a5b1959606a1b6044820152606401610499565b6040805183815260208101849052859187917f3d463bc4c73092a2d98d9cd89b47c04d573748d115ccfd6ff4cb2ea9d238f06991015b60405180910390a35050505050565b600061271060025483610c11919061130a565b610c1b9190611321565b90508015610cbe57600080546040516001600160a01b039091169083908381818185875af1925050503d8060008114610c70576040519150601f19603f3d011682016040523d82523d6000602084013e610c75565b606091505b5050905080610cbc5760405162461bcd60e51b8152602060048201526013602482015272119959481d1c985b9cd9995c8819985a5b1959606a1b6044820152606401610499565b505b610cc88183611343565b600086815260086020908152604091829020929092558051848152918201839052859187917f3d463bc4c73092a2d98d9cd89b47c04d573748d115ccfd6ff4cb2ea9d238f0699101610bef565b6000606060007f00000000000000000000000000000000000000000000000000000000000000006001600160a01b0316637503e1b7856040518263ffffffff1660e01b8152600401610d6991815260200190565b60a060405180830381865afa158015610d86573d6000803e3d6000fd5b505050506040513d601f19601f82011682018060405250810190610daa9190611280565b50600088815260056020526040902054965093505060ff831691505067ffffffffffffffff811115610dde57610dde611356565b604051908082528060200260200182016040528015610e07578160200160208202803683370190505b50915060005b8160ff16811015610e635760008581526004602090815260408083208484529091529020548351849083908110610e4657610e4661136c565b602090810291909101015280610e5b81611382565b915050610e0d565b5050915091565b610e726110a1565b600180546001600160a01b0319166001600160a01b0392909216919091179055565b60008181526006602052604081205460ff16610eb35750600019919050565b5060009081526007602052604090205490565b610ece6110a1565b6107d0811115610f0f5760405162461bcd60e51b815260206004820152600c60248201526b08ccaca40e8dede40d0d2ced60a31b6044820152606401610499565b600255565b610f1c6110a1565b6001600160a01b038116610f4657604051631e4fbdf760e01b815260006004820152602401610499565b610f4f816110ce565b50565b604051637503e1b760e01b8152600481018390526060906000906001600160a01b037f00000000000000000000000000000000000000000000000000000000000000001690637503e1b79060240160a060405180830381865afa158015610fbd573d6000803e3d6000fd5b505050506040513d601f19601f82011682018060405250810190610fe19190611280565b5093505050508060ff1667ffffffffffffffff81111561100357611003611356565b60405190808252806020026020018201604052801561102c578160200160208202803683370190505b50915060005b8160ff1681101561109957600085815260036020908152604080832084845282528083206001600160a01b0388168452909152902054835184908390811061107c5761107c61136c565b60209081029190910101528061109181611382565b915050611032565b505092915050565b6000546001600160a01b031633146109065760405163118cdaa760e01b8152336004820152602401610499565b600080546001600160a01b038381166001600160a01b0319831681178455604051919092169283917f8be0079c531659141344cd1fd0a4f28419497f9722a3daafe3b4186f6b6457e09190a35050565b6001600160a01b0381168114610f4f57600080fd5b6000806040838503121561114657600080fd5b8235915060208301356111588161111e565b809150509250929050565b6000806040838503121561117657600080fd5b50508035926020909101359150565b60008060006060848603121561119a57600080fd5b833592506020840135915060408401356111b38161111e565b809150509250925092565b6000602082840312156111d057600080fd5b5035919050565b600081518084526020808501945080840160005b83811015611207578151875295820195908201906001016111eb565b509495945050505050565b82815260406020820152600061122b60408301846111d7565b949350505050565b60006020828403121561124557600080fd5b81356112508161111e565b9392505050565b60208152600061125060208301846111d7565b805160ff8116811461127b57600080fd5b919050565b600080600080600060a0868803121561129857600080fd5b85519450602086015193506112af6040870161126a565b92506112bd6060870161126a565b915060808601516112cd8161111e565b809150509295509295909350565b634e487b7160e01b600052601160045260246000fd5b80820180821115611304576113046112db565b92915050565b8082028115828204841417611304576113046112db565b60008261133e57634e487b7160e01b600052601260045260246000fd5b500490565b81810381811115611304576113046112db565b634e487b7160e01b600052604160045260246000fd5b634e487b7160e01b600052603260045260246000fd5b600060018201611394576113946112db565b506001019056fea2646970667358221220afd7eb109a8ce6208995a96c26521cf186a3d7f679311273f665660c86a366ec64736f6c63430008140033",
+  "deployedBytecode": "0x60806040526004361061011f5760003560e01c80638da5cb5b116100a0578063c580c94211610064578063c580c9421461038b578063d1f8774b146103ab578063e4d20bca146103d8578063f2fde38b14610405578063fa744dd31461042557600080fd5b80638da5cb5b146102c7578063944e52c7146102e5578063afeb25e914610313578063b3ab15fb1461034b578063bf198fc91461036b57600080fd5b8063570ca735116100e7578063570ca735146102375780636540742f14610257578063677bd9ff14610272578063715018a6146102925780638a31629f146102a757600080fd5b8063120aa8771461012457806322dcd13e146101745780632bea0b49146101985780634afe62b5146101e45780634b2f63e6146101f9575b600080fd5b34801561013057600080fd5b5061015f61013f366004611133565b600960209081526000928352604080842090915290825290205460ff1681565b60405190151581526020015b60405180910390f35b34801561018057600080fd5b5061018a60025481565b60405190815260200161016b565b3480156101a457600080fd5b506101cc7f000000000000000000000000000000000000000000000000000000000000000081565b6040516001600160a01b03909116815260200161016b565b6101f76101f2366004611163565b610452565b005b34801561020557600080fd5b5061018a610214366004611185565b600360209081526000938452604080852082529284528284209052825290205481565b34801561024357600080fd5b506001546101cc906001600160a01b031681565b34801561026357600080fd5b5061018a66038d7ea4c6800081565b34801561027e57600080fd5b506101f761028d3660046111be565b6106a2565b34801561029e57600080fd5b506101f76108f4565b3480156102b357600080fd5b506101f76102c2366004611163565b610908565b3480156102d357600080fd5b506000546001600160a01b03166101cc565b3480156102f157600080fd5b506103056103003660046111be565b610d15565b60405161016b929190611212565b34801561031f57600080fd5b5061018a61032e366004611163565b600460209081526000928352604080842090915290825290205481565b34801561035757600080fd5b506101f7610366366004611233565b610e6a565b34801561037757600080fd5b5061018a6103863660046111be565b610e94565b34801561039757600080fd5b506101f76103a63660046111be565b610ec6565b3480156103b757600080fd5b5061018a6103c63660046111be565b60056020526000908152604090205481565b3480156103e457600080fd5b5061018a6103f33660046111be565b60009081526008602052604090205490565b34801561041157600080fd5b506101f7610420366004611233565b610f14565b34801561043157600080fd5b50610445610440366004611133565b610f52565b60405161016b9190611257565b66038d7ea4c680003410156104a25760405162461bcd60e51b81526020600482015260116024820152704265742062656c6f77206d696e696d756d60781b60448201526064015b60405180910390fd5b604051637503e1b760e01b81526004810183905260009081906001600160a01b037f00000000000000000000000000000000000000000000000000000000000000001690637503e1b79060240160a060405180830381865afa15801561050c573d6000803e3d6000fd5b505050506040513d601f19601f820116820180604052508101906105309190611280565b509350935050508160ff166000146105965760405162461bcd60e51b8152602060048201526024808201527f42657474696e6720636c6f7365642028746f75726e616d656e74206e6f74206f60448201526370656e2960e01b6064820152608401610499565b8060ff1683106105dc5760405162461bcd60e51b815260206004820152601160248201527053656174206f7574206f662072616e676560781b6044820152606401610499565b600084815260036020908152604080832086845282528083203384529091528120805434929061060d9084906112f1565b909155505060008481526004602090815260408083208684529091528120805434929061063b9084906112f1565b90915550506000848152600560205260408120805434929061065e9084906112f1565b90915550506040513481523390849086907ffdd8ed02332acacb3420e7345a9adadb30877075eade2bcde9fe778e8bb71e429060200160405180910390a450505050565b60008181526006602052604090205460ff166107005760405162461bcd60e51b815260206004820152601760248201527f42657474696e67206e6f7420736574746c6564207965740000000000000000006044820152606401610499565b600081815260076020908152604080832054600983528184203385529092529091205460ff16156107655760405162461bcd60e51b815260206004820152600f60248201526e105b1c9958591e4818db185a5b5959608a1b6044820152606401610499565b60008281526003602090815260408083208484528252808320338452909152902054806107c55760405162461bcd60e51b815260206004820152600e60248201526d139bc81dda5b9b9a5b99c818995d60921b6044820152606401610499565b60008381526009602090815260408083203384528252808320805460ff19166001179055858352600882528083205460048352818420868552909252822054909181610811848661130a565b61081b9190611321565b9050336001600160a01b0316867f5380cf6fe903b40c6d5a9e0dfbca2f3a423f0a21520b4d5947ed5169bdba946d8360405161085991815260200190565b60405180910390a3604051600090339083908381818185875af1925050503d80600081146108a3576040519150601f19603f3d011682016040523d82523d6000602084013e6108a8565b606091505b50509050806108eb5760405162461bcd60e51b815260206004820152600f60248201526e151c985b9cd9995c8819985a5b1959608a1b6044820152606401610499565b50505050505050565b6108fc6110a1565b61090660006110ce565b565b6001546001600160a01b031633146109515760405162461bcd60e51b815260206004820152600c60248201526b2737ba1037b832b930ba37b960a11b6044820152606401610499565b604051637503e1b760e01b8152600481018390526000907f00000000000000000000000000000000000000000000000000000000000000006001600160a01b031690637503e1b79060240160a060405180830381865afa1580156109b9573d6000803e3d6000fd5b505050506040513d601f19601f820116820180604052508101906109dd9190611280565b5050925050508060ff16600214610a365760405162461bcd60e51b815260206004820152601760248201527f546f75726e616d656e74206e6f742066696e69736865640000000000000000006044820152606401610499565b60008381526006602052604090205460ff1615610a875760405162461bcd60e51b815260206004820152600f60248201526e105b1c9958591e481cd95d1d1b1959608a1b6044820152606401610499565b6000838152600660209081526040808320805460ff1916600117905560078252808320859055600590915281205490819003610b00576040805160008082526020820152849186917f3d463bc4c73092a2d98d9cd89b47c04d573748d115ccfd6ff4cb2ea9d238f069910160405180910390a350505050565b60008481526004602090815260408083208684529091528120549003610bfe57600080546040516001600160a01b039091169083908381818185875af1925050503d8060008114610b6d576040519150601f19603f3d011682016040523d82523d6000602084013e610b72565b606091505b5050905080610bb95760405162461bcd60e51b8152602060048201526013602482015272119959481d1c985b9cd9995c8819985a5b1959606a1b6044820152606401610499565b6040805183815260208101849052859187917f3d463bc4c73092a2d98d9cd89b47c04d573748d115ccfd6ff4cb2ea9d238f06991015b60405180910390a35050505050565b600061271060025483610c11919061130a565b610c1b9190611321565b90508015610cbe57600080546040516001600160a01b039091169083908381818185875af1925050503d8060008114610c70576040519150601f19603f3d011682016040523d82523d6000602084013e610c75565b606091505b5050905080610cbc5760405162461bcd60e51b8152602060048201526013602482015272119959481d1c985b9cd9995c8819985a5b1959606a1b6044820152606401610499565b505b610cc88183611343565b600086815260086020908152604091829020929092558051848152918201839052859187917f3d463bc4c73092a2d98d9cd89b47c04d573748d115ccfd6ff4cb2ea9d238f0699101610bef565b6000606060007f00000000000000000000000000000000000000000000000000000000000000006001600160a01b0316637503e1b7856040518263ffffffff1660e01b8152600401610d6991815260200190565b60a060405180830381865afa158015610d86573d6000803e3d6000fd5b505050506040513d601f19601f82011682018060405250810190610daa9190611280565b50600088815260056020526040902054965093505060ff831691505067ffffffffffffffff811115610dde57610dde611356565b604051908082528060200260200182016040528015610e07578160200160208202803683370190505b50915060005b8160ff16811015610e635760008581526004602090815260408083208484529091529020548351849083908110610e4657610e4661136c565b602090810291909101015280610e5b81611382565b915050610e0d565b5050915091565b610e726110a1565b600180546001600160a01b0319166001600160a01b0392909216919091179055565b60008181526006602052604081205460ff16610eb35750600019919050565b5060009081526007602052604090205490565b610ece6110a1565b6107d0811115610f0f5760405162461bcd60e51b815260206004820152600c60248201526b08ccaca40e8dede40d0d2ced60a31b6044820152606401610499565b600255565b610f1c6110a1565b6001600160a01b038116610f4657604051631e4fbdf760e01b815260006004820152602401610499565b610f4f816110ce565b50565b604051637503e1b760e01b8152600481018390526060906000906001600160a01b037f00000000000000000000000000000000000000000000000000000000000000001690637503e1b79060240160a060405180830381865afa158015610fbd573d6000803e3d6000fd5b505050506040513d601f19601f82011682018060405250810190610fe19190611280565b5093505050508060ff1667ffffffffffffffff81111561100357611003611356565b60405190808252806020026020018201604052801561102c578160200160208202803683370190505b50915060005b8160ff1681101561109957600085815260036020908152604080832084845282528083206001600160a01b0388168452909152902054835184908390811061107c5761107c61136c565b60209081029190910101528061109181611382565b915050611032565b505092915050565b6000546001600160a01b031633146109065760405163118cdaa760e01b8152336004820152602401610499565b600080546001600160a01b038381166001600160a01b0319831681178455604051919092169283917f8be0079c531659141344cd1fd0a4f28419497f9722a3daafe3b4186f6b6457e09190a35050565b6001600160a01b0381168114610f4f57600080fd5b6000806040838503121561114657600080fd5b8235915060208301356111588161111e565b809150509250929050565b6000806040838503121561117657600080fd5b50508035926020909101359150565b60008060006060848603121561119a57600080fd5b833592506020840135915060408401356111b38161111e565b809150509250925092565b6000602082840312156111d057600080fd5b5035919050565b600081518084526020808501945080840160005b83811015611207578151875295820195908201906001016111eb565b509495945050505050565b82815260406020820152600061122b60408301846111d7565b949350505050565b60006020828403121561124557600080fd5b81356112508161111e565b9392505050565b60208152600061125060208301846111d7565b805160ff8116811461127b57600080fd5b919050565b600080600080600060a0868803121561129857600080fd5b85519450602086015193506112af6040870161126a565b92506112bd6060870161126a565b915060808601516112cd8161111e565b809150509295509295909350565b634e487b7160e01b600052601160045260246000fd5b80820180821115611304576113046112db565b92915050565b8082028115828204841417611304576113046112db565b60008261133e57634e487b7160e01b600052601260045260246000fd5b500490565b81810381811115611304576113046112db565b634e487b7160e01b600052604160045260246000fd5b634e487b7160e01b600052603260045260246000fd5b600060018201611394576113946112db565b506001019056fea2646970667358221220afd7eb109a8ce6208995a96c26521cf186a3d7f679311273f665660c86a366ec64736f6c63430008140033",
+  "devdoc": {
+    "errors": {
+      "OwnableInvalidOwner(address)": [
+        {
+          "details": "The owner is not a valid owner account. (eg. `address(0)`)"
+        }
+      ],
+      "OwnableUnauthorizedAccount(address)": [
+        {
+          "details": "The caller account is not authorized to perform an operation."
+        }
+      ]
+    },
+    "kind": "dev",
+    "methods": {
+      "owner()": {
+        "details": "Returns the address of the current owner."
+      },
+      "placeBet(uint256,uint256)": {
+        "params": {
+          "seatIndex": "The 0-based agent seat to bet on.",
+          "tournamentId": "The PokerVault tournament ID."
+        }
+      },
+      "renounceOwnership()": {
+        "details": "Leaves the contract without owner. It will not be possible to call `onlyOwner` functions. Can only be called by the current owner. NOTE: Renouncing ownership will leave the contract without an owner, thereby disabling any functionality that is only available to the owner."
+      },
+      "settleBetting(uint256,uint256)": {
+        "params": {
+          "tournamentId": "The tournament ID.",
+          "winningSeat": "The winning seat (must match PokerVault result)."
+        }
+      },
+      "transferOwnership(address)": {
+        "details": "Transfers ownership of the contract to a new account (`newOwner`). Can only be called by the current owner."
+      }
+    },
+    "version": 1
+  },
+  "userdoc": {
+    "kind": "user",
+    "methods": {
+      "claimWinnings(uint256)": {
+        "notice": "Claim winnings after betting is settled. Pull-pattern to avoid failed sends. Winners share the payout pool proportional to their stake on the winning seat."
+      },
+      "getBettingPool(uint256)": {
+        "notice": "Get the total pool and per-seat totals for a tournament."
+      },
+      "getPayoutPool(uint256)": {
+        "notice": "Returns the payout pool (after platform fee) for a settled tournament."
+      },
+      "getUserBets(uint256,address)": {
+        "notice": "Returns this bettor's bet amounts on each seat."
+      },
+      "getWinningSeat(uint256)": {
+        "notice": "Returns the winning seat for a settled tournament, or -1 if not yet settled."
+      },
+      "placeBet(uint256,uint256)": {
+        "notice": "Place a bet on an agent seat. Only allowed while the tournament is Open. Multiple bets on the same seat accumulate; betting different seats is allowed."
+      },
+      "settleBetting(uint256,uint256)": {
+        "notice": "Settle betting for a finished tournament. Only the operator can call this. Must be called after PokerVault.settleTournament() so status == Finished. Deducts the platform fee and transfers it to the contract owner."
+      }
+    },
+    "notice": "TournamentBetting — parimutuel betting pool for PokerVault tournaments. Spectators can bet MON on which agent seat they think will win while the tournament is Open. Once settled, winners share the total pool proportionally to their stake (minus a small platform fee). Betting lifecycle:   1. placeBet()       — while tournament is Open   2. (tournament runs)   3. settleBetting()  — operator calls after PokerVault.settleTournament()   4. claimWinnings()  — winners pull their share",
+    "version": 1
+  },
+  "storageLayout": {
+    "storage": [
+      {
+        "astId": 8,
+        "contract": "contracts/TournamentBetting.sol:TournamentBetting",
+        "label": "_owner",
+        "offset": 0,
+        "slot": "0",
+        "type": "t_address"
+      },
+      {
+        "astId": 4090,
+        "contract": "contracts/TournamentBetting.sol:TournamentBetting",
+        "label": "operator",
+        "offset": 0,
+        "slot": "1",
+        "type": "t_address"
+      },
+      {
+        "astId": 4093,
+        "contract": "contracts/TournamentBetting.sol:TournamentBetting",
+        "label": "platformFeeBps",
+        "offset": 0,
+        "slot": "2",
+        "type": "t_uint256"
+      },
+      {
+        "astId": 4104,
+        "contract": "contracts/TournamentBetting.sol:TournamentBetting",
+        "label": "bets",
+        "offset": 0,
+        "slot": "3",
+        "type": "t_mapping(t_uint256,t_mapping(t_uint256,t_mapping(t_address,t_uint256)))"
+      },
+      {
+        "astId": 4110,
+        "contract": "contracts/TournamentBetting.sol:TournamentBetting",
+        "label": "seatTotals",
+        "offset": 0,
+        "slot": "4",
+        "type": "t_mapping(t_uint256,t_mapping(t_uint256,t_uint256))"
+      },
+      {
+        "astId": 4114,
+        "contract": "contracts/TournamentBetting.sol:TournamentBetting",
+        "label": "totalPool",
+        "offset": 0,
+        "slot": "5",
+        "type": "t_mapping(t_uint256,t_uint256)"
+      },
+      {
+        "astId": 4118,
+        "contract": "contracts/TournamentBetting.sol:TournamentBetting",
+        "label": "_settled",
+        "offset": 0,
+        "slot": "6",
+        "type": "t_mapping(t_uint256,t_bool)"
+      },
+      {
+        "astId": 4122,
+        "contract": "contracts/TournamentBetting.sol:TournamentBetting",
+        "label": "_winningSeat",
+        "offset": 0,
+        "slot": "7",
+        "type": "t_mapping(t_uint256,t_uint256)"
+      },
+      {
+        "astId": 4126,
+        "contract": "contracts/TournamentBetting.sol:TournamentBetting",
+        "label": "_payoutPool",
+        "offset": 0,
+        "slot": "8",
+        "type": "t_mapping(t_uint256,t_uint256)"
+      },
+      {
+        "astId": 4132,
+        "contract": "contracts/TournamentBetting.sol:TournamentBetting",
+        "label": "claimed",
+        "offset": 0,
+        "slot": "9",
+        "type": "t_mapping(t_uint256,t_mapping(t_address,t_bool))"
+      }
+    ],
+    "types": {
+      "t_address": {
+        "encoding": "inplace",
+        "label": "address",
+        "numberOfBytes": "20"
+      },
+      "t_bool": {
+        "encoding": "inplace",
+        "label": "bool",
+        "numberOfBytes": "1"
+      },
+      "t_mapping(t_address,t_bool)": {
+        "encoding": "mapping",
+        "key": "t_address",
+        "label": "mapping(address => bool)",
+        "numberOfBytes": "32",
+        "value": "t_bool"
+      },
+      "t_mapping(t_address,t_uint256)": {
+        "encoding": "mapping",
+        "key": "t_address",
+        "label": "mapping(address => uint256)",
+        "numberOfBytes": "32",
+        "value": "t_uint256"
+      },
+      "t_mapping(t_uint256,t_bool)": {
+        "encoding": "mapping",
+        "key": "t_uint256",
+        "label": "mapping(uint256 => bool)",
+        "numberOfBytes": "32",
+        "value": "t_bool"
+      },
+      "t_mapping(t_uint256,t_mapping(t_address,t_bool))": {
+        "encoding": "mapping",
+        "key": "t_uint256",
+        "label": "mapping(uint256 => mapping(address => bool))",
+        "numberOfBytes": "32",
+        "value": "t_mapping(t_address,t_bool)"
+      },
+      "t_mapping(t_uint256,t_mapping(t_address,t_uint256))": {
+        "encoding": "mapping",
+        "key": "t_uint256",
+        "label": "mapping(uint256 => mapping(address => uint256))",
+        "numberOfBytes": "32",
+        "value": "t_mapping(t_address,t_uint256)"
+      },
+      "t_mapping(t_uint256,t_mapping(t_uint256,t_mapping(t_address,t_uint256)))": {
+        "encoding": "mapping",
+        "key": "t_uint256",
+        "label": "mapping(uint256 => mapping(uint256 => mapping(address => uint256)))",
+        "numberOfBytes": "32",
+        "value": "t_mapping(t_uint256,t_mapping(t_address,t_uint256))"
+      },
+      "t_mapping(t_uint256,t_mapping(t_uint256,t_uint256))": {
+        "encoding": "mapping",
+        "key": "t_uint256",
+        "label": "mapping(uint256 => mapping(uint256 => uint256))",
+        "numberOfBytes": "32",
+        "value": "t_mapping(t_uint256,t_uint256)"
+      },
+      "t_mapping(t_uint256,t_uint256)": {
+        "encoding": "mapping",
+        "key": "t_uint256",
+        "label": "mapping(uint256 => uint256)",
+        "numberOfBytes": "32",
+        "value": "t_uint256"
+      },
+      "t_uint256": {
+        "encoding": "inplace",
+        "label": "uint256",
+        "numberOfBytes": "32"
+      }
+    }
+  }
+}
