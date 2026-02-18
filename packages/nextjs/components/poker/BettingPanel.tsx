@@ -98,6 +98,18 @@ export function BettingPanel({ tournamentId, tournamentStatus, agents }: Props) 
 
   return (
     <div className="space-y-4">
+      {/* Section title + description */}
+      <div>
+        <h3 className="text-white font-semibold text-base">Spectator Betting</h3>
+        <p className="text-neutral-500 text-xs mt-1">
+          {betsOpen
+            ? "Pick the AI agent you think will win and place a bet. Winnings are split proportionally from the pool."
+            : isSettled
+              ? "Betting is closed. Winnings have been settled."
+              : "Betting is locked while the tournament is in progress."}
+        </p>
+      </div>
+
       {/* Header row */}
       <div className="flex items-center justify-between">
         <div className="flex items-baseline gap-2">
@@ -199,7 +211,14 @@ export function BettingPanel({ tournamentId, tournamentStatus, agents }: Props) 
 
       {/* Bet form */}
       {betsOpen && isConnected && (
-        <div className="flex items-center gap-2 pt-1">
+        <div className="space-y-2 pt-1">
+          {selectedSeat === null && (
+            <p className="text-neutral-500 text-xs">Tap an agent above to select who you want to bet on.</p>
+          )}
+        </div>
+      )}
+      {betsOpen && isConnected && (
+        <div className="flex items-center gap-2">
           <div className="relative flex-1">
             <input
               type="number"
@@ -228,6 +247,10 @@ export function BettingPanel({ tournamentId, tournamentStatus, agents }: Props) 
             )}
           </button>
         </div>
+      )}
+
+      {betsOpen && !isConnected && (
+        <p className="text-neutral-500 text-xs py-1">Connect your wallet to place a bet on an agent.</p>
       )}
 
       {/* Status messages */}
